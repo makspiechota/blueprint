@@ -121,6 +121,7 @@ git push -u origin "$BRANCH"
 if gh pr view "$BRANCH" &>/dev/null; then
   # PR exists, just push (PR auto-updates)
   echo "[PUSHED TO EXISTING PR]"
+  PR_URL=$(gh pr view "$BRANCH" --json url -q .url)
   gh pr view "$BRANCH" --web
 else
   # Create new PR
@@ -131,12 +132,43 @@ else
     --head "$BRANCH"
 
   echo "[PR CREATED]"
+  PR_URL=$(gh pr view "$BRANCH" --json url -q .url)
   gh pr view "$BRANCH" --web
 fi
 
 echo ""
-echo "Waiting for PR approval..."
-echo "Once approved and merged, proceed to next step."
+echo "Polling PR status..."
+echo "PR: $PR_URL"
+
+# Poll PR until merged or changes requested
+while true; do
+  PR_STATE=$(gh pr view "$BRANCH" --json state -q .state)
+  REVIEW_DECISION=$(gh pr view "$BRANCH" --json reviewDecision -q .reviewDecision)
+
+  if [ "$PR_STATE" = "MERGED" ]; then
+    echo "[PR MERGED]"
+    echo "Ready to proceed to next step"
+    exit 0
+  fi
+
+  if [ "$REVIEW_DECISION" = "CHANGES_REQUESTED" ]; then
+    echo "[CHANGES REQUESTED]"
+    echo ""
+    echo "Review comments:"
+    gh pr view "$BRANCH" --json reviews -q '.reviews[] | "- @" + .author.login + ": " + .body'
+    echo ""
+    echo "Address the comments above and run the command again"
+    exit 1
+  fi
+
+  if [ "$REVIEW_DECISION" = "APPROVED" ]; then
+    echo "[PR APPROVED - Waiting for merge]"
+  else
+    echo "[Waiting for review... (checks every 30s)]"
+  fi
+
+  sleep 30
+done
 ```
 
 ### 4. Return Status
@@ -177,4 +209,23 @@ base_branch: main      # for PR mode
 - PR mode allows for more thorough review (comments, suggestions, etc.)
 - Terminal mode is faster for solo developers or trusted changes
 - If user rejects in terminal mode, files are unstaged and they can make changes
-- In PR mode, user can request changes via PR comments, then developer makes changes and pushes again
+
+### PR Mode Polling Behavior
+
+- After creating/updating PR, agent polls every 30 seconds
+- Checks for PR state (MERGED) and review decision (APPROVED, CHANGES_REQUESTED)
+- **If PR merged**: Exits with success (0), command can proceed to next step
+- **If changes requested**: Exits with error (1), shows review comments, command should address feedback
+- **If approved but not merged**: Continues polling until merged
+- Agent blocks until PR is resolved (merged or changes requested)
+
+### Handling Review Comments in PR Mode
+
+When changes are requested:
+1. Committer agent exits with comments displayed
+2. Calling command (sf-batch, sf-plan, sf-tdd) should:
+   - Read the comments
+   - Make necessary adjustments to files
+   - Call committer agent again with updated files
+3. Committer will push to same PR (auto-updates)
+4. Continue polling until merged or more comments
