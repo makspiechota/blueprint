@@ -1,0 +1,33 @@
+# Software Factory Configuration
+# Copy this to .sf.config.yaml and customize for your project
+
+# Review mode: how to present changes for review
+# - 'terminal': Show changes in terminal, ask for approval (default)
+# - 'pr': Create PR for each step (feature, plan, implementation)
+review_mode: terminal
+
+# Auto-push after commit (only applies to terminal mode)
+# - true: Automatically push after user approves and commits
+# - false: User must manually push
+auto_push: true
+
+# Branch strategy (for PR mode)
+# - 'feature-branch': Create separate branches for each feature
+# - 'task-branch': Create separate branches for each task
+branch_strategy: feature-branch
+
+# PR labels (for PR mode)
+pr_labels:
+  - software-factory
+  - automated
+
+# Require all quality gates to pass before allowing commit
+strict_quality_gates: false
+
+# Batch size limits
+batch_size:
+  warn_threshold: 100
+  fail_threshold: 150
+
+# Default base branch for PRs
+base_branch: main

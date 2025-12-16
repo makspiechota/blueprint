@@ -1,0 +1,23 @@
+# Software Factory Configuration
+
+# Review mode: where to review changes before commit
+review_mode: pr
+
+# Auto-push after commit (only for terminal mode)
+auto_push: true
+
+# Batch size limits
+batch_size:
+  warn_threshold: 100
+  fail_threshold: 150
+
+# Base branch for PRs
+base_branch: main
+
+# PR labels
+pr_labels:
+  - software-factory
+  - automated
+
+# Require all quality gates to pass before allowing commit
+strict_quality_gates: false
