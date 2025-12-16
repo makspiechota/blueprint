@@ -87,9 +87,6 @@ fi
 #### PR Mode
 
 ```bash
-# Commit directly (no terminal approval needed)
-git commit -m "$COMMIT_MESSAGE"
-
 # Determine branch name based on context
 # Examples:
 # - Feature: feature/000001-user-auth
@@ -100,10 +97,10 @@ git commit -m "$COMMIT_MESSAGE"
 CURRENT_BRANCH=$(git branch --show-current)
 
 if [[ "$CURRENT_BRANCH" == feature/* ]]; then
-  # Already on feature branch, just push
+  # Already on feature branch, continue
   BRANCH="$CURRENT_BRANCH"
 else
-  # Create/checkout feature branch
+  # Create/checkout feature branch BEFORE committing
   # Extract feature number from files (backlog/XXXXXX-name/)
   FEATURE_NUM=$(echo "$FILES" | grep -oP 'backlog/\K\d{6}' | head -1)
   FEATURE_NAME=$(ls -d backlog/${FEATURE_NUM}-*/ | head -1 | sed 's|backlog/||' | sed 's|/$||' | sed 's/^[0-9]*-//')
@@ -113,6 +110,9 @@ else
   # Create or checkout branch
   git checkout -b "$BRANCH" 2>/dev/null || git checkout "$BRANCH"
 fi
+
+# Now commit (on the feature branch)
+git commit -m "$COMMIT_MESSAGE"
 
 # Push to remote
 git push -u origin "$BRANCH"
