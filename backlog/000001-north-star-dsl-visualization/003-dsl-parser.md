@@ -23,16 +23,23 @@ Implement the parser that reads North Star DSL files (YAML format) and converts 
 ## Implementation Notes
 - Use `js-yaml` to parse YAML files
 - Implement validation against schema:
-  - Required fields: version, title, goals
-  - Each goal must have: id, title
-  - Validate hierarchical structure (no circular references)
-  - IDs must be unique
+  - Required fields: type, version, last_updated, title, vision, problem, solution, strategic_goals
+  - Type must be: "north-star"
+  - Version must be valid semver
+  - last_updated must be ISO date (YYYY-MM-DD)
+  - strategic_goals must be array with title and description
 - Return structured object:
   ```javascript
   {
-    metadata: { version, title, ... },
-    goals: [
-      { id, title, description, children: [...] }
+    type: "north-star",
+    version: "2.0",
+    last_updated: "2025-01-28",
+    title: "Software Factory",
+    vision: "...",
+    problem: "...",
+    solution: "...",
+    strategic_goals: [
+      { title: "...", description: "..." }
     ]
   }
   ```
@@ -42,8 +49,8 @@ Implement the parser that reads North Star DSL files (YAML format) and converts 
 
 ## Acceptance Criteria
 - [ ] Parser successfully reads valid YAML DSL files
-- [ ] Validation catches invalid structures
+- [ ] Validation catches invalid structures (missing required fields)
 - [ ] Clear error messages for syntax errors
-- [ ] Returns structured goal hierarchy
+- [ ] Returns structured north star object with all properties
 - [ ] Unit tests cover valid and invalid inputs
 - [ ] Tests pass

@@ -5,7 +5,7 @@ User Story #1: As a product strategist, I want to define my north star using a s
 User Story #4: As a product manager, I want the DSL to be intuitive and easy to write so that I can focus on strategy rather than syntax
 
 ## Description
-Create a comprehensive specification document that defines the North Star DSL syntax, structure, and semantics. This will use YAML as the base format for simplicity and readability, with a clear schema for hierarchical goals.
+Create a comprehensive specification document that defines the North Star DSL syntax, structure, and semantics. The DSL uses pure YAML format with structured properties for the strategic document, enabling both human readability and machine parseability.
 
 ## Files to Modify/Create
 - `docs/north-star-dsl-spec.md` - DSL specification document
@@ -17,33 +17,58 @@ Create a comprehensive specification document that defines the North Star DSL sy
 None - this is the foundational task
 
 ## Implementation Notes
-- Use YAML for the DSL format (widely known, git-friendly, supports hierarchy)
-- Define schema for:
-  - Goal definitions (id, title, description, metrics)
-  - Hierarchical structure (parent-child relationships)
-  - Metadata (version, created date, etc.)
+- Use pure YAML format (human-readable, git-friendly, structured)
+- **Schema** (required fields):
+  - `type`: "north-star" (document type identifier)
+  - `version`: semantic version (e.g., "2.0")
+  - `last_updated`: ISO date (YYYY-MM-DD)
+  - `title`: North star title/name
+  - `vision`: Future state and transformation (multi-line string)
+  - `problem`: High-level problem being solved (multi-line string)
+  - `solution`: High-level solution approach (multi-line string)
+  - `strategic_goals`: Array of top-level strategic objectives
+- Support multi-line strings for rich text content (using | or >)
+- Support nested structures for complex goals
+- Document validation rules (required fields, format)
 - Include examples of valid north star files
-- Keep syntax minimal and intuitive
-- Document validation rules
+- **Note**: Detailed information (target market, business model, positioning, phases, metrics) belongs in lower layers (e.g., strategy layer), not in the north star
 
 Example structure to specify:
 ```yaml
-north_star:
-  version: "1.0"
-  title: "Product North Star"
-  goals:
-    - id: goal-1
-      title: "Main Strategic Goal"
-      description: "..."
-      children:
-        - id: goal-1-1
-          title: "Sub-goal"
-          description: "..."
+type: north-star
+version: "2.0"
+last_updated: 2025-01-28
+title: "Software Factory"
+
+vision: |
+  Software development operates like modern manufacturing.
+  Engineers design products and supervise production.
+  AI agents execute the manufacturing.
+
+problem: |
+  Post-PMF B2B SaaS companies face challenges:
+  - No systematic production process
+  - Can't scale engineering velocity
+  - Can't leverage AI effectively
+
+solution: |
+  Build Software Factories through:
+  1. Engineering Excellence (6 practices)
+  2. BLUEPRINT Platform (context system)
+  3. Services (consulting + training)
+
+strategic_goals:
+  - title: "Enable Strategic Clarity"
+    description: "Teams have clear understanding of vision"
+  - title: "Scale Engineering Velocity"
+    description: "Systematic AI-augmented development"
+  - title: "Pioneer Software Factory Category"
+    description: "Lead the transformation of software development"
 ```
 
 ## Acceptance Criteria
-- [ ] DSL syntax is clearly documented
-- [ ] YAML schema is defined with examples
-- [ ] Hierarchical goal structure is specified
+- [ ] DSL syntax is clearly documented (pure YAML)
+- [ ] Schema is defined with all required fields
+- [ ] North star properties are specified (vision, problem, solution, strategic_goals)
 - [ ] Validation rules are documented
-- [ ] Examples demonstrate common use cases
+- [ ] Examples demonstrate complete north star structure
