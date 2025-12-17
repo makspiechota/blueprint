@@ -73,9 +73,15 @@ strategic_goals:
 ```
 
 ## Acceptance Criteria
-- [ ] Example file uses valid YAML DSL syntax
-- [ ] Contains all required fields (type, version, last_updated, title, vision, problem, solution, strategic_goals)
-- [ ] Content extracted from real Software Factory north star
-- [ ] Comments explain each section
-- [ ] README provides clear usage instructions
-- [ ] Example can be successfully parsed and visualized
+- [x] Example file uses valid YAML DSL syntax
+- [x] Contains all required fields (type, version, last_updated, title, vision, problem, solution, strategic_goals)
+- [x] Content extracted from real Software Factory north star
+- [x] Comments explain each section
+- [x] README provides clear usage instructions
+- [x] Example can be successfully parsed and visualized
+
+## Status
+[COMPLETED] - 2025-12-17
+Actual lines: 145 (sample-north-star.yaml: 63, README.md: 82)
+Verified with CLI validate and visualize commands
+Commit: [will be added by committer agent]
