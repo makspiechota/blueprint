@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
+import { parseNorthStar } from './parser';
+import { generateVisualization } from './visualizer';
+import * as logger from './utils/logger';
+import * as fs from 'fs';
 
 program
   .name('blueprint')
@@ -13,7 +17,19 @@ program
   .argument('<input>', 'North Star YAML file')
   .option('-o, --output <file>', 'Output HTML file', 'northstar-visualization.html')
   .action((input: string, options: { output: string }) => {
-    console.log(`Visualize command called with ${input} -> ${options.output}`);
+    try {
+      if (!fs.existsSync(input)) {
+        logger.error(`File not found: ${input}`);
+        process.exit(1);
+      }
+
+      const parsedData = parseNorthStar(input);
+      generateVisualization(parsedData, options.output);
+      logger.success(`Visualization generated successfully: ${options.output}`);
+    } catch (err) {
+      logger.error(`Failed to generate visualization: ${(err as Error).message}`);
+      process.exit(1);
+    }
   });
 
 program
@@ -21,7 +37,18 @@ program
   .description('Validate North Star DSL file')
   .argument('<input>', 'North Star YAML file')
   .action((input: string) => {
-    console.log(`Validate command called with ${input}`);
+    try {
+      if (!fs.existsSync(input)) {
+        logger.error(`File not found: ${input}`);
+        process.exit(1);
+      }
+
+      parseNorthStar(input);
+      logger.success(`North Star file is valid: ${input}`);
+    } catch (err) {
+      logger.error(`Validation failed: ${(err as Error).message}`);
+      process.exit(1);
+    }
   });
 
 program.parse();
