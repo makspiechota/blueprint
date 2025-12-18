@@ -6,6 +6,153 @@ After defining the north star (enterprise mission), teams need to "box the busin
 
 The architectural scope layer bridges the gap between strategic vision (north star) and technical implementation by answering six fundamental questions: What, How, Where, Who, When, and Why.
 
+## What is Architectural Scope?
+
+Architectural scope is a **structural representation of a business solution** that defines clear boundaries for what will be built, following the [Zachman Framework](https://www.visual-paradigm.com/guide/enterprise-architecture/what-is-zachman-framework/)'s enterprise architecture approach and [Ronald Ross's business architecture methodology](https://www.brcommunity.com/articles.php?id=b873).
+
+### Purpose and Definition
+
+Architectural scope serves to **"box the business solution space"** by creating bounded lists that answer six fundamental interrogatives. As Ross explains, this provides a "ballpark view" of what the business capability will become, establishing clear inclusion/exclusion boundaries **before** technical design begins.
+
+**Key Distinction:**
+- **North Star (Enterprise Mission)** = Strategic vision defining *why* the business exists and *what effect* it aims to achieve
+- **Architectural Scope** = Concrete definition of *what will be built* to realize that mission, sized and bounded in business terms
+
+### The Six Scope Lists (Based on Zachman Framework)
+
+Following John Zachman's enterprise ontology, architectural scope uses six interrogatives to comprehensively define the solution space:
+
+#### 1. **What (Data/Things)**
+*"What are the business data, information, or objects?"*
+
+**Scope Items:** Core business entities and information that the solution must handle.
+
+**Examples:**
+- Customer Accounts
+- Orders and Transactions
+- Product Catalog
+- Inventory Records
+- User Profiles
+
+**Size:** 3-12 items representing the key "nouns" of the business domain.
+
+#### 2. **How (Function/Processes)**
+*"How does the business work? What are the business processes?"*
+
+**Scope Items:** Key business processes and mechanisms the solution must support.
+
+**Examples:**
+- Order Fulfillment Process
+- Customer Onboarding Workflow
+- Payment Processing
+- Inventory Management
+- Returns and Refunds
+
+**Size:** 3-12 items representing the critical "verbs" or activities.
+
+#### 3. **Where (Network/Locations)**
+*"Where are the business operations located?"*
+
+**Scope Items:** Geographic locations, distribution points, or operational boundaries.
+
+**Examples:**
+- North American Markets
+- European Distribution Centers
+- Remote Work Locations
+- Cloud Infrastructure Regions
+- Retail Storefronts
+
+**Size:** 3-12 items defining geographical or logical boundaries.
+
+#### 4. **Who (People/Organizations)**
+*"Who are the people and organizational units involved?"*
+
+**Scope Items:** Organizational units, roles, or stakeholder groups.
+
+**Examples:**
+- Sales Team
+- Customer Support Organization
+- Partner Network
+- End Customers
+- Third-Party Vendors
+
+**Size:** 3-12 items representing key organizational actors.
+
+#### 5. **When (Time/Events)**
+*"When are business processes performed? What are the schedules and workflows?"*
+
+**Scope Items:** Critical timing constraints, business cycles, or event triggers.
+
+**Examples:**
+- Real-time Order Processing
+- Monthly Billing Cycles
+- Seasonal Campaigns
+- Annual Planning Windows
+- Regulatory Reporting Deadlines
+
+**Size:** 3-12 items capturing temporal aspects.
+
+#### 6. **Why (Motivation/Goals)**
+*"Why is this solution chosen? What motivates these decisions?"*
+
+**Scope Items:** Business mission and ongoing business goals (not project objectives).
+
+**Key Concepts from [Ross's business motivation framework](https://www.brcommunity.com/articles.php?id=b876):**
+
+**Business Mission:** What the business capability is responsible for doing in day-to-day operations. Must include:
+1. **The Action** — what is being done (e.g., "to provide")
+2. **Service Differentiation** — what specifically (e.g., "retirement savings products")
+3. **Beneficiary** — who benefits (e.g., "customers of all ages")
+
+**Business Goals:** Effects the capability must achieve **indirectly** through executing the mission. These are ongoing, never-ending objectives that guide operational decisions.
+
+**Examples:**
+- Mission: "To provide secure online payment processing for e-commerce merchants globally"
+- Goal: "Maintain 99.99% transaction reliability"
+- Goal: "Minimize payment fraud exposure"
+- Goal: "Ensure regulatory compliance across all markets"
+
+**Size:** 1 mission + 2-5 ongoing business goals.
+
+### The 7±2 Principle
+
+Ross emphasizes that each scope list should contain **3-12 items**, with 7 being optimal. This follows cognitive science research showing humans can effectively hold "seven plus or minus two" chunks of information.
+
+**Why this matters:**
+- **Too few items (<3):** Scope may be under-defined or too abstract
+- **Too many items (>12):** Solution is likely too complex or poorly factored
+- **Sweet spot (5-9):** Clear, manageable, well-bounded solution
+
+**Total scope:** Approximately **50 items across all six lists** defines a well-sized business capability.
+
+### Relationship to North Star
+
+The architectural scope **builds upon and references** the north star (enterprise mission):
+
+```
+North Star (Layer 1)
+├── Vision: Future state transformation
+├── Problem: High-level challenges
+├── Solution: Strategic approach
+└── Strategic Goals: Top objectives
+    ↓
+Architectural Scope (Layer 2)
+├── What: Business entities needed to realize the vision
+├── How: Processes that execute the solution approach
+├── Where: Locations for delivering the solution
+├── Who: Organizations implementing the strategic goals
+├── When: Timing aligned with transformation roadmap
+└── Why: Mission and goals that operationalize the vision
+```
+
+### Sources and Methodology
+
+This approach combines:
+- **[Zachman Framework](https://www.leanix.net/en/wiki/ea/zachman-framework)** — Six interrogatives for enterprise architecture
+- **[Ronald Ross's Business Architecture](https://www.brcommunity.com/articles.php?id=b873)** — Scope lists for "boxing" solution space
+- **[Business Motivation Model](https://www.brcommunity.com/articles.php?id=b876)** — Mission and goals framework
+- **[Roger Burlton's Value Chain Perspective](https://www.brcommunity.com/articles.php?id=b905)** — Scope definition via value creation
+
 ## Users
 
 - Business analysts defining solution boundaries and scope
