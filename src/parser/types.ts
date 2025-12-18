@@ -1,15 +1,8 @@
-export interface StrategicGoal {
-  title: string;
-  description: string;
-}
+// Type definitions for Blueprint DSL
+// Re-exports generated types with cleaner names
 
-export interface NorthStar {
-  type: string;
-  version: string;
-  last_updated: string;
-  title: string;
-  vision: string;
-  problem: string;
-  solution: string;
-  strategic_goals: StrategicGoal[];
-}
+import { Schemas } from './types.generated';
+
+// Re-export schema types with cleaner names
+export type NorthStar = Schemas.NorthStar;
+export type ArchitecturalScope = Schemas.ArchitecturalScope;

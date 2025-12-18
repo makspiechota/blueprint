@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "/schemas/architectural-scope",
   "title": "Architectural Scope Schema",
   "description": "Solution boundaries layer using six scope lists to box the business solution space",
   "type": "object",
