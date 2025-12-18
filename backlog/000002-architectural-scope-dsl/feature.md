@@ -153,6 +153,87 @@ This approach combines:
 - **[Business Motivation Model](https://www.brcommunity.com/articles.php?id=b876)** — Mission and goals framework
 - **[Roger Burlton's Value Chain Perspective](https://www.brcommunity.com/articles.php?id=b905)** — Scope definition via value creation
 
+## Schema and Definition Management
+
+### The Challenge
+
+The detailed definitions and conceptual explanations above (What is Architectural Scope, the six scope lists, examples, etc.) are essential for users and AI agents to understand and correctly use the DSL. However, this information can't live in the user's YAML files themselves because:
+
+1. **User files are volatile** — Users modify them freely for their specific business context
+2. **Definitions are universal** — The meaning of "What" or "How" scope lists doesn't change per user
+3. **AI needs consistent reference** — AI agents processing Blueprint files need authoritative definitions without web searches
+
+### Proposed Solution: Pluggable Schema Architecture
+
+Blueprint should use a **pluggable schema system** where each layer has its own schema file containing:
+- Field definitions and validation rules
+- Conceptual explanations of what each field means
+- Examples and usage guidance
+- Relationships to other layers
+
+**Structure:**
+```
+schemas/
+├── schema.json                 # Root schema registry
+├── north-star.schema.json      # Layer 1: North Star definitions
+├── architectural-scope.schema.json  # Layer 2: Architectural Scope definitions
+└── [future-layer].schema.json  # Layer 3+: Additional layers
+```
+
+**Benefits:**
+- **Pluggable**: Each layer is self-contained and can be added/removed independently
+- **Versioned**: Schemas evolve with the DSL, tracked in git
+- **AI-readable**: AI agents can load schema files to understand Blueprint structure
+- **User-friendly**: Tools can generate contextual help from schema metadata
+- **Extensible**: New layers can be added without modifying existing schemas
+
+**Schema Content Example (architectural-scope.schema.json):**
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "layer": "architectural-scope",
+  "description": "Architectural scope boxes the business solution space using six scope lists",
+  "metadata": {
+    "methodology": "Ronald Ross / Zachman Framework",
+    "purpose": "Define solution boundaries before technical implementation"
+  },
+  "properties": {
+    "what": {
+      "type": "array",
+      "description": "Business entities and information objects",
+      "scopeQuestion": "What are the business data, information, or objects?",
+      "examples": ["Customer Accounts", "Orders", "Product Catalog"],
+      "sizing": {
+        "min": 3,
+        "max": 12,
+        "optimal": 7
+      }
+    },
+    "how": {
+      "type": "array",
+      "description": "Business processes and mechanisms",
+      "scopeQuestion": "How does the business work?",
+      "examples": ["Order Fulfillment", "Payment Processing"]
+    }
+    // ... other scope lists
+  },
+  "relationships": {
+    "requires": ["north-star"],
+    "description": "Architectural scope builds upon and references a north star"
+  }
+}
+```
+
+**Implementation Implications:**
+- Parser must load and reference appropriate schema for each layer
+- Validation uses schema rules (3-12 items, required references, etc.)
+- Visualization can extract metadata from schemas for tooltips and help text
+- Documentation can be auto-generated from schema definitions
+- AI agents receive schema as context when processing Blueprint files
+
+This approach ensures that definitional knowledge is preserved, accessible to both humans and AI, version-controlled, and doesn't pollute user's business documents.
+
 ## Users
 
 - Business analysts defining solution boundaries and scope
@@ -182,8 +263,92 @@ This approach combines:
 - **Optional Lists**: All six scope lists are optional - teams can define only the lists relevant to their context
 - **Item Validation**: When a scope list is present, it must contain 3-12 items (following Ross's principle of "boxing" the solution space)
 - **Structured Items**: Each scope item has a title and description explaining its role in the solution
-- **Integrated Visualization**: The visualization tool displays north star and architectural scope together in separate tabs, showing the relationship between strategic vision and solution boundaries
 - **Version Control**: YAML files are plain text that can be committed to git alongside north star files
+
+### Integrated Visualization Design
+
+The visualization tool must display north star and architectural scope together, showing how strategic vision translates into concrete solution boundaries.
+
+**UI Structure:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Product Name - Blueprint                                    │
+├─────────────────────────────────────────────────────────────┤
+│  [North Star Tab] [Architectural Scope Tab]                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  TAB CONTENT AREA                                            │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**North Star Tab:**
+- Displays vision, problem, solution, strategic goals (existing visualization from feature 000001)
+- Add subtle "View Architectural Scope →" link at bottom that switches to second tab
+- Shows north star file path and last updated timestamp
+
+**Architectural Scope Tab:**
+- Header section:
+  - Reference to north star (clickable link to switch to North Star tab)
+  - Total scope item count (e.g., "48 scope items across 6 lists")
+  - Visual indicator if scope size is optimal (green: 40-60 items, yellow: 30-70, red: <30 or >70)
+
+- Six scope lists displayed as cards in 2x3 grid:
+
+```
+┌─────────────────────┬─────────────────────┐
+│ What (Data)         │ How (Processes)     │
+│ 8 items ✓           │ 7 items ✓           │
+│                     │                     │
+│ • Customer Accounts │ • Order Fulfillment │
+│ • Orders            │ • Payment Process   │
+│ • Product Catalog   │ • Inventory Mgmt    │
+│ ...                 │ ...                 │
+├─────────────────────┼─────────────────────┤
+│ Where (Locations)   │ Who (Organizations) │
+│ 5 items ⚠️          │ 9 items ✓           │
+├─────────────────────┼─────────────────────┤
+│ When (Time/Events)  │ Why (Motivation)    │
+│ 6 items ✓           │ 1 mission + 4 goals │
+└─────────────────────┴─────────────────────┘
+```
+
+**Scope List Card Details:**
+- **Header**: Scope question (e.g., "What are the business data and objects?")
+- **Item count badge**: Green (3-12 items), Yellow (<3 or >12), Red (empty)
+- **Item list**: Each item shows title, with expandable description on click
+- **Tooltip on hover**: Shows the conceptual definition from schema (e.g., "Business entities and information that the solution must handle")
+
+**Why (Motivation) Card - Special Treatment:**
+- **Business Mission** displayed prominently at top with icon
+- Shows the three components: Action + Service + Beneficiary
+- **Business Goals** listed below as ongoing objectives
+- Visual distinction from other scope lists (different background color)
+
+**Interactive Features:**
+- **Click item**: Expands to show full description
+- **Search/filter**: Search box to filter scope items across all lists
+- **Export**: Button to download combined visualization as PDF
+- **Schema help**: Info icon on each card that shows schema definitions when clicked
+- **Traceability**: Visual connection indicators showing which scope items relate to which strategic goals (hover interaction)
+
+**Responsive Design:**
+- Desktop: 2x3 grid of scope list cards
+- Tablet: 2x3 grid with horizontal scroll
+- Mobile: Single column, cards stack vertically
+
+**Empty State Handling:**
+- If a scope list is not defined (optional): Show card with dashed border and "Not defined" message
+- If scope list is defined but empty (validation error): Show red warning "Empty list - add 3-12 items"
+- If no architectural scope exists yet: Show helpful message "Create architectural-scope.yaml to define solution boundaries"
+
+**Technical Implementation:**
+- Single HTML file output (like north star visualization)
+- Tabs implemented with CSS/vanilla JavaScript (no external dependencies)
+- Schema definitions embedded in HTML for tooltips and help text
+- Responsive CSS grid layout
+- Print-friendly CSS for PDF export
 
 ## Edge Cases
 
