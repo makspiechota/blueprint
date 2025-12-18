@@ -25,9 +25,6 @@ dist/
 build/
 *.egg-info/
 
-# Generated types
-src/parser/types.generated.ts
-
 # Local config (if sensitive)
 .env
 .env.local
