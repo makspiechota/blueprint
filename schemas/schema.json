@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Blueprint Schema Registry",
+  "description": "Registry of all Blueprint layer schemas",
+  "type": "object",
+  "layers": [
+    {
+      "name": "north-star",
+      "version": "2.0",
+      "file": "north-star.schema.json",
+      "description": "Strategic vision layer - enterprise mission"
+    },
+    {
+      "name": "architectural-scope",
+      "version": "1.0",
+      "file": "architectural-scope.schema.json",
+      "description": "Solution boundaries layer - six scope lists"
+    }
+  ]
+}
