@@ -1,34 +1,39 @@
-import { NorthStar, ArchitecturalScope } from './types';
-import Ajv from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
+import { NorthStar, ArchitecturalScope } from './types';
 
 // Initialize AJV with JSON Schema Draft-07 support
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 
-// Load schemas
-const northStarSchema = loadSchema('north-star');
-const architecturalScopeSchema = loadSchema('architectural-scope');
+// Cache for compiled validators
+const validatorCache = new Map<string, ValidateFunction>();
 
-// Compile validators
-const validateNorthStarSchema = ajv.compile(northStarSchema);
-const validateArchitecturalScopeSchema = ajv.compile(architecturalScopeSchema);
+function getValidator(schemaName: string): ValidateFunction {
+  if (!validatorCache.has(schemaName)) {
+    const schema = loadSchema(schemaName);
+    const validator = ajv.compile(schema);
+    validatorCache.set(schemaName, validator);
+  }
+  return validatorCache.get(schemaName)!;
+}
 
-export function validateNorthStar(data: any): asserts data is NorthStar {
-  const valid = validateNorthStarSchema(data);
+export function validate(data: any, schemaName: string): void {
+  const validator = getValidator(schemaName);
+  const valid = validator(data);
 
   if (!valid) {
-    const errors = ajv.errorsText(validateNorthStarSchema.errors);
+    const errors = ajv.errorsText(validator.errors);
     throw new Error(`Validation failed: ${errors}`);
   }
 }
 
-export function validateArchitecturalScope(data: any): asserts data is ArchitecturalScope {
-  const valid = validateArchitecturalScopeSchema(data);
+// Legacy exports for backward compatibility
+export function validateNorthStar(data: any): asserts data is NorthStar {
+  validate(data, 'north-star');
+}
 
-  if (!valid) {
-    const errors = ajv.errorsText(validateArchitecturalScopeSchema.errors);
-    throw new Error(`Validation failed: ${errors}`);
-  }
+export function validateArchitecturalScope(data: any): asserts data is ArchitecturalScope {
+  validate(data, 'architectural-scope');
 }
