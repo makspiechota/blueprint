@@ -1,4 +1,4 @@
-import { NorthStar } from '../parser/types';
+import { NorthStar, StrategicGoal } from '../parser/types';
 import * as fs from 'fs';
 
 export function generateVisualization(parsedData: NorthStar, outputPath: string): void {
@@ -49,7 +49,7 @@ export function generateVisualization(parsedData: NorthStar, outputPath: string)
     <div class="section">
       <div class="section-title">Strategic Goals</div>
       <div class="goals">
-        ${parsedData.strategic_goals.map(goal => `
+        ${parsedData.strategic_goals.map((goal: StrategicGoal) => `
           <div class="goal">
             <div class="goal-title">${escapeHtml(goal.title)}</div>
             <div class="goal-description">${escapeHtml(goal.description)}</div>

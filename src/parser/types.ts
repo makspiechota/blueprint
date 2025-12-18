@@ -1,11 +1,11 @@
 // Type definitions for Blueprint DSL
 // Re-exports generated types with cleaner names
 
-import { ArchitecturalScopeSchema, NorthStarSchema } from './types.generated';
+import { Schemas } from './types.generated';
 
 // Re-export schema types with cleaner names
-export type NorthStar = NorthStarSchema;
-export type ArchitecturalScope = ArchitecturalScopeSchema;
+export type NorthStar = Schemas.NorthStar;
+export type ArchitecturalScope = Schemas.ArchitecturalScope;
 
 // Utility types for scope items
 export type ScopeItem = {

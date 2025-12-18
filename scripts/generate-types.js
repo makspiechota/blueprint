@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { compile } = require('json-schema-to-typescript');
+const { default: dtsgenerator, parseSchema } = require('dtsgenerator');
 const fs = require('fs');
 const path = require('path');
 
@@ -12,25 +12,23 @@ async function generateTypes() {
   const schemaFiles = fs.readdirSync(schemasDir)
     .filter(file => file.endsWith('.schema.json'));
 
-  let output = '// Auto-generated types from JSON schemas\n';
-  output += '// DO NOT EDIT MANUALLY - Run `npm run generate-types` to regenerate\n\n';
-
-  for (const file of schemaFiles) {
+  // Parse all schemas
+  const schemas = schemaFiles.map(file => {
     const schemaPath = path.join(schemasDir, file);
-    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+    const schemaContent = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+    return parseSchema(schemaContent);
+  });
 
-    const ts = await compile(schema, schema.title || file.replace('.schema.json', ''), {
-      bannerComment: '',
-      style: {
-        singleQuote: true,
-      },
-    });
+  // Generate types from all schemas
+  let content = await dtsgenerator({
+    contents: schemas,
+  });
 
-    output += ts + '\n';
-  }
+  // Add export statement for module compatibility
+  content += '\nexport { Schemas };\n';
 
   // Write output
-  fs.writeFileSync(outputPath, output, 'utf8');
+  fs.writeFileSync(outputPath, content);
   console.log(`✓ Generated types in ${outputPath}`);
 }
 
