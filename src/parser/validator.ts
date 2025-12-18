@@ -1,40 +1,39 @@
-import { NorthStar } from './types';
+import Ajv, { ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
+import { loadSchema } from './schema-loader';
+import { NorthStar, ArchitecturalScope } from './types';
 
-const REQUIRED_FIELDS = [
-  'type',
-  'version',
-  'last_updated',
-  'title',
-  'vision',
-  'problem',
-  'solution',
-  'strategic_goals'
-];
+// Initialize AJV with JSON Schema Draft-07 support
+const ajv = new Ajv({ allErrors: true, strict: false });
+addFormats(ajv);
 
-const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+// Cache for compiled validators
+const validatorCache = new Map<string, ValidateFunction>();
 
+function getValidator(schemaName: string): ValidateFunction {
+  if (!validatorCache.has(schemaName)) {
+    const schema = loadSchema(schemaName);
+    const validator = ajv.compile(schema);
+    validatorCache.set(schemaName, validator);
+  }
+  return validatorCache.get(schemaName)!;
+}
+
+export function validate(data: any, schemaName: string): void {
+  const validator = getValidator(schemaName);
+  const valid = validator(data);
+
+  if (!valid) {
+    const errors = ajv.errorsText(validator.errors);
+    throw new Error(`Validation failed: ${errors}`);
+  }
+}
+
+// Legacy exports for backward compatibility
 export function validateNorthStar(data: any): asserts data is NorthStar {
-  for (const field of REQUIRED_FIELDS) {
-    if (!(field in data) || data[field] === null || data[field] === undefined) {
-      throw new Error(`Missing required field: ${field}`);
-    }
-  }
+  validate(data, 'north-star');
+}
 
-  if (data.type !== 'north-star') {
-    throw new Error('Type must be "north-star"');
-  }
-
-  if (!ISO_DATE_REGEX.test(data.last_updated)) {
-    throw new Error('last_updated must be in ISO date format (YYYY-MM-DD)');
-  }
-
-  if (!Array.isArray(data.strategic_goals)) {
-    throw new Error('strategic_goals must be an array');
-  }
-
-  for (const goal of data.strategic_goals) {
-    if (!goal.title || !goal.description) {
-      throw new Error('Each strategic goal must have title and description');
-    }
-  }
+export function validateArchitecturalScope(data: any): asserts data is ArchitecturalScope {
+  validate(data, 'architectural-scope');
 }
