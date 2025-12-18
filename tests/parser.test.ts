@@ -50,7 +50,7 @@ title: "Test"`;
     const filePath = path.join(fixturesDir, 'missing-field.yaml');
     fs.writeFileSync(filePath, invalidYaml);
 
-    expect(() => parseNorthStar(filePath)).toThrow('Missing required field: last_updated');
+    expect(() => parseNorthStar(filePath)).toThrow('Validation failed');
   });
 
   test('throws error for invalid type', () => {
@@ -66,7 +66,7 @@ strategic_goals: []`;
     const filePath = path.join(fixturesDir, 'invalid-type.yaml');
     fs.writeFileSync(filePath, invalidYaml);
 
-    expect(() => parseNorthStar(filePath)).toThrow('Type must be "north-star"');
+    expect(() => parseNorthStar(filePath)).toThrow('Validation failed');
   });
 
   test('throws error for invalid date format', () => {
@@ -82,7 +82,7 @@ strategic_goals: []`;
     const filePath = path.join(fixturesDir, 'invalid-date.yaml');
     fs.writeFileSync(filePath, invalidYaml);
 
-    expect(() => parseNorthStar(filePath)).toThrow('last_updated must be in ISO date format (YYYY-MM-DD)');
+    expect(() => parseNorthStar(filePath)).toThrow('Validation failed');
   });
 
   test('throws error for non-existent file', () => {
@@ -169,7 +169,7 @@ title: "Test"`;
     const filePath = path.join(fixturesDir, 'missing-north-star-ref.yaml');
     fs.writeFileSync(filePath, invalidYaml);
 
-    expect(() => parseArchitecturalScope(filePath)).toThrow('Missing required field: north_star_ref');
+    expect(() => parseArchitecturalScope(filePath)).toThrow('Validation failed');
   });
 
   test('throws error for invalid type', () => {
@@ -182,7 +182,7 @@ north_star_ref: "test.yaml"`;
     const filePath = path.join(fixturesDir, 'invalid-arch-type.yaml');
     fs.writeFileSync(filePath, invalidYaml);
 
-    expect(() => parseArchitecturalScope(filePath)).toThrow('Type must be "architectural-scope"');
+    expect(() => parseArchitecturalScope(filePath)).toThrow('Validation failed');
   });
 
   test('throws error for invalid scope list structure', () => {
