@@ -54,6 +54,88 @@ strategic_goals:
     description: "Goal description"
 ```
 
+## Architectural Scope Issues
+
+### Missing North Star Reference
+
+**Error**: `North star file not found: north-star.yaml`
+
+**Cause**: The file referenced in `north_star_ref` doesn't exist.
+
+**Solution**: Ensure the north star file exists and the path is correct:
+```yaml
+north_star_ref: "north-star.yaml"  # Relative to architectural scope file
+north_star_ref: "../north-star.yaml"  # Parent directory
+north_star_ref: "/absolute/path/north-star.yaml"  # Absolute path
+```
+
+### Invalid North Star Reference
+
+**Error**: `North star file is invalid: Validation failed`
+
+**Cause**: The referenced north star file has validation errors.
+
+**Solution**: First fix the north star file:
+```bash
+blueprint validate north-star.yaml
+```
+
+Then validate the architectural scope:
+```bash
+blueprint validate architectural-scope.yaml
+```
+
+### Scope List Size Warnings
+
+**Warning**: `what list has 2 items (recommended: 3-12, optimal: 7)`
+
+**Cause**: Scope list has fewer than 3 or more than 12 items.
+
+**Impact**: Warning only - file still validates. But consider revising for optimal cognitive load.
+
+**Solution**:
+- **Too few (<3)**: Add more items or consider if this scope list is complete
+- **Too many (>12)**: Group related items or increase abstraction level
+- **Optimal (7)**: Ideal number for human working memory
+
+### No Scope Lists Defined
+
+**Warning**: `No scope lists defined (at least one is recommended)`
+
+**Cause**: Architectural scope file has no scope lists (what, how, where, who, when, why).
+
+**Solution**: Add at least one scope list:
+```yaml
+what:
+  - title: "Item 1"
+    description: "Description 1"
+  - title: "Item 2"
+    description: "Description 2"
+  - title: "Item 3"
+    description: "Description 3"
+```
+
+### Combined Visualization Not Working
+
+**Issue**: Visualize only shows one layer, not both.
+
+**Cause 1**: Files in different directories.
+
+**Solution**: Place both files in the same directory:
+```
+project/
+  north-star.yaml
+  architectural-scope.yaml
+```
+
+**Cause 2**: Wrong filename.
+
+**Solution**: Name the architectural scope file `architectural-scope.yaml` or specify the north star reference correctly.
+
+**Verification**: Check visualization output for both tabs:
+- Should see "North Star" tab
+- Should see "Architectural Scope" tab
+
 ## YAML Syntax Errors
 
 ### Unexpected Token
@@ -158,6 +240,7 @@ blueprint validate ./my-file.yaml  # Use relative path
 If you encounter an issue not covered here:
 
 1. Check the [User Guide](user-guide.md) for usage instructions
-2. Review the [DSL Specification](north-star-dsl-spec.md) for syntax details
-3. Look at the [example file](../examples/sample-north-star.yaml) for correct formatting
-4. Report bugs at: [GitHub Issues](https://github.com/makspiechota/blueprint/issues)
+2. Review the [Architectural Scope Guide](architectural-scope-guide.md) for architectural scope details
+3. Review the [North Star DSL Specification](north-star-dsl-spec.md) for syntax details
+4. Look at the [examples](../examples/) for correct formatting
+5. Report bugs at: [GitHub Issues](https://github.com/makspiechota/blueprint/issues)

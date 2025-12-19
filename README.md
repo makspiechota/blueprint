@@ -4,13 +4,21 @@ Business knowledge management system with DSL parser and visualization.
 
 ## Overview
 
-BLUEPRINT helps you define and communicate your strategic vision through structured DSL (Domain-Specific Language) files. Start with your North Star - the highest level of your business blueprint containing vision, problem, solution, and strategic goals.
+BLUEPRINT helps you define and communicate your strategic vision through structured DSL (Domain-Specific Language) files. It provides a two-layer approach:
+
+1. **North Star** - Your strategic vision: problem, solution, and goals
+2. **Architectural Scope** - Business capabilities organized by What, How, Where, Who, When, and Why
+
+Together, these layers create a complete business blueprint from strategy to execution.
 
 ## Features
 
+- **Two-Layer Architecture** - North Star (strategy) + Architectural Scope (capabilities)
 - **YAML DSL** - Simple, version-controlled format for business knowledge
-- **Validation** - Catch errors early with schema validation
-- **Visualization** - Generate beautiful HTML visualizations
+- **Six Scope Lists** - What, How, Where, Who, When, Why (7±2 items each)
+- **Validation** - Schema validation + business rules (scope list sizes)
+- **Combined Visualization** - Tabbed HTML view of both layers
+- **Auto-Detection** - Automatically finds and combines both files
 - **CLI Tools** - Easy-to-use command-line interface
 
 ## Installation
@@ -27,52 +35,86 @@ npx blueprint <command>
 
 ## Quick Start
 
-1. Create a north star file (see `examples/sample-north-star.yaml`):
+### Option 1: North Star Only
+
+1. Create `north-star.yaml`:
 
 ```yaml
 type: north-star
 version: "2.0"
 last_updated: "2025-12-17"
 title: "My Product"
-
-vision: |
-  Your vision here
-
-problem: |
-  Your problem statement
-
-solution: |
-  Your solution approach
-
+vision: "Your vision"
+problem: "Your problem"
+solution: "Your solution"
 strategic_goals:
   - title: "Goal 1"
     description: "Description"
 ```
 
-2. Validate your file:
+2. Validate and visualize:
 
 ```bash
-blueprint validate my-north-star.yaml
+blueprint validate north-star.yaml
+blueprint visualize north-star.yaml
 ```
 
-3. Generate visualization:
+### Option 2: North Star + Architectural Scope
+
+1. Create both files (see `examples/` directory)
+
+2. Create `architectural-scope.yaml`:
+
+```yaml
+type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-17"
+title: "My Product"
+north_star_ref: "north-star.yaml"
+what:
+  - title: "Customer"
+    description: "People who buy"
+  - title: "Order"
+    description: "Purchase request"
+  - title: "Product"
+    description: "What we sell"
+how:
+  - title: "Order Processing"
+    description: "Handle orders"
+  - title: "Inventory Management"
+    description: "Track stock"
+  - title: "Payment Processing"
+    description: "Accept payments"
+```
+
+3. Validate and visualize (auto-detects both files):
 
 ```bash
-blueprint visualize my-north-star.yaml
+blueprint validate architectural-scope.yaml
+blueprint visualize north-star.yaml -o blueprint.html
 ```
+
+The visualization will automatically include both layers in a tabbed interface.
 
 ## Documentation
 
 - [User Guide](docs/user-guide.md) - Detailed usage instructions
-- [DSL Specification](docs/north-star-dsl-spec.md) - Complete DSL reference
+- [Architectural Scope Guide](docs/architectural-scope-guide.md) - Complete architectural scope reference
+- [North Star DSL Specification](docs/north-star-dsl-spec.md) - North Star DSL reference
 - [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
-- [Example](examples/README.md) - Working example with explanations
+- [Examples](examples/README.md) - Working examples with explanations
 
 ## CLI Commands
 
 ```bash
-blueprint validate <file>        # Validate North Star DSL file
+# Validation
+blueprint validate <file>        # Validate North Star or Architectural Scope file
+
+# Visualization
 blueprint visualize <file>       # Generate HTML visualization
+                                 # Auto-detects and combines both layers if present
+
+# Other
 blueprint --version              # Show version
 blueprint --help                 # Show help
 ```
