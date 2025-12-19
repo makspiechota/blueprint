@@ -39,6 +39,24 @@ This creates friction for teams who already think in Lean Canvas terms and want 
 
 ### File Structure
 
+**Business.yaml Entry Point:**
+
+BLUEPRINT introduces `business.yaml` as the single entry point for visualization. This file references all strategic and architectural layers:
+
+```yaml
+type: business
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Product or Company Name"
+
+# All references are optional
+north_star_ref: "north-star.yaml"              # Optional
+lean_canvas_ref: "lean-canvas.yaml"            # Optional
+architectural_scope_ref: "architectural-scope.yaml"  # Optional
+```
+
+**Layer Files:**
+
 Lean Canvas files use YAML format with `.yaml` extension, similar to North Star:
 
 ```yaml
@@ -46,6 +64,7 @@ type: lean-canvas
 version: "1.0"
 last_updated: "2025-12-19"
 title: "Product or Company Name"
+north_star_ref: "north-star.yaml"  # Optional: reference to North Star for context
 
 problem:
   top_3_problems:
@@ -102,31 +121,28 @@ unfair_advantage:
 
 ### Relationship to Other Layers
 
-**Standalone Usage:**
-- Lean Canvas can exist by itself as strategic documentation
-- No dependency on North Star or Architectural Scope
+**Business.yaml Orchestration:**
+- `business.yaml` serves as the entry point that references all layers
+- All layer references (north_star_ref, lean_canvas_ref, architectural_scope_ref) are optional
+- Users can mix and match any combination of layers
+- Visualizer reads business.yaml to discover and render all referenced layers
 
-**Complementary with North Star:**
-- Both can coexist in the same project
-- North Star provides vision/problem/solution narrative
-- Lean Canvas provides business model details
-- Visualization shows both in separate tabs
+**Lean Canvas Integration:**
+- Can reference North Star via `north_star_ref` for additional context
+- Provides business model details complementary to North Star's vision narrative
+- Both can coexist and will display in separate tabs
 
-**Architectural Scope Integration:**
-- For now, Architectural Scope only references North Star (not Lean Canvas)
-- Future enhancement could allow referencing either/both
-- Valid combinations:
-  - Lean Canvas only
-  - North Star only
-  - North Star + Architectural Scope
-  - Lean Canvas + North Star
-  - Lean Canvas + North Star + Architectural Scope
-- Invalid combination:
-  - Lean Canvas + Architectural Scope (without North Star)
+**Valid Layer Combinations:**
+- Lean Canvas only (via business.yaml → lean_canvas_ref)
+- North Star only (via business.yaml → north_star_ref)
+- North Star + Architectural Scope (via business.yaml → both refs)
+- Lean Canvas + North Star (via business.yaml → both refs)
+- All three layers (via business.yaml → all refs)
+- Any other combination - all are valid since all references are optional
 
 ### Visualization
 
-**Standard 3x3 Grid Layout:**
+**Lean Canvas Grid Layout:**
 ```
 ┌─────────────────┬──────────────┬─────────────────┬──────────────┬─────────────────┐
 │                 │   SOLUTION   │      UNIQUE     │     UNFAIR   │                 │
@@ -137,13 +153,13 @@ unfair_advantage:
 │  KEY METRICS    │              CHANNELS                          │                 │
 │                 │                                                │                 │
 ├─────────────────┴────────────────────────────────────────────────┴─────────────────┤
-│                           COST STRUCTURE                                           │
-│                                                                                    │
-├────────────────────────────────────────────────────────────────────────────────────┤
-│                         REVENUE STREAMS                                            │
-│                                                                                    │
-└────────────────────────────────────────────────────────────────────────────────────┘
+│                           │                                                        │
+│    COST STRUCTURE         │              REVENUE STREAMS                           │
+│                           │                                                        │
+└───────────────────────────┴────────────────────────────────────────────────────────┘
 ```
+
+**Note**: Cost Structure and Revenue Streams are side by side (not stacked) for better visual balance.
 
 **Tabbed Interface (when combined with other layers):**
 - Tab 1: "Lean Canvas" (if present)
@@ -159,41 +175,54 @@ unfair_advantage:
 ### CLI Commands
 
 ```bash
-# Validate Lean Canvas
+# Validate individual layer files
 blueprint validate lean-canvas.yaml
+blueprint validate north-star.yaml
+blueprint validate architectural-scope.yaml
 
-# Visualize Lean Canvas only
-blueprint visualize lean-canvas.yaml
+# Validate business.yaml (entry point)
+blueprint validate business.yaml
 
-# Auto-detect and combine all layers
-blueprint visualize lean-canvas.yaml
-# Shows: Lean Canvas + North Star (if exists) + Arch Scope (if exists with North Star)
+# Visualize using business.yaml as entry point
+blueprint visualize business.yaml
+# Discovers and renders all referenced layers (Lean Canvas, North Star, Arch Scope)
+
+# Backward compatibility: visualize individual files
+blueprint visualize lean-canvas.yaml  # Lean Canvas only
+blueprint visualize north-star.yaml   # North Star only
 ```
 
 ## Edge Cases
 
 1. **Empty Lean Canvas**: All boxes empty except metadata - validation warns but allows
 2. **Partial Completion**: Some boxes filled, others empty - perfectly valid for work-in-progress
-3. **Multiple Lean Canvas Files**: User has multiple products - each gets its own file
-4. **Lean Canvas + Arch Scope (no North Star)**: Validation fails - Arch Scope requires North Star reference
-5. **Only Metadata**: User creates file with just type/version/title - validates successfully
-6. **Long Text in Boxes**: Large amounts of text in any section - visualization handles with scrolling/wrapping
-7. **Special Characters**: YAML special characters in content - properly escaped and rendered
-8. **Missing visualization.html Output**: Default output name follows pattern: `lean-canvas-visualization.html`
+3. **Multiple Products**: Each product gets its own business.yaml + layer files in separate directories
+4. **Business.yaml with all references empty**: Valid - warns that no layers are referenced
+5. **Business.yaml references non-existent files**: Validation fails with clear error message
+6. **Only Metadata**: User creates Lean Canvas with just type/version/title - validates successfully
+7. **Long Text in Boxes**: Large amounts of text in any section - visualization handles with scrolling/wrapping
+8. **Special Characters**: YAML special characters in content - properly escaped and rendered
+9. **Missing visualization.html Output**: Default output name: `business-visualization.html` when using business.yaml
+10. **Circular References**: Lean Canvas → North Star → Lean Canvas - validation detects and fails
+11. **Backward Compatibility**: Old projects without business.yaml continue to work by visualizing individual files
 
 ## Success Criteria
 
-- Lean Canvas files validate successfully with all fields optional
-- Validation warns (not fails) on empty sections
-- HTML visualization renders standard 3x3 Lean Canvas grid layout
+- Business.yaml validates successfully as entry point for all layers
+- All layer references in business.yaml are optional
+- Lean Canvas files validate successfully with all fields optional (except metadata)
+- Lean Canvas can optionally reference North Star via north_star_ref
+- Validation warns (not fails) on empty Lean Canvas sections
+- HTML visualization renders Lean Canvas with side-by-side Cost Structure and Revenue Streams
 - Visualization is responsive and print-friendly
 - Multiple layers (Lean Canvas + North Star + Arch Scope) display in tabbed interface
-- Architectural Scope cannot reference Lean Canvas (only North Star) - enforced by validation
-- CLI commands work for Lean Canvas files (validate, visualize)
-- Auto-detection includes Lean Canvas when present
-- Users can version control Lean Canvas files in git
+- CLI commands work for business.yaml (validate, visualize)
+- Backward compatibility: individual layer files can still be validated/visualized
+- Circular reference detection prevents infinite loops
+- Users can version control all files (business.yaml + layers) in git
+- Documentation explains business.yaml entry point pattern
 - Documentation explains when to use Lean Canvas vs. North Star
-- Examples demonstrate valid Lean Canvas usage
+- Examples demonstrate business.yaml with various layer combinations
 
 ## Business Value
 
