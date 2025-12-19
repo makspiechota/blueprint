@@ -60,12 +60,12 @@ Add new error scenarios:
 - Warning: "Goal appears enterprise-wide"
 
 ## Acceptance Criteria
-- [x] README examples use new WHY structure
-- [x] User guide explains business motivation framework
-- [x] User guide explains capability vs enterprise distinction
-- [x] User guide explains WHY-first ordering
-- [x] Architectural scope guide updated with mission/goals structure
-- [x] Examples of good capability-specific goals provided
-- [x] Troubleshooting covers new validation errors
-- [x] All documentation references Ross's methodology
-- [x] Documentation clarifies North Star (enterprise) vs WHY (capability)
+- [ ] README examples use new WHY structure
+- [ ] User guide explains business motivation framework
+- [ ] User guide explains capability vs enterprise distinction
+- [ ] User guide explains WHY-first ordering
+- [ ] Architectural scope guide updated with mission/goals structure
+- [ ] Examples of good capability-specific goals provided
+- [ ] Troubleshooting covers new validation errors
+- [ ] All documentation references Ross's methodology
+- [ ] Documentation clarifies North Star (enterprise) vs WHY (capability)

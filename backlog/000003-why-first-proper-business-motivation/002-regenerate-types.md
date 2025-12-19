@@ -51,9 +51,9 @@ export interface ArchitecturalScope {
 Verify the types compile correctly and are used properly by the parser and validator.
 
 ## Acceptance Criteria
-- [x] Types regenerated from schema
-- [x] ArchitecturalScope interface has why property as object
-- [x] Mission has action, service, beneficiary fields
-- [x] Goals is optional array
-- [x] TypeScript compilation succeeds
-- [x] No type errors in existing code
+- [ ] Types regenerated from schema
+- [ ] ArchitecturalScope interface has why property as object
+- [ ] Mission has action, service, beneficiary fields
+- [ ] Goals is optional array
+- [ ] TypeScript compilation succeeds
+- [ ] No type errors in existing code

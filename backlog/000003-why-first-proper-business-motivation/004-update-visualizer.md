@@ -91,13 +91,13 @@ Desktop: WHY full width at top, then 2x3 grid
 Mobile: WHY first, then cards stack
 
 ## Acceptance Criteria
-- [x] WHY displayed first before other scope lists
-- [x] WHY card spans full width
-- [x] Business mission prominently displayed with icon
-- [x] Mission shows three components clearly (action, service, beneficiary)
-- [x] Goals listed below mission as separate section
-- [x] WHY card has distinct styling (different background, larger)
-- [x] Other scope lists in correct order (what, how, where, who, when)
-- [x] Responsive layout works (desktop: WHY full width + 2x3 grid, mobile: stacked)
-- [x] Tests updated for new WHY structure
-- [x] All tests pass
+- [ ] WHY displayed first before other scope lists
+- [ ] WHY card spans full width
+- [ ] Business mission prominently displayed with icon
+- [ ] Mission shows three components clearly (action, service, beneficiary)
+- [ ] Goals listed below mission as separate section
+- [ ] WHY card has distinct styling (different background, larger)
+- [ ] Other scope lists in correct order (what, how, where, who, when)
+- [ ] Responsive layout works (desktop: WHY full width + 2x3 grid, mobile: stacked)
+- [ ] Tests updated for new WHY structure
+- [ ] All tests pass

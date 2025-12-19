@@ -43,11 +43,11 @@ const SCOPE_LISTS = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
 - Goals not starting with "To" (schema fails, but provide clear message)
 
 ## Acceptance Criteria
-- [x] Validates WHY exists and has mission
-- [x] Validates mission has all three components
-- [x] Validates mission components are non-empty
-- [x] Soft warning for project-like wording in goals
-- [x] Soft warning for enterprise-wide sounding goals
-- [x] SCOPE_LISTS updated to WHY-first order
-- [x] Tests cover all validation scenarios
-- [x] All tests pass (existing + new)
+- [ ] Validates WHY exists and has mission
+- [ ] Validates mission has all three components
+- [ ] Validates mission components are non-empty
+- [ ] Soft warning for project-like wording in goals
+- [ ] Soft warning for enterprise-wide sounding goals
+- [ ] SCOPE_LISTS updated to WHY-first order
+- [ ] Tests cover all validation scenarios
+- [ ] All tests pass (existing + new)

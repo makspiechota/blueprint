@@ -76,11 +76,11 @@ Replace the current WHY array definition with:
 **Important**: WHY is no longer optional - it becomes required in the schema's required array.
 
 ## Acceptance Criteria
-- [x] WHY property is an object (not array)
-- [x] Mission object with three required string fields: action, service, beneficiary
-- [x] Action must start with "to " (pattern validation)
-- [x] Goals is optional array of objects
-- [x] Each goal has required title and description
-- [x] Goal title must start with "To" or "to" (pattern validation)
-- [x] WHY added to schema's required array
-- [x] Schema validates correctly with ajv
+- [ ] WHY property is an object (not array)
+- [ ] Mission object with three required string fields: action, service, beneficiary
+- [ ] Action must start with "to " (pattern validation)
+- [ ] Goals is optional array of objects
+- [ ] Each goal has required title and description
+- [ ] Goal title must start with "To" or "to" (pattern validation)
+- [ ] WHY added to schema's required array
+- [ ] Schema validates correctly with ajv
