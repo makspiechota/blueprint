@@ -66,11 +66,17 @@ when:
 6. Update descriptions to clarify ongoing nature
 
 ## Acceptance Criteria
-- [ ] WHY is first scope dimension in file
-- [ ] WHY has mission object with action, service, beneficiary
-- [ ] Mission action starts with "to"
-- [ ] Goals array with 3-5 items
-- [ ] All goal titles start with "To"
-- [ ] Goals are capability-specific (not enterprise-wide)
-- [ ] File validates against updated schema
-- [ ] Example demonstrates proper WHY usage
+- [x] WHY is first scope dimension in file
+- [x] WHY has mission object with action, service, beneficiary
+- [x] Mission action starts with "to"
+- [x] Goals array with 3-5 items (5 goals)
+- [x] All goal titles start with "To"
+- [x] Goals are capability-specific (not enterprise-wide)
+- [x] File validates against updated schema
+- [x] Example demonstrates proper WHY usage
+
+## Status
+[COMPLETED] - 2025-12-19
+Actual lines: 23 (restructured WHY section)
+All 49 tests passing
+File validates successfully against schema

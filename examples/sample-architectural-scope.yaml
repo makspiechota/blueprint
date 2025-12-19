@@ -1,15 +1,36 @@
 # Example Architectural Scope: Software Factory
 # This demonstrates the YAML DSL syntax for defining architectural scope layer
-# Architectural scope defines solution boundaries using six scope lists (What, How, Where, Who, When, Why)
+# Architectural scope defines solution boundaries using six scope lists (Why, What, How, Where, Who, When)
 
 # Required metadata
 type: architectural-scope
 version: "1.0"
-last_updated: "2025-12-18"
+last_updated: "2025-12-19"
 title: "Software Factory"
 
 # Required: Reference to north star file (validates that it exists)
 north_star_ref: sample-north-star.yaml
+
+# WHY - Business motivation (mission and goals for this capability)
+# Always first: WHY informs all other scope dimensions
+# Mission: What this capability does in day-to-day operations (action + service + beneficiary)
+# Goals: Capability-specific ongoing objectives (not project goals, not enterprise-wide strategy)
+why:
+  mission:
+    action: "to provide"
+    service: "systematic engineering practices augmented by AI for rapid feature delivery"
+    beneficiary: "B2B SaaS engineering teams (5-15 engineers)"
+  goals:
+    - title: "To accelerate engineering velocity"
+      description: "Enable teams to deliver features 3-6x faster through TDD, AI augmentation, and systematic practices while maintaining quality"
+    - title: "To ensure strategic clarity"
+      description: "Maintain alignment between vision and implementation through Blueprint DSL as single source of truth"
+    - title: "To preserve knowledge persistence"
+      description: "Capture business context and technical decisions in version-controlled documents that outlive individual developer tenure"
+    - title: "To enable effective AI collaboration"
+      description: "Provide structured context allowing AI agents to contribute productively without introducing technical debt"
+    - title: "To maintain consistent quality"
+      description: "Sustain high engineering standards at scale through automated testing, code review, and deployment practices"
 
 # WHAT - Business entities and information objects
 # Scope Question: What are the business data, information, or objects?
@@ -114,26 +135,3 @@ when:
 
   - title: "Incident Response"
     description: "24/7 on-call rotation for production issues requiring immediate diagnosis and remediation"
-
-# WHY - Business mission and ongoing business goals
-# Scope Question: Why is this solution chosen? What motivates decisions?
-# Recommended: 5-7 items (min 3, max 12)
-# Note: This aligns with north star strategic goals
-why:
-  - title: "Strategic Clarity"
-    description: "Blueprint provides single source of truth connecting vision to implementation, ensuring alignment"
-
-  - title: "Engineering Velocity"
-    description: "Systematic practices with AI augmentation deliver 3-6x productivity improvement over ad-hoc development"
-
-  - title: "Quality Consistency"
-    description: "TDD, automated reviews, and deployment pipelines maintain high standards at scale"
-
-  - title: "Knowledge Persistence"
-    description: "Version-controlled Blueprint documents preserve context beyond individual developer tenure"
-
-  - title: "Competitive Advantage"
-    description: "Faster feature delivery with consistent quality enables market leadership for B2B SaaS companies"
-
-  - title: "AI Enablement"
-    description: "Structured context allows AI agents to contribute effectively rather than introducing technical debt"
