@@ -70,7 +70,7 @@ declare namespace Schemas {
                 /**
                  * Action verb (e.g., 'to provide', 'to enable')
                  */
-                action: string; // ^to 
+                action: string; // ^[Tt]o 
                 /**
                  * The service or offering provided
                  */

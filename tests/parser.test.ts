@@ -427,4 +427,24 @@ why:
     expect(result.why.goals).toBeDefined();
     expect(result.why.goals![0].title).toBe('to improve customer satisfaction');
   });
+
+  test('accepts mission action starting with capital "To"', () => {
+    const validYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "To provide"
+    service: "some service"
+    beneficiary: "customers"`;
+
+    const filePath = path.join(fixturesDir, 'mission-action-capital-to.yaml');
+    fs.writeFileSync(filePath, validYaml);
+
+    const result = parseArchitecturalScope(filePath);
+
+    expect(result.why.mission.action).toBe('To provide');
+  });
 });
