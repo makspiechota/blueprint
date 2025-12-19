@@ -60,12 +60,40 @@ declare namespace Schemas {
             description: string;
         }[];
         /**
-         * Business mission and ongoing business goals
+         * Business motivation: mission and goals for this capability
          */
-        why?: {
-            title: string;
-            description: string;
-        }[];
+        why: {
+            /**
+             * Business mission: what this capability does in day-to-day operations
+             */
+            mission: {
+                /**
+                 * Action verb (e.g., 'to provide', 'to enable')
+                 */
+                action: string; // ^[Tt]o 
+                /**
+                 * The service or offering provided
+                 */
+                service: string;
+                /**
+                 * Who benefits from this service
+                 */
+                beneficiary: string;
+            };
+            /**
+             * Capability-specific business goals (ongoing objectives, not project goals)
+             */
+            goals?: {
+                /**
+                 * Goal title starting with 'To' (e.g., 'To increase customer satisfaction')
+                 */
+                title: string; // ^[Tt]o 
+                /**
+                 * Ongoing effect to achieve continuously for this capability
+                 */
+                description: string;
+            }[];
+        };
     }
     /**
      * North Star Schema
