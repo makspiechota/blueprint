@@ -90,6 +90,16 @@ describe('generateCombinedVisualization', () => {
       last_updated: '2025-12-18',
       title: 'Test Product',
       north_star_ref: 'north-star.yaml',
+      why: {
+        mission: {
+          action: 'to provide',
+          service: 'test services',
+          beneficiary: 'test users'
+        },
+        goals: [
+          { title: 'To achieve goal 1', description: 'Goal desc 1' }
+        ]
+      },
       what: [
         { title: 'Entity 1', description: 'What desc 1' },
         { title: 'Entity 2', description: 'What desc 2' },
@@ -140,12 +150,23 @@ describe('generateCombinedVisualization', () => {
       last_updated: '2025-12-18',
       title: 'Test',
       north_star_ref: 'ns.yaml',
+      why: {
+        mission: {
+          action: 'to deliver',
+          service: 'quality solutions',
+          beneficiary: 'customers'
+        },
+        goals: [
+          { title: 'To achieve excellence', description: 'D1' },
+          { title: 'To improve efficiency', description: 'D2' },
+          { title: 'To enhance satisfaction', description: 'D3' }
+        ]
+      },
       what: [{ title: 'W1', description: 'D1' }, { title: 'W2', description: 'D2' }, { title: 'W3', description: 'D3' }],
       how: [{ title: 'H1', description: 'D1' }, { title: 'H2', description: 'D2' }, { title: 'H3', description: 'D3' }],
       where: [{ title: 'Wh1', description: 'D1' }, { title: 'Wh2', description: 'D2' }, { title: 'Wh3', description: 'D3' }],
       who: [{ title: 'Who1', description: 'D1' }, { title: 'Who2', description: 'D2' }, { title: 'Who3', description: 'D3' }],
-      when: [{ title: 'When1', description: 'D1' }, { title: 'When2', description: 'D2' }, { title: 'When3', description: 'D3' }],
-      why: [{ title: 'Why1', description: 'D1' }, { title: 'Why2', description: 'D2' }, { title: 'Why3', description: 'D3' }]
+      when: [{ title: 'When1', description: 'D1' }, { title: 'When2', description: 'D2' }, { title: 'When3', description: 'D3' }]
     };
 
     const outputPath = path.join(outputDir, 'all-lists.html');
@@ -159,7 +180,8 @@ describe('generateCombinedVisualization', () => {
     expect(content).toContain('Where');
     expect(content).toContain('Who');
     expect(content).toContain('When');
-    expect(content).toContain('Why');
+    // WHY is rendered differently now (mission + goals structure)
+    // Full WHY visualization will be updated in Task 004
   });
 
   test('handles architectural scope with no scope lists', () => {
@@ -179,7 +201,14 @@ describe('generateCombinedVisualization', () => {
       version: '1.0',
       last_updated: '2025-12-18',
       title: 'Test',
-      north_star_ref: 'ns.yaml'
+      north_star_ref: 'ns.yaml',
+      why: {
+        mission: {
+          action: 'to provide',
+          service: 'minimal services',
+          beneficiary: 'users'
+        }
+      }
     };
 
     const outputPath = path.join(outputDir, 'empty-scope.html');

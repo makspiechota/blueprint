@@ -9,7 +9,7 @@
     "methodology": "Ronald Ross / Zachman Framework",
     "purpose": "Define solution boundaries before technical implementation"
   },
-  "required": ["type", "version", "last_updated", "title", "north_star_ref"],
+  "required": ["type", "version", "last_updated", "title", "north_star_ref", "why"],
   "properties": {
     "type": {
       "type": "string",
@@ -104,16 +104,53 @@
       }
     },
     "why": {
-      "type": "array",
-      "description": "Business mission and ongoing business goals",
-      "scopeQuestion": "Why is this solution chosen? What motivates decisions?",
-      "sizing": {"min": 3, "max": 12, "optimal": 7},
-      "items": {
-        "type": "object",
-        "required": ["title", "description"],
-        "properties": {
-          "title": {"type": "string"},
-          "description": {"type": "string"}
+      "type": "object",
+      "description": "Business motivation: mission and goals for this capability",
+      "required": ["mission"],
+      "properties": {
+        "mission": {
+          "type": "object",
+          "description": "Business mission: what this capability does in day-to-day operations",
+          "required": ["action", "service", "beneficiary"],
+          "properties": {
+            "action": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Action verb (e.g., 'to provide', 'to enable')",
+              "pattern": "^to "
+            },
+            "service": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The service or offering provided"
+            },
+            "beneficiary": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Who benefits from this service"
+            }
+          }
+        },
+        "goals": {
+          "type": "array",
+          "description": "Capability-specific business goals (ongoing objectives, not project goals)",
+          "items": {
+            "type": "object",
+            "required": ["title", "description"],
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[Tt]o ",
+                "description": "Goal title starting with 'To' (e.g., 'To increase customer satisfaction')"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Ongoing effect to achieve continuously for this capability"
+              }
+            }
+          }
         }
       }
     }

@@ -37,6 +37,16 @@ version: "1.0"
 last_updated: "2025-12-18"
 title: "Test Scope"
 north_star_ref: "north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "comprehensive testing capabilities"
+    beneficiary: "development teams"
+  goals:
+    - title: "To ensure code quality"
+      description: "Maintain high standards through automated testing"
+    - title: "To reduce defects"
+      description: "Catch issues early in development"
 what:
   - title: "Entity 1"
     description: "Description 1"

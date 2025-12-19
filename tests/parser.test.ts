@@ -97,6 +97,14 @@ version: "1.0"
 last_updated: "2025-12-18"
 title: "Test Scope"
 north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "business solutions"
+    beneficiary: "enterprise clients"
+  goals:
+    - title: "To achieve business excellence"
+      description: "Why it matters"
 what:
   - title: "Entity 1"
     description: "Description 1"
@@ -113,10 +121,7 @@ who:
     description: "Who is involved"
 when:
   - title: "Timing 1"
-    description: "When it occurs"
-why:
-  - title: "Goal 1"
-    description: "Why it matters"`;
+    description: "When it occurs"`;
 
     const filePath = path.join(fixturesDir, 'valid-arch-scope.yaml');
     fs.writeFileSync(filePath, validYaml);
@@ -125,12 +130,14 @@ why:
 
     expect(result.type).toBe('architectural-scope');
     expect(result.title).toBe('Test Scope');
+    expect(result.why).toBeDefined();
+    expect(result.why.mission).toBeDefined();
+    expect(result.why.goals).toHaveLength(1);
     expect(result.what).toHaveLength(2);
     expect(result.how).toHaveLength(1);
     expect(result.where).toHaveLength(1);
     expect(result.who).toHaveLength(1);
     expect(result.when).toHaveLength(1);
-    expect(result.why).toHaveLength(1);
   });
 
   test('parses architectural scope with subset of lists', () => {
@@ -139,6 +146,11 @@ version: "1.0"
 last_updated: "2025-12-18"
 title: "Minimal Scope"
 north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to deliver"
+    service: "quality software"
+    beneficiary: "end users"
 what:
   - title: "Entity 1"
     description: "Description 1"
@@ -152,12 +164,13 @@ how:
     const result = parseArchitecturalScope(filePath);
 
     expect(result.type).toBe('architectural-scope');
+    expect(result.why).toBeDefined();
+    expect(result.why.mission).toBeDefined();
     expect(result.what).toHaveLength(1);
     expect(result.how).toHaveLength(1);
     expect(result.where).toBeUndefined();
     expect(result.who).toBeUndefined();
     expect(result.when).toBeUndefined();
-    expect(result.why).toBeUndefined();
   });
 
   test('throws error for missing north_star_ref', () => {
@@ -202,5 +215,216 @@ what:
 
   test('throws error for non-existent file', () => {
     expect(() => parseArchitecturalScope('non-existent.yaml')).toThrow();
+  });
+
+  // Tests for new WHY structure (mission + goals)
+  test('parses valid architectural scope with WHY mission and goals', () => {
+    const validYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Scope with WHY"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "intelligent course recommendations"
+    beneficiary: "students and educators"
+  goals:
+    - title: "To increase student engagement"
+      description: "Improve learning outcomes through personalized recommendations"
+    - title: "To reduce course selection time"
+      description: "Help students find relevant courses faster"
+what:
+  - title: "Entity 1"
+    description: "Description 1"`;
+
+    const filePath = path.join(fixturesDir, 'valid-why-structure.yaml');
+    fs.writeFileSync(filePath, validYaml);
+
+    const result = parseArchitecturalScope(filePath);
+
+    expect(result.type).toBe('architectural-scope');
+    expect(result.why).toBeDefined();
+    expect(result.why.mission).toBeDefined();
+    expect(result.why.mission.action).toBe('to provide');
+    expect(result.why.mission.service).toBe('intelligent course recommendations');
+    expect(result.why.mission.beneficiary).toBe('students and educators');
+    expect(result.why.goals).toBeDefined();
+    expect(result.why.goals).toHaveLength(2);
+    expect(result.why.goals![0].title).toBe('To increase student engagement');
+    expect(result.why.goals![1].title).toBe('To reduce course selection time');
+  });
+
+  test('parses architectural scope with WHY mission but no goals', () => {
+    const validYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Scope"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to enable"
+    service: "seamless payments"
+    beneficiary: "online shoppers"
+what:
+  - title: "Entity 1"
+    description: "Description 1"`;
+
+    const filePath = path.join(fixturesDir, 'why-mission-only.yaml');
+    fs.writeFileSync(filePath, validYaml);
+
+    const result = parseArchitecturalScope(filePath);
+
+    expect(result.why).toBeDefined();
+    expect(result.why.mission).toBeDefined();
+    expect(result.why.mission.action).toBe('to enable');
+    expect(result.why.goals).toBeUndefined();
+  });
+
+  test('throws error when WHY is missing', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Without WHY"
+north_star_ref: "test-north-star.yaml"
+what:
+  - title: "Entity 1"
+    description: "Description 1"`;
+
+    const filePath = path.join(fixturesDir, 'missing-why.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow('Validation failed');
+  });
+
+  test('throws error when mission is missing from WHY', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  goals:
+    - title: "To improve something"
+      description: "Some goal"`;
+
+    const filePath = path.join(fixturesDir, 'why-missing-mission.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('throws error when mission action is missing', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    service: "some service"
+    beneficiary: "customers"`;
+
+    const filePath = path.join(fixturesDir, 'mission-missing-action.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('throws error when mission action does not start with "to "', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "provide service"
+    service: "some service"
+    beneficiary: "customers"`;
+
+    const filePath = path.join(fixturesDir, 'mission-action-invalid-pattern.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('throws error when mission service is missing', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    beneficiary: "customers"`;
+
+    const filePath = path.join(fixturesDir, 'mission-missing-service.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('throws error when mission beneficiary is missing', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "some service"`;
+
+    const filePath = path.join(fixturesDir, 'mission-missing-beneficiary.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('throws error when goal title does not start with "To"', () => {
+    const invalidYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "some service"
+    beneficiary: "customers"
+  goals:
+    - title: "Improve customer satisfaction"
+      description: "Make customers happier"`;
+
+    const filePath = path.join(fixturesDir, 'goal-invalid-pattern.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parseArchitecturalScope(filePath)).toThrow();
+  });
+
+  test('accepts goal title starting with lowercase "to"', () => {
+    const validYaml = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "some service"
+    beneficiary: "customers"
+  goals:
+    - title: "to improve customer satisfaction"
+      description: "Make customers happier"`;
+
+    const filePath = path.join(fixturesDir, 'goal-lowercase-to.yaml');
+    fs.writeFileSync(filePath, validYaml);
+
+    const result = parseArchitecturalScope(filePath);
+
+    expect(result.why.goals).toBeDefined();
+    expect(result.why.goals![0].title).toBe('to improve customer satisfaction');
   });
 });
