@@ -240,6 +240,77 @@ blueprint visualize north-star.yaml   # North Star only
 
 **Methodology Alignment**: Supports Lean Startup practitioners who want architecture documentation aligned with their strategic approach
 
+## Example: BLUEPRINT Business Lean Canvas
+
+**business.yaml:**
+```yaml
+type: business
+version: "1.0"
+last_updated: "2025-12-19"
+title: "BLUEPRINT"
+
+north_star_ref: "north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+```
+
+**lean-canvas.yaml:**
+```yaml
+type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-19"
+title: "BLUEPRINT"
+north_star_ref: "north-star.yaml"
+
+problem:
+  top_3_problems:
+    - "Strategic vision documents become stale and disconnected from code"
+    - "Business context is lost when developers leave or AI agents need context"
+    - "Teams lack structured way to capture business motivation alongside architecture"
+  existing_alternatives: "Confluence docs, Notion pages, scattered README files"
+
+customer_segments:
+  target_customers: "B2B SaaS engineering teams (5-15 engineers)"
+  early_adopters: "Startups using Lean Startup methodology with technical co-founders"
+
+unique_value_proposition:
+  single_clear_message: "Version-controlled business knowledge that AI agents can understand"
+  high_level_concept: "Git for business strategy"
+
+solution:
+  top_3_features:
+    - "YAML DSL for North Star, Lean Canvas, and Architectural Scope"
+    - "HTML visualization with tabbed interface for all layers"
+    - "CLI validation ensuring business knowledge stays current"
+
+channels:
+  path_to_customers:
+    - "GitHub marketplace"
+    - "Developer communities (Reddit, HN, Twitter)"
+    - "Technical blog posts and tutorials"
+    - "Open source community contributions"
+
+revenue_streams:
+  revenue_model: "Open source core + premium enterprise features (team collaboration, analytics)"
+  lifetime_value: "Initial: Free OSS adoption, Future: $99/month per team for premium"
+
+cost_structure:
+  customer_acquisition_cost: "Content marketing and community building (low CAC via OSS)"
+  distribution_costs: "npm hosting (free), GitHub (free)"
+  hosting_costs: "None - CLI tool runs locally"
+  people_costs: "Initial: Solo developer, Scale: 2-3 engineers + PM"
+
+key_metrics:
+  activities_to_measure:
+    - "npm downloads per month"
+    - "GitHub stars and forks"
+    - "Active projects using BLUEPRINT (tracked via GitHub search)"
+    - "Community contributions and PRs"
+    - "Documentation visits and /sf-plan usage"
+
+unfair_advantage:
+  cant_be_copied: "Integration with Claude Code CLI and Software Factory methodology - first-mover advantage in AI-native business documentation"
+```
+
 ## References
 
 - Lean Canvas: https://leanstack.com/lean-canvas
