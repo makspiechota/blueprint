@@ -1,4 +1,4 @@
-# Architectural Scope DSL Specification
+# Architectural Scope Guide
 
 ## Overview
 
