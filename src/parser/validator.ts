@@ -40,7 +40,8 @@ export function validateArchitecturalScope(data: any): asserts data is Architect
   validate(data, 'architectural-scope');
 }
 
-const SCOPE_LISTS = ['what', 'how', 'where', 'who', 'when', 'why'] as const;
+const SCOPE_LISTS = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
+const ARRAY_SCOPE_LISTS = ['what', 'how', 'where', 'who', 'when'] as const;
 
 export function validateArchitecturalScopeBusinessRules(
   data: any,
@@ -67,8 +68,8 @@ export function validateArchitecturalScopeBusinessRules(
     throw new Error(`North star file is invalid: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 
-  // Check if at least one scope list is defined
-  const definedLists = SCOPE_LISTS.filter(list =>
+  // Check if at least one scope list is defined (excluding WHY which is always present)
+  const definedLists = ARRAY_SCOPE_LISTS.filter(list =>
     list in data && Array.isArray(data[list]) && data[list].length > 0
   );
 
@@ -77,11 +78,53 @@ export function validateArchitecturalScopeBusinessRules(
   }
 
   // Validate scope list sizes (3-12 items, optimal: 7)
-  for (const listName of SCOPE_LISTS) {
+  // WHY is not validated for size since it has a different structure
+  for (const listName of ARRAY_SCOPE_LISTS) {
     if (listName in data && Array.isArray(data[listName])) {
       const count = data[listName].length;
       if (count < 3 || count > 12) {
         warnings.push(`${listName} list has ${count} items (recommended: 3-12, optimal: 7)`);
+      }
+    }
+  }
+
+  // WHY-specific validation
+  if (data.why && data.why.goals && Array.isArray(data.why.goals)) {
+    const projectKeywords = [
+      'implement', 'migrate', 'upgrade', 'deploy', 'install',
+      'create', 'build', 'develop', 'add'
+    ];
+
+    const enterpriseKeywords = [
+      'maximize shareholder', 'market leader', 'company', 'enterprise',
+      'organization', 'dominate', 'industry leader', 'global', 'worldwide'
+    ];
+
+    for (const goal of data.why.goals) {
+      const titleLower = goal.title.toLowerCase();
+      const descLower = goal.description.toLowerCase();
+      const combined = `${titleLower} ${descLower}`;
+
+      // Check for project objective wording
+      const hasProjectWording = projectKeywords.some(keyword =>
+        combined.includes(keyword)
+      );
+
+      if (hasProjectWording) {
+        warnings.push(
+          `Goal '${goal.title}' may be a project objective rather than ongoing business goal`
+        );
+      }
+
+      // Check for enterprise-wide wording
+      const hasEnterpriseWording = enterpriseKeywords.some(keyword =>
+        combined.includes(keyword)
+      );
+
+      if (hasEnterpriseWording) {
+        warnings.push(
+          `Goal '${goal.title}' appears enterprise-wide; capability goals should be specific to this capability`
+        );
       }
     }
   }
