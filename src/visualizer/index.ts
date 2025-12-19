@@ -69,7 +69,7 @@ export function generateCombinedVisualization(
   architecturalScope: ArchitecturalScope,
   outputPath: string
 ): void {
-  const scopeLists = ['what', 'how', 'where', 'who', 'when', 'why'] as const;
+  const scopeLists = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -108,6 +108,21 @@ export function generateCombinedVisualization(
     .scope-item { background: white; padding: 1rem; border-left: 3px solid #4299e1; border-radius: 4px; }
     .scope-item-title { font-weight: 600; color: #1a202c; margin-bottom: 0.25rem; }
     .scope-item-description { color: #4a5568; font-size: 0.95rem; }
+
+    .why-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; color: white; }
+    .why-card-header { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .mission { background: rgba(255,255,255,0.15); padding: 1.5rem; border-radius: 6px; backdrop-filter: blur(10px); }
+    .mission-label { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.9; }
+    .mission-components { display: grid; gap: 1rem; }
+    .mission-component { display: flex; gap: 0.75rem; align-items: baseline; }
+    .component-label { font-size: 0.9rem; font-weight: 600; opacity: 0.85; min-width: 90px; }
+    .component-value { font-size: 1.1rem; font-weight: 500; }
+    .goals-section { margin-top: 1.5rem; }
+    .goals-label { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.9; }
+    .goals-list { display: grid; gap: 0.75rem; }
+    .goal-item { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); }
+    .goal-item .goal-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .goal-item .goal-description { font-size: 0.9rem; opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -158,8 +173,44 @@ export function generateCombinedVisualization(
         <br>North Star Reference: ${escapeHtml(architecturalScope.north_star_ref)}
       </div>
 
+      ${architecturalScope.why ? `
+        <div class="why-card">
+          <div class="why-card-header">🎯 Business Motivation</div>
+          <div class="mission">
+            <div class="mission-label">BUSINESS MISSION</div>
+            <div class="mission-components">
+              <div class="mission-component">
+                <span class="component-label">Action:</span>
+                <span class="component-value">${escapeHtml(architecturalScope.why.mission.action)}</span>
+              </div>
+              <div class="mission-component">
+                <span class="component-label">Service:</span>
+                <span class="component-value">${escapeHtml(architecturalScope.why.mission.service)}</span>
+              </div>
+              <div class="mission-component">
+                <span class="component-label">Beneficiary:</span>
+                <span class="component-value">${escapeHtml(architecturalScope.why.mission.beneficiary)}</span>
+              </div>
+            </div>
+          </div>
+          ${architecturalScope.why.goals && architecturalScope.why.goals.length > 0 ? `
+            <div class="goals-section">
+              <div class="goals-label">CAPABILITY GOALS</div>
+              <div class="goals-list">
+                ${architecturalScope.why.goals.map(goal => `
+                  <div class="goal-item">
+                    <div class="goal-title">${escapeHtml(goal.title)}</div>
+                    <div class="goal-description">${escapeHtml(goal.description)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
       <div class="scope-grid">
-        ${scopeLists.map(listName => {
+        ${scopeLists.filter(listName => listName !== 'why').map(listName => {
           const list = architecturalScope[listName];
           if (!list || !Array.isArray(list) || list.length === 0) return '';
 
