@@ -11,6 +11,8 @@ The current architectural scope implementation has two critical issues that viol
    - **Business Goals** (ongoing effects to achieve continuously, not project objectives)
    - The relationship: mission is achieved *directly* through operations; goals are achieved *indirectly* by executing the mission
 
+**Important Context**: In Ross's framework, a **business capability** is a distinct unit of business functionality (e.g., "E-Commerce Platform", "Customer Support System"). Each architectural scope document describes ONE business capability. The business goals defined in WHY are **capability-specific goals**, not enterprise-wide strategic goals (those belong in the North Star). This distinction is critical: North Star defines enterprise-level strategy, while each architectural scope's WHY defines that specific capability's mission and goals.
+
 This leads to confusion between project objectives and true business goals, and fails to represent the strategic foundation properly.
 
 ## Users
@@ -55,12 +57,12 @@ why:
     service: "online retail shopping experience"
     beneficiary: "customers worldwide"
   goals:
-    - title: "Increase customer satisfaction"
-      description: "Continuously improve user experience and service quality"
-    - title: "Expand market reach"
-      description: "Enable access to products for customers in new geographic regions"
-    - title: "Optimize operational efficiency"
-      description: "Reduce costs while maintaining service quality"
+    - title: "To increase customer satisfaction"
+      description: "Continuously improve user experience and service quality for this capability"
+    - title: "To expand market reach"
+      description: "Enable access to products for customers in new geographic regions through this capability"
+    - title: "To optimize operational efficiency"
+      description: "Reduce costs while maintaining service quality for this capability"
 
 what:
   - title: "Customer Account"
@@ -96,7 +98,9 @@ This order follows Ross's principle: understand motivation first, then define sc
 2. **Business Goals**:
    - Optional (can have 0-N goals)
    - Each goal has title and description
+   - Goal title must start with "To" (e.g., "To increase...", "To reduce...")
    - Goals should be ongoing effects, not project objectives (soft validation warning if wording suggests temporary objective)
+   - Goals are capability-specific (not enterprise-wide strategic goals)
 
 3. **WHY Positioning**:
    - WHY must be the first scope list in YAML file
@@ -129,20 +133,25 @@ This order follows Ross's principle: understand motivation first, then define sc
 3. **Empty WHY List**: WHY list can exist with mission but no goals (goals are optional)
 4. **No WHY List**: If no WHY list defined, validation should fail (WHY is now required)
 5. **WHY Not First**: Parser should warn if WHY appears after other scope lists in YAML
-6. **Project Objectives as Goals**: Soft validation warning if goal title/description contains words suggesting temporary project (e.g., "implement", "migrate", "upgrade")
-7. **Multiple Missions**: Validation should fail if more than one mission defined (exactly one required)
-8. **Old Format Files**: Files with WHY as simple list should be flagged with migration guidance
+6. **Goals Not Starting with "To"**: Validation should fail if goal title doesn't start with "To" (case-insensitive)
+7. **Project Objectives as Goals**: Soft validation warning if goal title/description contains words suggesting temporary project (e.g., "implement", "migrate", "upgrade")
+8. **Multiple Missions**: Validation should fail if more than one mission defined (exactly one required)
+9. **Old Format Files**: Files with WHY as simple list should be flagged with migration guidance
+10. **Enterprise-wide Goals in Capability**: Soft validation warning if goal appears too broad (should reference North Star for enterprise-level strategy)
 
 ## Success Criteria
 
 - Business analysts define WHY (mission + goals) before other scope dimensions
 - Validation enforces exactly one business mission with three required components
+- Validation enforces business goals start with "To"
+- Validation distinguishes capability-specific goals from enterprise-wide strategic goals
 - Visualization prominently displays WHY at top with special treatment
 - Business mission clearly distinguishes action, service, and beneficiary
 - Business goals are properly separated from project objectives
 - All scope lists appear in correct order (WHY first) in YAML, CLI output, and visualization
-- Documentation explains Ross's business motivation framework
-- Example files demonstrate proper WHY structure
+- Documentation explains Ross's business motivation framework and capability scope
+- Documentation clarifies difference between North Star (enterprise) and capability goals
+- Example files demonstrate proper WHY structure with "To" format
 - Migration path exists for files with old WHY structure
 
 ## Business Value
