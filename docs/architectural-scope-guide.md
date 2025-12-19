@@ -6,7 +6,9 @@ The Architectural Scope layer bridges the gap between strategic vision (North St
 
 **Purpose**: Box the business solution space before diving into technical details.
 
-**Methodology**: Ronald Ross / Zachman Framework six interrogatives (What, How, Where, Who, When, Why)
+**Methodology**: Ronald Ross / Zachman Framework six interrogatives (Why, What, How, Where, Who, When)
+
+**WHY-First Approach**: Following Ronald Ross's business motivation framework, WHY (business motivation) comes first as the foundation that informs all other scope dimensions.
 
 ## File Structure
 
@@ -30,11 +32,48 @@ north_star_ref: path/to/north-star.yaml
 
 ## Six Scope Lists
 
-All six scope lists are **optional** but recommended. Each list follows the 7±2 cognitive principle:
+All six scope lists are **optional** but recommended. Lists are presented in WHY-first order following Ronald Ross's business motivation framework.
+
+**Note**: WHY has a unique structure (mission + goals), while other lists follow the 7±2 cognitive principle:
 
 - **Minimum**: 3 items
 - **Maximum**: 12 items
 - **Optimal**: 7 items
+
+### Why - Business Motivation
+
+**Scope Question**: Why does this capability exist? What motivates decisions?
+
+**ALWAYS FIRST**: WHY informs all other scope dimensions. In Ronald Ross's methodology, business motivation is the foundation that drives what entities you need, how you operate, and where/who/when activities occur.
+
+Defines the business mission (what this capability does) and capability-specific goals (ongoing objectives for this capability).
+
+**Structure**: Unlike other scope lists, WHY has two components:
+1. **Mission**: Three-part statement (action + service + beneficiary)
+2. **Goals**: Array of capability-specific ongoing objectives (each starts with "To")
+
+**Mission vs Goals**:
+- **Mission**: Achieved **directly** through performing this capability
+- **Goals**: Achieved **indirectly** by executing the mission well
+
+**Capability-Specific vs Enterprise-Wide**:
+- Goals here are specific to this ONE capability
+- Enterprise-wide strategic goals belong in North Star layer
+
+```yaml
+why:
+  mission:
+    action: "to provide"
+    service: "accessible online learning experiences"
+    beneficiary: "students seeking flexible education"
+  goals:
+    - title: "To increase course completion rates"
+      description: "Improve student success through personalized learning paths and timely support"
+    - title: "To reduce enrollment barriers"
+      description: "Simplify registration process and provide clear prerequisite guidance"
+    - title: "To enhance learning outcomes"
+      description: "Ensure students achieve measurable skill development aligned with career goals"
+```
 
 ### What - Business Entities
 
@@ -116,22 +155,6 @@ when:
     description: Quarterly degree audit for eligible students
 ```
 
-### Why - Business Motivation
-
-**Scope Question**: Why is this solution chosen? What motivates decisions?
-
-Defines the business mission and strategic goals (references north star).
-
-```yaml
-why:
-  - title: Accessible Education
-    description: Remove barriers to quality learning opportunities
-  - title: Career Advancement
-    description: Provide credentials that improve employment outcomes
-  - title: Lifelong Learning
-    description: Support continuous skill development throughout careers
-```
-
 ## Validation Rules
 
 ### North Star Reference
@@ -143,16 +166,38 @@ The `north_star_ref` field must:
 
 ### Scope List Item Counts
 
-Each scope list (What, How, Where, Who, When, Why) must contain:
+Each scope list (What, How, Where, Who, When) must contain:
 - **Minimum**: 3 items
 - **Maximum**: 12 items
 - **Optimal**: 7 items
 
 Validators should warn when lists fall outside optimal range (5-9 items).
 
+**Note**: WHY has unique validation (see below).
+
+### WHY Validation
+
+WHY has a different structure and validation rules:
+
+**Mission** (required if WHY present):
+- Must have `action`, `service`, `beneficiary` fields
+- `action` must start with "to " (lowercase)
+- All fields are required strings
+
+**Goals** (optional array):
+- Each goal must have `title` and `description`
+- `title` should start with "To " (capital T) for consistency
+- Goals should be capability-specific (not enterprise-wide)
+- Goals should be ongoing objectives (not project objectives like "implement" or "migrate")
+
+**Soft Warnings**:
+- Validator warns if goal title doesn't start with "To "
+- Validator warns if goal contains project-oriented words (implement, migrate, deploy, etc.)
+- Validator warns if goal sounds enterprise-wide instead of capability-specific
+
 ### Item Structure
 
-Each scope list item requires:
+Each scope list item (What, How, Where, Who, When) requires:
 - **title**: Short, descriptive name (string)
 - **description**: Clear explanation of scope element (string)
 
@@ -161,9 +206,26 @@ Each scope list item requires:
 ```yaml
 type: architectural-scope
 version: "1.0"
-last_updated: 2025-12-18
+last_updated: 2025-12-19
 title: CourseIQ Learning Platform
 north_star_ref: ../north-star.yaml
+
+why:
+  mission:
+    action: "to provide"
+    service: "accessible online learning experiences"
+    beneficiary: "students seeking flexible education"
+  goals:
+    - title: "To increase course completion rates"
+      description: "Improve student success through personalized learning paths and timely support"
+    - title: "To reduce enrollment barriers"
+      description: "Simplify registration process and provide clear prerequisite guidance"
+    - title: "To enhance learning outcomes"
+      description: "Ensure students achieve measurable skill development aligned with career goals"
+    - title: "To improve instructor effectiveness"
+      description: "Provide data-driven insights about student engagement and comprehension"
+    - title: "To enable scalable education delivery"
+      description: "Support growing student populations without compromising quality"
 
 what:
   - title: Student Profile
@@ -230,18 +292,6 @@ when:
     description: Quarterly degree audit for eligible students
   - title: Financial Aid Disbursement
     description: Funds released one week before term begins
-
-why:
-  - title: Accessible Education
-    description: Remove barriers to quality learning opportunities
-  - title: Career Advancement
-    description: Provide credentials that improve employment outcomes
-  - title: Lifelong Learning
-    description: Support continuous skill development throughout careers
-  - title: Industry Alignment
-    description: Ensure curriculum matches employer needs
-  - title: Student Success
-    description: Maximize completion rates and learning outcomes
 ```
 
 ## Relationship to North Star
@@ -250,9 +300,13 @@ The architectural scope **requires** and **extends** the north star layer:
 
 - **Requires**: Must reference an existing north star file via `north_star_ref`
 - **Extends**: Translates strategic vision into concrete solution boundaries
-- **Relationship**: Why scope list should align with north star strategic goals
+- **WHY Alignment**: Architectural scope WHY defines capability-specific mission and goals, while North Star defines enterprise-wide strategic goals
 
-The north star defines *what effect* the business aims to achieve. The architectural scope defines *what solution boundaries* exist to achieve that effect.
+**Key Distinction**:
+- **North Star strategic goals** = Enterprise-wide objectives (e.g., "Become market leader in online education")
+- **Architectural Scope WHY goals** = Capability-specific objectives (e.g., "To increase course completion rates for this learning platform")
+
+The north star defines *what effect* the business aims to achieve enterprise-wide. The architectural scope defines *what this specific capability does* and *what goals it pursues* to contribute to that enterprise effect.
 
 ## Technical Details
 
@@ -288,4 +342,24 @@ Warning: 'who' list has 15 items (maximum 12 recommended, optimal 7)
 **Missing Required Item Fields**
 ```
 Error: Scope list item missing required field 'description' in what[2]
+```
+
+**WHY Mission Missing Action**
+```
+Error: WHY mission requires 'action' field starting with 'to '
+```
+
+**WHY Goal Missing "To" Prefix**
+```
+Warning: WHY goal "Reduce cart abandonment" should start with "To"
+```
+
+**WHY Goal Appears Project-Oriented**
+```
+Warning: WHY goal "Implement faster checkout" appears to be a project objective, not an ongoing goal
+```
+
+**WHY Goal Appears Enterprise-Wide**
+```
+Warning: WHY goal "Become market leader" sounds enterprise-wide, consider moving to North Star strategic goals
 ```

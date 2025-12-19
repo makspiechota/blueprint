@@ -7,7 +7,7 @@ Business knowledge management system with DSL parser and visualization.
 BLUEPRINT helps you define and communicate your strategic vision through structured DSL (Domain-Specific Language) files. It provides a two-layer approach:
 
 1. **North Star** - Your strategic vision: problem, solution, and goals
-2. **Architectural Scope** - Business capabilities organized by What, How, Where, Who, When, and Why
+2. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
 
 Together, these layers create a complete business blueprint from strategy to execution.
 
@@ -15,7 +15,7 @@ Together, these layers create a complete business blueprint from strategy to exe
 
 - **Two-Layer Architecture** - North Star (strategy) + Architectural Scope (capabilities)
 - **YAML DSL** - Simple, version-controlled format for business knowledge
-- **Six Scope Lists** - What, How, Where, Who, When, Why (7±2 items each)
+- **Six Scope Dimensions** - Why (mission + goals), What, How, Where, Who, When (7±2 items each)
 - **Validation** - Schema validation + business rules (scope list sizes)
 - **Combined Visualization** - Tabbed HTML view of both layers
 - **Auto-Detection** - Automatically finds and combines both files
@@ -68,9 +68,19 @@ blueprint visualize north-star.yaml
 ```yaml
 type: architectural-scope
 version: "1.0"
-last_updated: "2025-12-17"
+last_updated: "2025-12-19"
 title: "My Product"
 north_star_ref: "north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "online retail shopping experience"
+    beneficiary: "customers worldwide"
+  goals:
+    - title: "To increase customer satisfaction"
+      description: "Deliver seamless purchasing experience with fast delivery and easy returns"
+    - title: "To reduce cart abandonment"
+      description: "Streamline checkout process and provide clear product information"
 what:
   - title: "Customer"
     description: "People who buy"

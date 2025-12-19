@@ -115,6 +115,77 @@ what:
     description: "Description 3"
 ```
 
+### WHY Mission Structure Errors
+
+**Error**: `WHY mission requires 'action' field starting with 'to '`
+
+**Cause**: WHY section has incorrect structure or mission is missing required fields.
+
+**Solution**: WHY must have mission object with three components:
+```yaml
+why:
+  mission:
+    action: "to provide"
+    service: "your service description"
+    beneficiary: "your target beneficiaries"
+  goals:
+    - title: "To achieve first goal"
+      description: "Description"
+```
+
+**Common mistakes**:
+- Using old array format: `why: [...]` - must use object with mission + goals
+- Missing "to " prefix in action: `action: "provide"` - must start with "to "
+- Missing beneficiary field
+
+### WHY Goal Warnings
+
+**Warning**: `WHY goal "Reduce cart abandonment" should start with "To"`
+
+**Cause**: Goal title doesn't start with "To ".
+
+**Solution**: All goals should start with "To " (capital T) to emphasize ongoing nature:
+```yaml
+goals:
+  - title: "To reduce cart abandonment"  # Correct
+    description: "Streamline checkout process"
+  # Not: title: "Reduce cart abandonment"  # Wrong
+```
+
+**Warning**: `WHY goal "Implement faster checkout" appears to be a project objective, not an ongoing goal`
+
+**Cause**: Goal uses project-oriented language like "implement", "migrate", "deploy".
+
+**Solution**: Reframe as ongoing objective, not project task:
+```yaml
+# Good - ongoing objective
+- title: "To improve checkout speed"
+  description: "Minimize steps and reduce friction in purchase flow"
+
+# Bad - project objective
+- title: "To implement faster checkout"
+  description: "Deploy new checkout system"
+```
+
+**Warning**: `WHY goal "Become market leader" sounds enterprise-wide, consider moving to North Star strategic goals`
+
+**Cause**: Goal is too broad and enterprise-wide, not capability-specific.
+
+**Solution**: Make goal specific to this capability:
+```yaml
+# Good - capability-specific
+- title: "To increase course completion rates"
+  description: "Improve student success through personalized learning paths"
+
+# Bad - enterprise-wide (belongs in North Star)
+- title: "To become market leader in online education"
+  description: "Dominate the e-learning market"
+```
+
+**Key distinction**:
+- **Architectural Scope WHY goals**: Specific to this ONE capability
+- **North Star strategic goals**: Enterprise-wide objectives
+
 ### Combined Visualization Not Working
 
 **Issue**: Visualize only shows one layer, not both.

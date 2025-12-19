@@ -112,6 +112,69 @@ strategic_goals:              # Required: Array of goals
 
 5. **Keep goals focused** - 3-5 strategic goals is ideal. More than that loses focus.
 
+## Understanding Business Motivation (WHY-First)
+
+BLUEPRINT implements Ronald Ross's business motivation framework, placing WHY first as the foundation for all other scope dimensions.
+
+### Business Capability Concept
+
+Each Architectural Scope defines **one business capability** - a distinct unit of business functionality. For example:
+- "Customer Onboarding" is a capability
+- "Payment Processing" is a capability
+- "Inventory Management" is a capability
+
+The entire enterprise has many capabilities. Each gets its own Architectural Scope document.
+
+### Mission vs Goals
+
+Every capability has a **business mission** and optional **business goals**:
+
+**Mission** - What this capability does in day-to-day operations:
+- Achieved **directly** through performing the capability
+- Has exactly **three components**: action + service + beneficiary
+- Example: "to provide secure payment processing for online shoppers"
+
+**Goals** - Ongoing objectives for this capability:
+- Achieved **indirectly** by executing the mission well
+- All start with "To" (e.g., "To reduce transaction failures")
+- **Capability-specific** (not enterprise-wide)
+- **Ongoing** (not project objectives like "implement" or "migrate")
+
+### Capability Goals vs Enterprise Strategy
+
+**Important distinction**:
+- **North Star strategic goals** = Enterprise-wide objectives (e.g., "Become market leader")
+- **WHY capability goals** = Specific to this one capability (e.g., "To improve payment success rate")
+
+If a goal sounds enterprise-wide, it belongs in North Star, not Architectural Scope WHY.
+
+### Why WHY Comes First
+
+In Ross's methodology, WHY is the **most important** scope dimension:
+- WHY (business motivation) informs all other decisions
+- What entities you need depends on why you exist
+- How you operate depends on your goals
+- Where, who, when all flow from understanding why
+
+Therefore, WHY always appears **first** in Architectural Scope files.
+
+### The Three Mission Components
+
+Every mission must have:
+1. **Action**: Verb phrase starting with "to" (e.g., "to provide", "to enable", "to deliver")
+2. **Service**: What you're providing (e.g., "secure payment processing")
+3. **Beneficiary**: Who receives value (e.g., "online shoppers")
+
+Together: "to provide secure payment processing for online shoppers"
+
+### Goals Starting with "To"
+
+All goals must start with "To" to emphasize their ongoing nature:
+- ✅ Good: "To reduce cart abandonment"
+- ✅ Good: "To improve checkout speed"
+- ❌ Bad: "Reduce cart abandonment" (sounds like a task)
+- ❌ Bad: "Implement faster checkout" (project objective, not ongoing goal)
+
 ## Writing an Architectural Scope File
 
 ### Basic Structure
@@ -121,9 +184,20 @@ Architectural Scope files reference a North Star and define business capabilitie
 ```yaml
 type: architectural-scope
 version: "1.0"
-last_updated: "2025-12-18"
+last_updated: "2025-12-19"
 title: "Your Title"
 north_star_ref: "north-star.yaml"
+
+why:  # Business motivation (mission and goals)
+  mission:
+    action: "to provide"
+    service: "your service description"
+    beneficiary: "your target beneficiaries"
+  goals:
+    - title: "To achieve first goal"
+      description: "Description of ongoing objective"
+    - title: "To accomplish second goal"
+      description: "Description of another ongoing objective"
 
 what:  # Business entities
   - title: "Entity Name"
@@ -144,13 +218,15 @@ who:  # People/roles
 when:  # Timing/lifecycle
   - title: "Phase Name"
     description: "When it occurs"
-
-why:  # Goals/motivations
-  - title: "Goal Name"
-    description: "Why it matters"
 ```
 
 ### The Six Scope Lists
+
+**Why** - Business motivation (mission and goals)
+- Mission: What this capability does (action + service + beneficiary)
+- Goals: Capability-specific ongoing objectives starting with "To"
+- Examples: "To reduce cart abandonment", "To improve checkout speed"
+- Always appears first (WHY informs all other dimensions)
 
 **What** - Business entities and data
 - Examples: Customer, Order, Product, Invoice
@@ -171,10 +247,6 @@ why:  # Goals/motivations
 **When** - Time-based aspects
 - Examples: Order Lifecycle, Monthly Billing, Peak Season
 - Temporal patterns and timing
-
-**Why** - Business goals and motivations
-- Examples: Increase Revenue, Reduce Costs, Improve Quality
-- Business drivers and objectives
 
 ### The 7±2 Principle
 
