@@ -1,4 +1,4 @@
-import { NorthStar } from '../parser/types';
+import { NorthStar, ArchitecturalScope } from '../parser/types';
 import * as fs from 'fs';
 
 export function generateVisualization(parsedData: NorthStar, outputPath: string): void {
@@ -58,6 +58,148 @@ export function generateVisualization(parsedData: NorthStar, outputPath: string)
       </div>
     </div>
   </div>
+</body>
+</html>`;
+
+  fs.writeFileSync(outputPath, html, 'utf8');
+}
+
+export function generateCombinedVisualization(
+  northStar: NorthStar,
+  architecturalScope: ArchitecturalScope,
+  outputPath: string
+): void {
+  const scopeLists = ['what', 'how', 'where', 'who', 'when', 'why'] as const;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(northStar.title)} - Blueprint</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    .tabs { display: flex; border-bottom: 2px solid #e2e8f0; background: #f9fafb; }
+    .tab { padding: 1rem 2rem; cursor: pointer; border: none; background: none; font-size: 1rem; font-weight: 500; color: #4a5568; transition: all 0.2s; }
+    .tab:hover { background: #edf2f7; }
+    .tab.active { color: #2c5282; border-bottom: 3px solid #4299e1; background: white; }
+
+    .tab-content { display: none; padding: 3rem; }
+    .tab-content.active { display: block; }
+
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #1a1a1a; }
+    .metadata { color: #666; font-size: 0.9rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eee; }
+    .section { margin: 2rem 0; }
+    .section-title { font-size: 1.5rem; color: #2c5282; margin-bottom: 0.75rem; font-weight: 600; }
+    .section-content { background: #f9fafb; padding: 1.5rem; border-left: 4px solid #4299e1; white-space: pre-wrap; }
+    .goals { display: grid; gap: 1rem; margin-top: 1rem; }
+    .goal { background: #fff; border: 1px solid #e2e8f0; padding: 1.25rem; border-radius: 6px; transition: transform 0.2s; }
+    .goal:hover { transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .goal-title { font-size: 1.1rem; font-weight: 600; color: #1a202c; margin-bottom: 0.5rem; }
+    .goal-description { color: #4a5568; }
+
+    .scope-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .scope-list { background: #f9fafb; padding: 1.5rem; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .scope-list-title { font-size: 1.25rem; font-weight: 600; color: #2c5282; margin-bottom: 1rem; text-transform: capitalize; }
+    .scope-items { display: flex; flex-direction: column; gap: 0.75rem; }
+    .scope-item { background: white; padding: 1rem; border-left: 3px solid #4299e1; border-radius: 4px; }
+    .scope-item-title { font-weight: 600; color: #1a202c; margin-bottom: 0.25rem; }
+    .scope-item-description { color: #4a5568; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(event, 'north-star')">North Star</button>
+      <button class="tab" onclick="switchTab(event, 'architectural-scope')">Architectural Scope</button>
+    </div>
+
+    <div id="north-star" class="tab-content active">
+      <h1>${escapeHtml(northStar.title)}</h1>
+      <div class="metadata">
+        Version ${escapeHtml(northStar.version)} • Last updated: ${escapeHtml(northStar.last_updated)}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Vision</div>
+        <div class="section-content">${escapeHtml(northStar.vision)}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Problem</div>
+        <div class="section-content">${escapeHtml(northStar.problem)}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Solution</div>
+        <div class="section-content">${escapeHtml(northStar.solution)}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Strategic Goals</div>
+        <div class="goals">
+          ${northStar.strategic_goals.map(goal => `
+            <div class="goal">
+              <div class="goal-title">${escapeHtml(goal.title)}</div>
+              <div class="goal-description">${escapeHtml(goal.description)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div id="architectural-scope" class="tab-content">
+      <h1>${escapeHtml(architecturalScope.title)}</h1>
+      <div class="metadata">
+        Version ${escapeHtml(architecturalScope.version)} • Last updated: ${escapeHtml(architecturalScope.last_updated)}
+        <br>North Star Reference: ${escapeHtml(architecturalScope.north_star_ref)}
+      </div>
+
+      <div class="scope-grid">
+        ${scopeLists.map(listName => {
+          const list = architecturalScope[listName];
+          if (!list || !Array.isArray(list) || list.length === 0) return '';
+
+          return `
+            <div class="scope-list">
+              <div class="scope-list-title">${listName.charAt(0).toUpperCase() + listName.slice(1)}</div>
+              <div class="scope-items">
+                ${list.map(item => `
+                  <div class="scope-item">
+                    <div class="scope-item-title">${escapeHtml(item.title)}</div>
+                    <div class="scope-item-description">${escapeHtml(item.description)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(event, tabId) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Remove active from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected tab content
+      document.getElementById(tabId).classList.add('active');
+
+      // Mark selected tab as active
+      event.currentTarget.classList.add('active');
+    }
+  </script>
 </body>
 </html>`;
 

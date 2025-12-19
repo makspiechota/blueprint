@@ -1,5 +1,5 @@
-import { generateVisualization } from '../src/visualizer';
-import { NorthStar } from '../src/parser/types';
+import { generateVisualization, generateCombinedVisualization } from '../src/visualizer';
+import { NorthStar, ArchitecturalScope } from '../src/parser/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -68,5 +68,125 @@ describe('generateVisualization', () => {
     expect(content).toContain('Problem');
     expect(content).toContain('Solution');
     expect(content).toContain('Strategic Goals');
+  });
+});
+
+describe('generateCombinedVisualization', () => {
+  test('generates tabbed UI with both north star and architectural scope', () => {
+    const northStar: NorthStar = {
+      type: 'north-star',
+      version: '2.0',
+      last_updated: '2025-12-18',
+      title: 'Test Product',
+      vision: 'Vision text',
+      problem: 'Problem text',
+      solution: 'Solution text',
+      strategic_goals: [{ title: 'Goal 1', description: 'Desc 1' }]
+    };
+
+    const architecturalScope: ArchitecturalScope = {
+      type: 'architectural-scope',
+      version: '1.0',
+      last_updated: '2025-12-18',
+      title: 'Test Product',
+      north_star_ref: 'north-star.yaml',
+      what: [
+        { title: 'Entity 1', description: 'What desc 1' },
+        { title: 'Entity 2', description: 'What desc 2' },
+        { title: 'Entity 3', description: 'What desc 3' }
+      ],
+      how: [
+        { title: 'Process 1', description: 'How desc 1' },
+        { title: 'Process 2', description: 'How desc 2' },
+        { title: 'Process 3', description: 'How desc 3' }
+      ]
+    };
+
+    const outputPath = path.join(outputDir, 'combined.html');
+    generateCombinedVisualization(northStar, architecturalScope, outputPath);
+
+    expect(fs.existsSync(outputPath)).toBe(true);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for tabbed interface
+    expect(content).toContain('North Star');
+    expect(content).toContain('Architectural Scope');
+
+    // Check north star content
+    expect(content).toContain('Vision text');
+    expect(content).toContain('Goal 1');
+
+    // Check architectural scope content
+    expect(content).toContain('Entity 1');
+    expect(content).toContain('Process 1');
+  });
+
+  test('displays all six scope lists in grid layout', () => {
+    const northStar: NorthStar = {
+      type: 'north-star',
+      version: '2.0',
+      last_updated: '2025-12-18',
+      title: 'Test',
+      vision: 'V',
+      problem: 'P',
+      solution: 'S',
+      strategic_goals: []
+    };
+
+    const architecturalScope: ArchitecturalScope = {
+      type: 'architectural-scope',
+      version: '1.0',
+      last_updated: '2025-12-18',
+      title: 'Test',
+      north_star_ref: 'ns.yaml',
+      what: [{ title: 'W1', description: 'D1' }, { title: 'W2', description: 'D2' }, { title: 'W3', description: 'D3' }],
+      how: [{ title: 'H1', description: 'D1' }, { title: 'H2', description: 'D2' }, { title: 'H3', description: 'D3' }],
+      where: [{ title: 'Wh1', description: 'D1' }, { title: 'Wh2', description: 'D2' }, { title: 'Wh3', description: 'D3' }],
+      who: [{ title: 'Who1', description: 'D1' }, { title: 'Who2', description: 'D2' }, { title: 'Who3', description: 'D3' }],
+      when: [{ title: 'When1', description: 'D1' }, { title: 'When2', description: 'D2' }, { title: 'When3', description: 'D3' }],
+      why: [{ title: 'Why1', description: 'D1' }, { title: 'Why2', description: 'D2' }, { title: 'Why3', description: 'D3' }]
+    };
+
+    const outputPath = path.join(outputDir, 'all-lists.html');
+    generateCombinedVisualization(northStar, architecturalScope, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for all scope list headers
+    expect(content).toContain('What');
+    expect(content).toContain('How');
+    expect(content).toContain('Where');
+    expect(content).toContain('Who');
+    expect(content).toContain('When');
+    expect(content).toContain('Why');
+  });
+
+  test('handles architectural scope with no scope lists', () => {
+    const northStar: NorthStar = {
+      type: 'north-star',
+      version: '2.0',
+      last_updated: '2025-12-18',
+      title: 'Test',
+      vision: 'V',
+      problem: 'P',
+      solution: 'S',
+      strategic_goals: []
+    };
+
+    const architecturalScope: ArchitecturalScope = {
+      type: 'architectural-scope',
+      version: '1.0',
+      last_updated: '2025-12-18',
+      title: 'Test',
+      north_star_ref: 'ns.yaml'
+    };
+
+    const outputPath = path.join(outputDir, 'empty-scope.html');
+    generateCombinedVisualization(northStar, architecturalScope, outputPath);
+
+    expect(fs.existsSync(outputPath)).toBe(true);
+    const content = fs.readFileSync(outputPath, 'utf8');
+    expect(content).toContain('<!DOCTYPE html>');
   });
 });
