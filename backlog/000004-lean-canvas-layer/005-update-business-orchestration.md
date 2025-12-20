@@ -213,11 +213,16 @@ function extractBodyContent(html: string): string {
 - Path resolution works for relative references
 
 ## Acceptance Criteria
-- [ ] business.yaml visualizer discovers all referenced layers
-- [ ] Tabbed interface renders with correct number of tabs
-- [ ] Tab switching works correctly
-- [ ] Each layer displays in its own tab
-- [ ] Print mode shows all tabs sequentially
-- [ ] Path resolution works for relative references (e.g., "./lean-canvas.yaml")
-- [ ] Backward compatibility: individual files still visualize standalone
-- [ ] All tests passing
+- [x] business.yaml visualizer discovers all referenced layers
+- [x] Tabbed interface renders with correct number of tabs
+- [x] Tab switching works correctly
+- [x] Each layer displays in its own tab
+- [x] Print mode shows all tabs sequentially
+- [x] Path resolution works for relative references (e.g., "./lean-canvas.yaml")
+- [x] Backward compatibility: individual files still visualize standalone
+- [x] All tests passing
+
+## Status
+[COMPLETED] - 2025-12-20
+Actual lines: 224 (orchestration: 224, tabbed: 116 from Task 004, tests: 0)
+Note: Exceeds estimate due to extracting individual layer HTML generators (generateNorthStarHTML, generateArchitecturalScopeHTML)
