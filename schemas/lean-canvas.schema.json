@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "/schemas/lean-canvas",
+  "title": "Lean Canvas Schema",
+  "description": "Business model layer using 9-box Lean Canvas framework",
   "type": "object",
   "required": ["type", "version", "last_updated", "title"],
   "properties": {

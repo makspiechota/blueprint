@@ -96,6 +96,64 @@ declare namespace Schemas {
         };
     }
     /**
+     * Business Schema
+     * Entry point orchestrating all business and architectural layers
+     */
+    export interface Business {
+        type: "business";
+        version: string;
+        last_updated: string; // date
+        title: string;
+        north_star_ref?: string;
+        lean_canvas_ref?: string;
+        architectural_scope_ref?: string;
+    }
+    /**
+     * Lean Canvas Schema
+     * Business model layer using 9-box Lean Canvas framework
+     */
+    export interface LeanCanvas {
+        type: "lean-canvas";
+        version: string;
+        last_updated: string; // date
+        title: string;
+        north_star_ref?: string;
+        problem?: {
+            top_3_problems?: string[];
+            existing_alternatives?: string;
+        };
+        customer_segments?: {
+            target_customers?: string;
+            early_adopters?: string;
+        };
+        unique_value_proposition?: {
+            single_clear_message?: string;
+            high_level_concept?: string;
+        };
+        solution?: {
+            top_3_features?: string[];
+        };
+        channels?: {
+            path_to_customers?: string[];
+        };
+        revenue_streams?: {
+            revenue_model?: string;
+            lifetime_value?: string;
+        };
+        cost_structure?: {
+            customer_acquisition_cost?: string;
+            distribution_costs?: string;
+            hosting_costs?: string;
+            people_costs?: string;
+        };
+        key_metrics?: {
+            activities_to_measure?: string[];
+        };
+        unfair_advantage?: {
+            cant_be_copied?: string;
+        };
+    }
+    /**
      * North Star Schema
      * Strategic vision layer defining enterprise mission and strategic goals
      */

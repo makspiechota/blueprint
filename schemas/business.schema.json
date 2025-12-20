@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "/schemas/business",
+  "title": "Business Schema",
+  "description": "Entry point orchestrating all business and architectural layers",
   "type": "object",
   "required": ["type", "version", "last_updated", "title"],
   "properties": {
