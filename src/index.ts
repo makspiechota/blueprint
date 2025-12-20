@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { parseNorthStar, parseArchitecturalScope } from './parser';
-import { generateVisualization, generateCombinedVisualization } from './visualizer';
+import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas, parseBusiness } from './parser';
+import { generateVisualization, generateCombinedVisualization, visualizeBusiness } from './visualizer';
+import { generateLeanCanvasHTML } from './visualizer/lean-canvas-visualizer';
 import { validateArchitecturalScopeBusinessRules } from './parser/validator';
 import * as logger from './utils/logger';
 import * as fs from 'fs';
@@ -17,7 +18,7 @@ program
 program
   .command('visualize')
   .description('Parse DSL and generate visualization')
-  .argument('<input>', 'North Star or Architectural Scope YAML file')
+  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, or Business YAML file')
   .option('-o, --output <file>', 'Output HTML file', 'northstar-visualization.html')
   .action((input: string, options: { output: string }) => {
     try {
@@ -58,6 +59,16 @@ program
           generateVisualization(northStar, options.output);
           logger.success(`Visualization generated successfully: ${options.output}`);
         }
+      } else if (data.type === 'lean-canvas') {
+        // Parse lean canvas
+        const leanCanvas = parseLeanCanvas(input);
+        const html = generateLeanCanvasHTML(leanCanvas);
+        fs.writeFileSync(options.output, html, 'utf8');
+        logger.success(`Lean Canvas visualization generated successfully: ${options.output}`);
+      } else if (data.type === 'business') {
+        // Parse business and orchestrate layers
+        visualizeBusiness(input, options.output);
+        logger.success(`Business visualization generated successfully: ${options.output}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);
@@ -70,8 +81,8 @@ program
 
 program
   .command('validate')
-  .description('Validate North Star or Architectural Scope DSL file')
-  .argument('<input>', 'North Star or Architectural Scope YAML file')
+  .description('Validate North Star, Architectural Scope, Lean Canvas, or Business DSL file')
+  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, or Business YAML file')
   .action((input: string) => {
     try {
       if (!fs.existsSync(input)) {
@@ -97,6 +108,12 @@ program
       } else if (data.type === 'north-star') {
         parseNorthStar(input);
         logger.success(`North Star file is valid: ${input}`);
+      } else if (data.type === 'lean-canvas') {
+        parseLeanCanvas(input);
+        logger.success(`Lean Canvas file is valid: ${input}`);
+      } else if (data.type === 'business') {
+        parseBusiness(input);
+        logger.success(`Business file is valid: ${input}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);
