@@ -1,0 +1,24 @@
+type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-20"
+title: "My Startup Idea"
+
+problem:
+  top_3_problems:
+    - "Problem 1 - customers struggle with X"
+    - "Problem 2 - existing solutions are too expensive"
+    - "Problem 3 - current tools are too complex"
+
+customer_segments:
+  target_customers: "Small businesses in the retail sector"
+  early_adopters: "Tech-savvy store owners"
+
+unique_value_proposition:
+  single_clear_message: "Affordable, simple inventory management"
+  high_level_concept: "Shopify for local stores"
+
+solution:
+  top_3_features:
+    - "Mobile-first inventory tracking"
+    - "Automated reordering"
+    - "Sales analytics dashboard"

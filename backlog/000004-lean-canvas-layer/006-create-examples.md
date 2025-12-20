@@ -161,11 +161,16 @@ blueprint visualize examples/lean-canvas.yaml
 ```
 
 ## Acceptance Criteria
-- [ ] business.yaml example with all three layer references
-- [ ] lean-canvas.yaml example with complete BLUEPRINT business
-- [ ] business-lean-only.yaml example with only lean canvas
-- [ ] lean-canvas-simple.yaml example showing minimal valid canvas
-- [ ] All examples validate successfully
-- [ ] All examples visualize successfully
-- [ ] Examples demonstrate different layer combinations
-- [ ] BLUEPRINT example matches feature spec exactly
+- [x] business.yaml example with all three layer references
+- [x] lean-canvas.yaml example with complete BLUEPRINT business
+- [x] business-lean-only.yaml example with only lean canvas
+- [x] lean-canvas-simple.yaml example showing minimal valid canvas
+- [x] All examples validate successfully
+- [x] All examples visualize successfully
+- [x] Examples demonstrate different layer combinations
+- [x] BLUEPRINT example matches feature spec exactly
+
+## Status
+[COMPLETED] - 2025-12-20
+Actual lines: 106 (examples: 75, CLI updates: 31)
+Note: Added CLI support for lean-canvas and business types (validate and visualize commands)

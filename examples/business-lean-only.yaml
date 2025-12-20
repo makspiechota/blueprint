@@ -1,0 +1,6 @@
+type: business
+version: "1.0"
+last_updated: "2025-12-20"
+title: "My Startup"
+
+lean_canvas_ref: "lean-canvas-simple.yaml"
