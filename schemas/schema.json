@@ -15,6 +15,18 @@
       "version": "1.0",
       "file": "architectural-scope.schema.json",
       "description": "Solution boundaries layer - six scope lists"
+    },
+    {
+      "name": "lean-canvas",
+      "version": "1.0",
+      "file": "lean-canvas.schema.json",
+      "description": "Business model layer - 9-box Lean Canvas"
+    },
+    {
+      "name": "business",
+      "version": "1.0",
+      "file": "business.schema.json",
+      "description": "Entry point orchestrating all layers"
     }
   ]
 }

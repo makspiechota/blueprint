@@ -118,9 +118,14 @@ None (first task)
 Add entries for both new schemas following existing pattern.
 
 ## Acceptance Criteria
-- [ ] lean-canvas.schema.json created with all 9 canvas boxes as optional properties
-- [ ] business.schema.json created with all layer references optional
-- [ ] Both schemas registered in schemas/schema.json
-- [ ] All metadata fields (type, version, last_updated, title) required
-- [ ] Schemas validate correctly with ajv
-- [ ] No breaking changes to existing schemas
+- [x] lean-canvas.schema.json created with all 9 canvas boxes as optional properties
+- [x] business.schema.json created with all layer references optional
+- [x] Both schemas registered in schemas/schema.json
+- [x] All metadata fields (type, version, last_updated, title) required
+- [x] Schemas validate correctly with ajv
+- [x] No breaking changes to existing schemas
+
+## Status
+[COMPLETED] - 2025-12-20
+Actual lines: 111 (lean-canvas: 85, business: 14, registry: 12)
+Schemas created and registered successfully
