@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
-import { NorthStar, ArchitecturalScope } from './types';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -38,6 +38,14 @@ export function validateNorthStar(data: any): asserts data is NorthStar {
 
 export function validateArchitecturalScope(data: any): asserts data is ArchitecturalScope {
   validate(data, 'architectural-scope');
+}
+
+export function validateLeanCanvas(data: any): asserts data is LeanCanvas {
+  validate(data, 'lean-canvas');
+}
+
+export function validateBusiness(data: any): asserts data is Business {
+  validate(data, 'business');
 }
 
 const SCOPE_LISTS = ['why', 'what', 'how', 'where', 'who', 'when'] as const;

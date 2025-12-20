@@ -125,11 +125,16 @@ export function validateLeanCanvas(canvas: LeanCanvas): ValidationResult {
 - business.yaml with all three layers validates successfully
 
 ## Acceptance Criteria
-- [ ] Parser handles lean-canvas type
-- [ ] Parser handles business type
-- [ ] Validator enforces required metadata fields
-- [ ] Validator warns on empty lean-canvas
-- [ ] Validator warns on business.yaml with no layer references
-- [ ] Validator checks referenced files exist
-- [ ] All validation tests passing
-- [ ] No breaking changes to existing validators
+- [x] Parser handles lean-canvas type
+- [x] Parser handles business type
+- [x] Validator enforces required metadata fields
+- [x] Validator warns on empty lean-canvas
+- [x] Validator warns on business.yaml with no layer references
+- [x] Validator checks referenced files exist
+- [x] All validation tests passing
+- [x] No breaking changes to existing validators
+
+## Status
+[COMPLETED] - 2025-12-20
+Actual lines: 31 (parser: 16, validator: 6, types: 2, tests: 7)
+Parser and validator updated, build passing
