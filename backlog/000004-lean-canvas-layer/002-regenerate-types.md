@@ -91,10 +91,15 @@ export interface Business {
 - Verify required fields (type, version, last_updated, title) are not optional
 
 ## Acceptance Criteria
-- [ ] TypeScript types generated from lean-canvas.schema.json
-- [ ] TypeScript types generated from business.schema.json
-- [ ] All canvas sections properly typed as optional
-- [ ] All metadata fields properly typed as required
-- [ ] Types exported from appropriate module
-- [ ] Build succeeds with new types
-- [ ] No type errors in existing code
+- [x] TypeScript types generated from lean-canvas.schema.json
+- [x] TypeScript types generated from business.schema.json
+- [x] All canvas sections properly typed as optional
+- [x] All metadata fields properly typed as required
+- [x] Types exported from appropriate module
+- [x] Build succeeds with new types
+- [x] No type errors in existing code
+
+## Status
+[COMPLETED] - 2025-12-20
+Actual lines: 64 (schemas: 6, types: 58)
+Types generated successfully, build passing
