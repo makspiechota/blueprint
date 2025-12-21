@@ -154,6 +154,80 @@ declare namespace Schemas {
         };
     }
     /**
+     * Lean 1-2-3 Viability Schema
+     * Viability layer using Ash Maurya's Lean 1-2-3 framework for work-backwards calculations
+     */
+    export interface LeanViability {
+        type: "lean-viability";
+        version: string;
+        last_updated: string; // date
+        title: string;
+        lean_canvas_ref?: string;
+        time_horizon: LeanViability.Definitions.TimeHorizon;
+        success_criteria: {
+            annual_revenue: LeanViability.Definitions.CurrencyAmount;
+            target_year: number;
+        };
+        calculations: {
+            annual_revenue_per_customer: {
+                amount: number;
+                currency: "USD" | "EUR" | "PLN" | "GBP";
+                basis: string;
+            };
+            required_customers: {
+                count: number;
+                formula: string;
+            };
+            customer_acquisition_rate: {
+                rate: number;
+                period: "day" | "week" | "month" | "quarter" | "year";
+                formula: string;
+            };
+            monthly_acquisition_target: {
+                rate: number;
+                period: "day" | "week" | "month" | "quarter" | "year";
+                formula: string;
+            };
+        };
+        targets: {
+            acquisition?: {
+                monthly_signups?: LeanViability.Definitions.RatePeriod;
+            };
+            activation?: {
+                [key: string]: any;
+            };
+            retention?: {
+                [key: string]: any;
+            };
+            referral?: {
+                [key: string]: any;
+            };
+            revenue?: {
+                arpu?: {
+                    amount: number;
+                    currency: "USD" | "EUR" | "PLN" | "GBP";
+                    period: "day" | "week" | "month" | "quarter" | "year";
+                };
+            };
+        };
+    }
+    namespace LeanViability {
+        namespace Definitions {
+            export interface CurrencyAmount {
+                amount: number;
+                currency: "USD" | "EUR" | "PLN" | "GBP";
+            }
+            export interface RatePeriod {
+                rate: number;
+                period: "day" | "week" | "month" | "quarter" | "year";
+            }
+            export interface TimeHorizon {
+                duration: number;
+                unit: "years" | "months";
+            }
+        }
+    }
+    /**
      * North Star Schema
      * Strategic vision layer defining enterprise mission and strategic goals
      */
