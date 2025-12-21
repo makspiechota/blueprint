@@ -67,6 +67,38 @@
               }
             }
           ]
+        },
+        "customer_lifetime_value": {
+          "type": "object",
+          "properties": {
+            "years": { "type": "number", "minimum": 0.5, "maximum": 10 },
+            "formula": { "type": "string" }
+          }
+        },
+        "churn_rate": {
+          "type": "object",
+          "properties": {
+            "monthly_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "formula": { "type": "string" }
+          }
+        },
+        "conversion_rate": {
+          "type": "object",
+          "properties": {
+            "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "basis": { "type": "string" }
+          }
+        },
+        "monthly_visitors": {
+          "allOf": [
+            { "$ref": "#/definitions/RatePeriod" },
+            {
+              "type": "object",
+              "properties": {
+                "formula": { "type": "string" }
+              }
+            }
+          ]
         }
       }
     },

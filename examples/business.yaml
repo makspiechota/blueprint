@@ -5,4 +5,5 @@ title: "BLUEPRINT"
 
 north_star_ref: "sample-north-star.yaml"
 lean_canvas_ref: "lean-canvas.yaml"
+# lean_viability_ref: "lean-viability.yaml"  # TODO: Feature 000009 - Multi-Layer Orchestration
 architectural_scope_ref: "sample-architectural-scope.yaml"
