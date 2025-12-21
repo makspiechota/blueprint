@@ -1,3 +1,20 @@
+# Lean 1-2-3 Viability Model
+#
+# Demonstrates work-backwards calculations from revenue target to daily actions.
+# Based on Ash Maurya's Lean 1-2-3 framework for testing business viability.
+#
+# To visualize this file:
+#   npm run build
+#   node dist/index.js visualize examples/lean-viability.yaml
+#
+# This generates examples/viability-dashboard.html showing:
+#   - Success criteria ($10M target)
+#   - Work-backwards calculations with formulas
+#   - Generated targets for AAARR metrics layer
+#
+# Or use the orchestration file to see all layers together:
+#   node dist/index.js visualize examples/business.yaml
+
 type: lean-viability
 version: "1.0"
 last_updated: "2025-12-21"
