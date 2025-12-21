@@ -8,3 +8,4 @@ export type NorthStar = Schemas.NorthStar;
 export type ArchitecturalScope = Schemas.ArchitecturalScope;
 export type LeanCanvas = Schemas.LeanCanvas;
 export type Business = Schemas.Business;
+export type LeanViability = Schemas.LeanViability;
