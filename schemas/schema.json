@@ -23,6 +23,12 @@
       "description": "Business model layer - 9-box Lean Canvas"
     },
     {
+      "name": "lean-viability",
+      "version": "1.0",
+      "file": "lean-viability.schema.json",
+      "description": "Viability layer - Lean 1-2-3 work-backwards calculations"
+    },
+    {
       "name": "business",
       "version": "1.0",
       "file": "business.schema.json",

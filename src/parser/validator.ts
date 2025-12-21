@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business } from './types';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -46,6 +46,10 @@ export function validateLeanCanvas(data: any): asserts data is LeanCanvas {
 
 export function validateBusiness(data: any): asserts data is Business {
   validate(data, 'business');
+}
+
+export function validateLeanViability(data: any): asserts data is LeanViability {
+  validate(data, 'lean-viability');
 }
 
 const SCOPE_LISTS = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
@@ -135,6 +139,57 @@ export function validateArchitecturalScopeBusinessRules(
         );
       }
     }
+  }
+
+  return warnings;
+}
+
+export function validateLeanViabilityBusinessRules(
+  data: any,
+  baseDir: string = process.cwd()
+): string[] {
+  const warnings: string[] = [];
+
+  // 1. Validate lean_canvas_ref exists
+  if (data.lean_canvas_ref) {
+    const leanCanvasPath = path.isAbsolute(data.lean_canvas_ref)
+      ? data.lean_canvas_ref
+      : path.join(baseDir, data.lean_canvas_ref);
+
+    if (!fs.existsSync(leanCanvasPath)) {
+      throw new Error(`Lean canvas file not found: ${data.lean_canvas_ref}`);
+    }
+  }
+
+  // 2. Validate time horizon (warn if < 2 or > 5 years)
+  if (data.time_horizon) {
+    const horizonYears = data.time_horizon.unit === 'years'
+      ? data.time_horizon.duration
+      : data.time_horizon.duration / 12;
+
+    if (horizonYears < 2) {
+      warnings.push(`Time horizon of ${horizonYears} years may be too short (recommended: 2-5 years)`);
+    } else if (horizonYears > 5) {
+      warnings.push(`Time horizon of ${horizonYears} years may be too long (recommended: 2-5 years)`);
+    }
+  }
+
+  // 3. Currency consistency check
+  const currencies = new Set<string>();
+  if (data.success_criteria?.annual_revenue) {
+    currencies.add(data.success_criteria.annual_revenue.currency);
+  }
+  if (data.calculations?.annual_revenue_per_customer) {
+    currencies.add(data.calculations.annual_revenue_per_customer.currency);
+  }
+
+  if (currencies.size > 1) {
+    throw new Error(`All currency amounts must use the same currency. Found: ${Array.from(currencies).join(', ')}`);
+  }
+
+  // 4. Sanity check: required customers should be reasonable
+  if (data.calculations?.required_customers?.count > 1000000) {
+    warnings.push(`Required customers (${data.calculations.required_customers.count}) is very high. Consider validating against TAM.`);
   }
 
   return warnings;

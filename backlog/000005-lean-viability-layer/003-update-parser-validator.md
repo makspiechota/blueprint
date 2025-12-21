@@ -92,11 +92,45 @@ export { LeanViability } from './types.generated';
 - Check file existence using `fs.existsSync`
 
 ## Acceptance Criteria
-- [ ] validateLeanViability function added to validator.ts
-- [ ] validateLeanViabilityBusinessRules function added
-- [ ] Lean canvas reference existence validated
-- [ ] Time horizon range warnings implemented (< 2 or > 5 years)
-- [ ] Currency consistency validation enforced
-- [ ] Sanity check for required customer count added
-- [ ] LeanViability type exported from types.ts
-- [ ] All validations return appropriate errors/warnings
+- [x] validateLeanViability function added to validator.ts
+- [x] validateLeanViabilityBusinessRules function added
+- [x] Lean canvas reference existence validated
+- [x] Time horizon range warnings implemented (< 2 or > 5 years)
+- [x] Currency consistency validation enforced
+- [x] Sanity check for required customer count added
+- [x] LeanViability type exported from types.ts
+- [x] All validations return appropriate errors/warnings
+
+## Status
+✅ **COMPLETED** - 2025-12-21
+
+**Actual lines:** 192 lines (190 insertions, 2 deletions)
+**Estimated:** ~75 lines
+**Variance:** +117 lines (includes comprehensive unit tests)
+
+**Files Modified:**
+- `src/parser/validator.ts` - Added validateLeanViability and validateLeanViabilityBusinessRules functions
+- `src/parser/types.ts` - Exported LeanViability type
+- `schemas/schema.json` - Added lean-viability to schema registry
+- `tests/validator.test.ts` - Added 8 comprehensive unit tests
+
+**Validation Results:**
+- ✓ All 19 tests passing (11 existing + 8 new)
+- ✓ TypeScript compiles without errors
+- ✓ Lean canvas file existence validated
+- ✓ Time horizon range warnings (< 2 or > 5 years)
+- ✓ Currency consistency enforced
+- ✓ Required customer count sanity check
+- ✓ All edge cases covered in tests
+
+**Tests Added:**
+1. Throws error when lean canvas file does not exist
+2. Warns when time horizon is too short
+3. Warns when time horizon is too long
+4. Handles time horizon in months
+5. Throws error when currencies are inconsistent
+6. Warns when required customers is very high
+7. Passes with valid viability data
+8. Passes with absolute lean canvas path
+
+**Commit:** [Will be added by committer agent]

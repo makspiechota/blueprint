@@ -1,4 +1,4 @@
-import { validateArchitecturalScopeBusinessRules } from '../src/parser/validator';
+import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules } from '../src/parser/validator';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -293,6 +293,132 @@ strategic_goals:
     };
 
     const warnings = validateArchitecturalScopeBusinessRules(data, fixturesDir);
+    expect(warnings).toHaveLength(0);
+  });
+});
+
+describe('validateLeanViabilityBusinessRules', () => {
+  const validLeanCanvasPath = path.join(fixturesDir, 'valid-lean-canvas.yaml');
+
+  beforeAll(() => {
+    // Create a valid lean canvas fixture
+    const leanCanvasContent = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-21"
+title: "Test Lean Canvas"
+problem:
+  top_3_problems:
+    - "Problem 1"`;
+    fs.writeFileSync(validLeanCanvasPath, leanCanvasContent);
+  });
+
+  test('throws error when lean canvas file does not exist', () => {
+    const data = {
+      lean_canvas_ref: 'non-existent.yaml',
+      time_horizon: { duration: 3, unit: 'years' }
+    };
+
+    expect(() => validateLeanViabilityBusinessRules(data, __dirname)).toThrow('Lean canvas file not found');
+  });
+
+  test('warns when time horizon is too short', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 1, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data, fixturesDir);
+    expect(warnings).toContain('Time horizon of 1 years may be too short (recommended: 2-5 years)');
+  });
+
+  test('warns when time horizon is too long', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 7, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data, fixturesDir);
+    expect(warnings).toContain('Time horizon of 7 years may be too long (recommended: 2-5 years)');
+  });
+
+  test('handles time horizon in months', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 12, unit: 'months' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data, fixturesDir);
+    expect(warnings).toContain('Time horizon of 1 years may be too short (recommended: 2-5 years)');
+  });
+
+  test('throws error when currencies are inconsistent', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 3, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      },
+      calculations: {
+        annual_revenue_per_customer: { amount: 1200, currency: 'EUR' }
+      }
+    };
+
+    expect(() => validateLeanViabilityBusinessRules(data, fixturesDir)).toThrow('All currency amounts must use the same currency');
+  });
+
+  test('warns when required customers is very high', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 3, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      },
+      calculations: {
+        annual_revenue_per_customer: { amount: 1200, currency: 'USD' },
+        required_customers: { count: 1500000 }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data, fixturesDir);
+    expect(warnings).toContain('Required customers (1500000) is very high. Consider validating against TAM.');
+  });
+
+  test('passes with valid viability data', () => {
+    const data = {
+      lean_canvas_ref: 'valid-lean-canvas.yaml',
+      time_horizon: { duration: 3, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 10000000, currency: 'USD' }
+      },
+      calculations: {
+        annual_revenue_per_customer: { amount: 1200, currency: 'USD' },
+        required_customers: { count: 8334 }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data, fixturesDir);
+    expect(warnings).toHaveLength(0);
+  });
+
+  test('passes with absolute lean canvas path', () => {
+    const data = {
+      lean_canvas_ref: path.join(fixturesDir, 'valid-lean-canvas.yaml'),
+      time_horizon: { duration: 3, unit: 'years' },
+      success_criteria: {
+        annual_revenue: { amount: 1000000, currency: 'USD' }
+      }
+    };
+
+    const warnings = validateLeanViabilityBusinessRules(data);
     expect(warnings).toHaveLength(0);
   });
 });
