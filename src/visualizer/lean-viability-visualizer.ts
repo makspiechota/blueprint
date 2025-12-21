@@ -194,7 +194,7 @@ function renderAssumptions(viability: LeanViability): string {
 }
 
 function renderCalculations(viability: LeanViability): string {
-  const calc = viability.calculations;
+  const calc = viability.calculations as any;
 
   return `
     <div class="section full-width">
@@ -205,6 +205,22 @@ function renderCalculations(viability: LeanViability): string {
         <div class="calc-value">${calc.required_customers.count.toLocaleString()}</div>
         ${calc.required_customers.formula ? `<div class="formula">${escapeHtml(calc.required_customers.formula)}</div>` : ''}
       </div>
+
+      ${calc.customer_lifetime_value ? `
+      <div class="calculation">
+        <div class="calc-name">Customer Lifetime Value</div>
+        <div class="calc-value">${calc.customer_lifetime_value.years} ${calc.customer_lifetime_value.years === 1 ? 'year' : 'years'}</div>
+        ${calc.customer_lifetime_value.formula ? `<div class="formula">${escapeHtml(calc.customer_lifetime_value.formula)}</div>` : ''}
+      </div>
+      ` : ''}
+
+      ${calc.churn_rate ? `
+      <div class="calculation">
+        <div class="calc-name">Monthly Churn Rate</div>
+        <div class="calc-value">${(calc.churn_rate.monthly_rate * 100).toFixed(2)}%</div>
+        ${calc.churn_rate.formula ? `<div class="formula">${escapeHtml(calc.churn_rate.formula)}</div>` : ''}
+      </div>
+      ` : ''}
 
       <div class="calculation">
         <div class="calc-name">Customer Acquisition Rate</div>
@@ -217,6 +233,22 @@ function renderCalculations(viability: LeanViability): string {
         <div class="calc-value">${formatRate(calc.monthly_acquisition_target)}</div>
         ${calc.monthly_acquisition_target.formula ? `<div class="formula">${escapeHtml(calc.monthly_acquisition_target.formula)}</div>` : ''}
       </div>
+
+      ${calc.conversion_rate ? `
+      <div class="calculation">
+        <div class="calc-name">Conversion Rate</div>
+        <div class="calc-value">${(calc.conversion_rate.rate * 100).toFixed(2)}%</div>
+        ${calc.conversion_rate.basis ? `<div class="formula">${escapeHtml(calc.conversion_rate.basis)}</div>` : ''}
+      </div>
+      ` : ''}
+
+      ${calc.monthly_visitors ? `
+      <div class="calculation">
+        <div class="calc-name">Monthly Visitors Needed</div>
+        <div class="calc-value">${formatRate(calc.monthly_visitors)}</div>
+        ${calc.monthly_visitors.formula ? `<div class="formula">${escapeHtml(calc.monthly_visitors.formula)}</div>` : ''}
+      </div>
+      ` : ''}
     </div>
   `.trim();
 }
