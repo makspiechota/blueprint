@@ -132,12 +132,48 @@ Backlog (features by AAARR impact)
 ```
 
 ## Acceptance Criteria
-- [ ] README.md updated with Lean Viability section
-- [ ] Supported layers list includes Lean 1-2-3 Viability
-- [ ] Usage example provided
-- [ ] Key concepts explained (structured types, dependencies)
-- [ ] Validation rules documented
-- [ ] Integration with other layers explained
-- [ ] Reference to architecture document added
-- [ ] Examples reference examples/lean-viability.yaml
-- [ ] Documentation is clear and accessible to non-technical stakeholders
+- [x] README.md updated with Lean Viability section
+- [x] Supported layers list includes Lean 1-2-3 Viability
+- [x] Usage example provided
+- [x] Key concepts explained (structured types, dependencies)
+- [x] Validation rules documented
+- [x] Integration with other layers explained
+- [x] Reference to architecture document added
+- [x] Examples reference examples/lean-viability.yaml
+- [x] Documentation is clear and accessible to non-technical stakeholders
+
+## Status
+✅ **COMPLETED** - 2025-12-21
+
+**Actual lines:** 159 lines added to README.md
+**Estimated:** ~60 lines
+**Variance:** +99 lines (comprehensive documentation with examples)
+
+**Files Modified:**
+- `README.md` - Added complete Lean Viability documentation section
+
+**Documentation Added:**
+- Overview section updated with Lean 1-2-3 Viability
+- Features section updated with viability capabilities
+- Dedicated Lean Viability section with:
+  - Quick start guide with complete YAML example
+  - Key concepts (structured types, dependencies, validations)
+  - Layer integration diagram
+  - Reference to working example
+- Architecture document reference added
+- CLI commands updated to mention lean-viability
+
+**Content Coverage:**
+- ✓ Ash Maurya's Lean 1-2-3 framework explained
+- ✓ Work-backwards calculations from revenue target
+- ✓ Complete YAML example with all fields
+- ✓ Enhanced calculations (CLV, churn, conversion, visitors)
+- ✓ Structured numeric types documented
+- ✓ Unidirectional dependencies explained
+- ✓ Validation rules listed
+- ✓ Layer integration cascade diagram
+- ✓ CLI usage examples
+- ✓ Reference to examples/lean-viability.yaml
+- ✓ Reference to architecture document
+
+**Commit:** [Will be added by committer agent]
