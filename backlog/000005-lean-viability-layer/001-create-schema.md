@@ -76,10 +76,26 @@ Define reusable schemas for:
 - No references to AAARR layer (enforced by not having such fields)
 
 ## Acceptance Criteria
-- [ ] Schema file created at `schemas/lean-viability.schema.json`
-- [ ] Schema validates against JSON Schema Draft-07
-- [ ] All required fields defined (type, version, last_updated, title, time_horizon, success_criteria, calculations, targets)
-- [ ] Structured numeric types defined (CurrencyAmount, RatePeriod, TimeHorizon)
-- [ ] Enums for currency and period defined
-- [ ] Example valid YAML passes schema validation
-- [ ] Schema follows existing patterns from lean-canvas.schema.json
+- [x] Schema file created at `schemas/lean-viability.schema.json`
+- [x] Schema validates against JSON Schema Draft-07
+- [x] All required fields defined (type, version, last_updated, title, time_horizon, success_criteria, calculations, targets)
+- [x] Structured numeric types defined (CurrencyAmount, RatePeriod, TimeHorizon)
+- [x] Enums for currency and period defined
+- [x] Example valid YAML passes schema validation
+- [x] Schema follows existing patterns from lean-canvas.schema.json
+
+## Status
+✅ **COMPLETED** - 2025-12-21
+
+**Actual lines:** 137 lines
+**Estimated:** ~95 lines
+**Variance:** +42 lines (acceptable - comprehensive schema with all definitions)
+
+**Validation Results:**
+- ✓ Schema is valid JSON Schema Draft-07
+- ✓ Schema compiles successfully with AJV
+- ✓ Test YAML passes validation
+- ✓ All structured types validated (CurrencyAmount, RatePeriod, TimeHorizon)
+- ✓ All enums defined (currency, period, unit)
+
+**Commit:** [Will be added by committer agent]
