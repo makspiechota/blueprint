@@ -12,7 +12,13 @@
 #   - Work-backwards calculations with formulas
 #   - Generated targets for AAARR metrics layer
 #
-# Note: Business orchestration support will be added in a future update.
+# Note: This is a simplified Lean 1-2-3 model. Future enhancements could include:
+#   - Customer lifetime value (CLV)
+#   - Churn rate assumptions
+#   - Conversion funnel metrics (visitors, conversion rate)
+#   - These would require schema updates and are tracked separately
+#
+# Business orchestration support will be added in Feature 000009.
 
 type: lean-viability
 version: "1.0"
