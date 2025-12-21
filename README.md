@@ -8,16 +8,18 @@ BLUEPRINT helps you define and communicate your strategic vision and business mo
 
 1. **North Star** - Strategic vision: problem, solution, and goals
 2. **Lean Canvas** - Business model: customers, revenue, costs, and metrics
-3. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
+3. **Lean 1-2-3 Viability** ✨ NEW - Quantitative viability test with work-backwards calculations
+4. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
 
 Use `business.yaml` as the entry point to orchestrate all layers. Together, these create a complete business blueprint from strategy to execution.
 
 ## Features
 
-- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Architectural Scope (capabilities)
+- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + Architectural Scope (capabilities)
 - **business.yaml Orchestration** - Single entry point for all layers with flexible combinations
 - **YAML DSL** - Simple, version-controlled format for business knowledge
 - **Lean Canvas Support** - 9-box business model framework (problem, solution, customers, revenue, costs)
+- **Lean 1-2-3 Viability** - Work-backwards calculations from revenue target to daily acquisition metrics
 - **Six Scope Dimensions** - Why (mission + goals), What, How, Where, Who, When (7±2 items each)
 - **Validation** - Schema validation + business rules for all layer types
 - **Tabbed Visualization** - HTML view with tabs for each layer
@@ -105,10 +107,143 @@ blueprint visualize business.yaml
 # Opens business-visualization.html with tabs for each layer
 ```
 
+## Lean 1-2-3 Viability
+
+Based on Ash Maurya's Lean 1-2-3 framework. Validates business model viability by working backwards from revenue target to daily actions.
+
+### Quick Start
+
+1. Create `lean-viability.yaml`:
+```yaml
+type: lean-viability
+version: "1.0"
+title: "Your Viability Model"
+lean_canvas_ref: "lean-canvas.yaml"
+
+# 3-year viability test
+time_horizon:
+  duration: 3
+  unit: years
+
+# Success criteria
+success_criteria:
+  annual_revenue:
+    amount: 10000000
+    currency: USD
+  target_year: 3
+
+# Work-backwards calculations
+calculations:
+  annual_revenue_per_customer:
+    amount: 1200
+    currency: USD
+    basis: "$100/month subscription"
+
+  required_customers:
+    count: 8334
+    formula: "$10M / $1,200"
+
+  customer_acquisition_rate:
+    rate: 2778
+    period: year
+    formula: "8,334 / 3 years"
+
+  monthly_acquisition_target:
+    rate: 231
+    period: month
+    formula: "2,778 / 12"
+
+# Optional: Enhanced calculations
+  customer_lifetime_value:
+    years: 1
+    formula: "Average customer lifetime"
+
+  churn_rate:
+    monthly_rate: 0.0833
+    formula: "1 / (CLV * 12)"
+
+  conversion_rate:
+    rate: 0.02
+    basis: "2% visitor-to-signup"
+
+  monthly_visitors:
+    rate: 11550
+    period: month
+    formula: "231 / 0.02"
+
+# Targets for AAARR import
+targets:
+  acquisition:
+    monthly_signups:
+      rate: 231
+      period: month
+  revenue:
+    arpu:
+      amount: 100
+      currency: USD
+      period: month
+```
+
+2. Generate dashboard:
+```bash
+blueprint visualize lean-viability.yaml
+```
+
+3. Review `viability-dashboard.html`:
+   - Success criteria ($10M in 3 years)
+   - Work-backwards calculations with formulas
+   - Customer lifetime value and churn assumptions
+   - Conversion funnel metrics
+   - Generated targets for AAARR metrics layer
+
+### Key Concepts
+
+**Structured Numeric Types:**
+- Currency amounts: `{ amount: 10000, currency: "USD" }`
+- Rates/periods: `{ rate: 231, period: "month" }`
+- Time horizons: `{ duration: 3, unit: "years" }`
+
+**Unidirectional Dependencies:**
+- ✅ Viability references Lean Canvas (upward)
+- ❌ Viability does NOT reference AAARR (downward - would create circular dependency)
+- ✅ AAARR imports targets FROM viability (upward reference)
+
+**Validations:**
+- Time horizon: Warns if < 2 or > 5 years
+- Currency consistency: All amounts must use same currency
+- Lean Canvas existence: Must reference valid `lean-canvas.yaml`
+- Sanity checks: Warns if required customers > 1M
+
+### Layer Integration
+
+Lean Viability generates targets that cascade to lower layers:
+
+```
+Lean Canvas (revenue model)
+  ↓ referenced by
+Lean Viability (work-backwards calculations)
+  ↓ generates targets for
+AAARR Metrics (import targets)
+  ↓ justified by
+Policy Charter (KPIs link to AAARR)
+  ↓ prioritizes
+Backlog (features by AAARR impact)
+```
+
+### Example
+
+See `examples/lean-viability.yaml` for a complete working example with:
+- $10M ARR target in 3 years
+- 231 monthly signups needed
+- Customer lifetime value and churn calculations
+- Conversion funnel metrics
+- Generated targets for AAARR import
+
 ## Documentation
 
 - [User Guide](docs/user-guide.md) - Detailed usage instructions
 - [Layer Orchestration](docs/layer-orchestration.md) - business.yaml pattern and layer combinations
+- [Business Layer Architecture](docs/architecture/business-layer-architecture.md) - Complete multi-layer design and rationale
 - [Lean Canvas Guide](docs/lean-canvas-guide.md) - Complete Lean Canvas reference
 - [Architectural Scope Guide](docs/architectural-scope-guide.md) - Complete architectural scope reference
 - [North Star DSL Specification](docs/north-star-dsl-spec.md) - North Star DSL reference
@@ -119,11 +254,14 @@ blueprint visualize business.yaml
 
 ```bash
 # Validation
-blueprint validate <file>        # Validate any layer file (business, north-star, lean-canvas, architectural-scope)
+blueprint validate <file>        # Validate any layer file
+                                 # Supports: business, north-star, lean-canvas,
+                                 #           lean-viability, architectural-scope
 
 # Visualization
 blueprint visualize <file>       # Generate HTML visualization
                                  # business.yaml creates tabbed view with all referenced layers
+                                 # lean-viability.yaml creates viability dashboard
 
 # Other
 blueprint --version              # Show version
