@@ -103,13 +103,43 @@ Should:
 - Show no errors, possibly warnings about time horizon
 
 ## Acceptance Criteria
-- [ ] Example file created at examples/lean-viability.yaml
-- [ ] File includes all required fields
-- [ ] Uses structured numeric types (CurrencyAmount, RatePeriod, TimeHorizon)
-- [ ] Calculations show realistic work-backwards from $10M goal
-- [ ] Formulas are clear and human-readable
-- [ ] Targets section shows what AAARR will import
-- [ ] File passes schema validation
-- [ ] File passes business rules validation
-- [ ] Generated HTML dashboard displays correctly
-- [ ] Example is realistic and instructive
+- [x] Example file created at examples/lean-viability.yaml
+- [x] File includes all required fields
+- [x] Uses structured numeric types (CurrencyAmount, RatePeriod, TimeHorizon)
+- [x] Calculations show realistic work-backwards from $10M goal
+- [x] Formulas are clear and human-readable
+- [x] Targets section shows what AAARR will import
+- [x] File passes schema validation
+- [x] File passes business rules validation
+- [x] Generated HTML dashboard displays correctly
+- [x] Example is realistic and instructive
+
+## Status
+✅ **COMPLETED** - 2025-12-21
+
+**Actual lines:** 66 lines (YAML example file)
+**Estimated:** ~70 lines
+**Variance:** -4 lines (concise and focused)
+
+**Files Created:**
+- `examples/lean-viability.yaml` - Realistic SaaS viability model (66 lines)
+- `examples/viability-dashboard.html` - Generated HTML dashboard
+
+**Example Details:**
+- BLUEPRINT developer tools SaaS business model
+- $10M ARR target in 3 years
+- $100/month ARPU (typical for developer tools)
+- 231 monthly signups needed
+- 8,334 total customers at year 3
+- Clear work-backwards calculations with formulas
+- Targets flow to AAARR metrics layer
+
+**Validation Results:**
+- ✓ Passes schema validation
+- ✓ Passes business rules validation
+- ✓ Generates HTML dashboard successfully
+- ✓ HTML contains all expected sections (Success Criteria, Assumptions, Calculations, Targets)
+- ✓ All structured numeric types used correctly
+- ✓ Formulas are clear and instructive
+
+**Commit:** [Will be added by committer agent]

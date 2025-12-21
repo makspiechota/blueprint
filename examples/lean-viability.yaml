@@ -1,0 +1,60 @@
+type: lean-viability
+version: "1.0"
+last_updated: "2025-12-21"
+title: "BLUEPRINT Viability Model"
+
+# Reference to business model
+lean_canvas_ref: "lean-canvas.yaml"
+
+# 3-year viability test (Ash Maurya's Lean 1-2-3 framework)
+time_horizon:
+  duration: 3
+  unit: years
+
+# Success criteria: What revenue target validates this is a real business?
+success_criteria:
+  annual_revenue:
+    amount: 10000000
+    currency: USD
+  target_year: 3
+
+# Work-backwards calculations from revenue goal to daily actions
+calculations:
+  # Step 1: Define pricing assumption
+  annual_revenue_per_customer:
+    amount: 1200
+    currency: USD
+    basis: "Assumption: $100/month subscription (12 months) - typical for developer tools SaaS"
+
+  # Step 2: Calculate required customers to hit revenue target
+  required_customers:
+    count: 8334
+    formula: "annual_revenue / annual_revenue_per_customer = $10M / $1,200"
+
+  # Step 3: Calculate annual acquisition rate
+  customer_acquisition_rate:
+    rate: 2778
+    period: year
+    formula: "required_customers / time_horizon = 8,334 / 3 years"
+
+  # Step 4: Calculate monthly acquisition target (actionable metric)
+  monthly_acquisition_target:
+    rate: 231
+    period: month
+    formula: "customer_acquisition_rate / 12 = 2,778 / 12"
+
+# Generated targets (consumed by AAARR metrics layer)
+# These targets flow down to define what metrics to track
+targets:
+  # Acquisition stage: How many signups do we need?
+  acquisition:
+    monthly_signups:
+      rate: 231
+      period: month
+
+  # Revenue stage: What's our target revenue per user?
+  revenue:
+    arpu:
+      amount: 100
+      currency: USD
+      period: month
