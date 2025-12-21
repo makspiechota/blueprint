@@ -1,41 +1,76 @@
 # User Guide
 
-Complete guide to using BLUEPRINT's two-layer business knowledge management system.
+Complete guide to using BLUEPRINT's multi-layer business knowledge management system.
 
-## Two-Layer Architecture
+## Understanding Layers and business.yaml
 
-BLUEPRINT uses a two-layer approach to capture your complete business blueprint:
+BLUEPRINT uses a multi-layer approach to capture your complete business blueprint:
 
-### Layer 1: North Star (Strategic)
-Your strategic vision - the "why" and "what for"
-- Vision, Problem, Solution
-- Strategic Goals
-- High-level direction
+### Strategic Layers
 
-### Layer 2: Architectural Scope (Tactical)
-Your business capabilities - the "what, how, where, who, when, why"
-- Six scope lists answering key questions
+**Layer 1: North Star** (vision-focused)
+- Vision, Problem, Solution, Strategic Goals
+- Best for: Product vision, long-term direction
+- Audience: Product teams, developers
+
+**Layer 2: Lean Canvas** (business model-focused)
+- 9 boxes: Problem, Solution, Customers, Revenue, Costs, Metrics
+- Best for: Startup validation, business planning
+- Audience: Founders, investors, business stakeholders
+
+### Architectural Layer
+
+**Layer 3: Architectural Scope** (capabilities-focused)
+- Six scope lists: Why, What, How, Where, Who, When
 - 7±2 items per list (optimal for cognitive load)
-- References your North Star
+- Best for: Technical architecture, capability mapping
 
-### When to Use Each Layer
+### business.yaml - The Entry Point
 
-**Use North Star alone** when:
-- Starting a new product/company
-- Defining strategic direction
-- Communicating vision to stakeholders
+`business.yaml` orchestrates all layers as a single source of truth:
 
-**Add Architectural Scope** when:
-- Ready to define concrete capabilities
-- Planning implementation
-- Need to organize business entities and processes
+```yaml
+type: business
+version: "1.0"
+title: "My Product"
+
+# All references are optional
+north_star_ref: "north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+architectural_scope_ref: "architectural-scope.yaml"
+```
+
+**Benefits:**
+- Single entry point for visualization
+- Flexible layer combinations
+- Clear project structure
+- Easy stakeholder presentations
+
+See [Layer Orchestration Guide](layer-orchestration.md) for details.
+
+## Lean Canvas vs North Star
+
+| Aspect | North Star | Lean Canvas |
+|--------|-----------|-------------|
+| Focus | Vision & problem-solution fit | Business model & economics |
+| Best for | Product vision, long-term direction | Startup validation, business planning |
+| Key elements | Vision, problem, solution, scope | 9 boxes: problem, solution, customers, revenue, costs |
+| Audience | Product teams, developers | Founders, investors, business stakeholders |
+| Updates | Quarterly or when strategy shifts | Frequently as business model evolves |
+
+### When to Use What
+
+**North Star only**: Established products with clear business model
+**Lean Canvas only**: Early-stage startups focused on business model validation
+**Both** (recommended): Startups wanting vision narrative + business model details
 
 ### How They Work Together
 
-1. **North Star sets direction** - Defines the strategic vision
-2. **Architectural Scope operationalizes** - Breaks down into concrete capabilities
-3. **Visualize together** - See the complete blueprint in one view
-4. **Version control both** - Track evolution of strategy and execution
+1. **North Star sets vision** - Defines the strategic direction and why you exist
+2. **Lean Canvas validates business** - Defines how you make money and who pays
+3. **Architectural Scope operationalizes** - Breaks down into concrete capabilities
+4. **Visualize together** - See the complete blueprint in tabbed interface
+5. **Version control all** - Track evolution of strategy, business, and execution
 
 ## What is North Star DSL?
 
