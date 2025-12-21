@@ -7,13 +7,12 @@
 #   npm run build
 #   node dist/index.js visualize examples/lean-viability.yaml
 #
-# This generates examples/viability-dashboard.html showing:
-#   - Success criteria ($10M target)
+# This generates viability-dashboard.html showing:
+#   - Success criteria ($10M revenue target)
 #   - Work-backwards calculations with formulas
 #   - Generated targets for AAARR metrics layer
 #
-# Or use the orchestration file to see all layers together:
-#   node dist/index.js visualize examples/business.yaml
+# Note: Business orchestration support will be added in a future update.
 
 type: lean-viability
 version: "1.0"

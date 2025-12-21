@@ -1,9 +1,9 @@
 type: business
 version: "1.0"
-last_updated: "2025-12-21"
+last_updated: "2025-12-20"
 title: "BLUEPRINT"
 
 north_star_ref: "sample-north-star.yaml"
 lean_canvas_ref: "lean-canvas.yaml"
-lean_viability_ref: "lean-viability.yaml"
+# lean_viability_ref: "lean-viability.yaml"  # TODO: Add when business visualizer supports viability layer
 architectural_scope_ref: "sample-architectural-scope.yaml"
