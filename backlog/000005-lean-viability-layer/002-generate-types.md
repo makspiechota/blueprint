@@ -43,8 +43,30 @@ After generation, verify that:
 4. No compilation errors in `src/parser/types.generated.ts`
 
 ## Acceptance Criteria
-- [ ] npm run generate-types completes successfully
-- [ ] src/parser/types.generated.ts includes LeanViability interface
-- [ ] Structured types (CurrencyAmount, RatePeriod, TimeHorizon) are generated
-- [ ] TypeScript compiles without errors (npm run build)
-- [ ] Generated types match schema structure
+- [x] npm run generate-types completes successfully
+- [x] src/parser/types.generated.ts includes LeanViability interface
+- [x] Structured types (CurrencyAmount, RatePeriod, TimeHorizon) are generated
+- [x] TypeScript compiles without errors (npm run build)
+- [x] Generated types match schema structure
+
+## Status
+✅ **COMPLETED** - 2025-12-21
+
+**Actual lines:** 74 lines added
+**Estimated:** ~45 lines
+**Variance:** +29 lines (acceptable - comprehensive type definitions)
+
+**Validation Results:**
+- ✓ Type generation completed successfully
+- ✓ LeanViability interface exported
+- ✓ CurrencyAmount, RatePeriod, TimeHorizon types generated
+- ✓ TypeScript compilation successful (no errors)
+- ✓ All schema structures properly typed
+
+**Generated Types:**
+- `Schemas.LeanViability` - Main interface
+- `LeanViability.Definitions.CurrencyAmount` - Currency amounts
+- `LeanViability.Definitions.RatePeriod` - Rates with periods
+- `LeanViability.Definitions.TimeHorizon` - Time horizons
+
+**Commit:** [Will be added by committer agent]
