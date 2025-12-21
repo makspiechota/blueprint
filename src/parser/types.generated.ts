@@ -188,6 +188,23 @@ declare namespace Schemas {
                 period: "day" | "week" | "month" | "quarter" | "year";
                 formula: string;
             };
+            customer_lifetime_value?: {
+                years?: number;
+                formula?: string;
+            };
+            churn_rate?: {
+                monthly_rate?: number;
+                formula?: string;
+            };
+            conversion_rate?: {
+                rate?: number;
+                basis?: string;
+            };
+            monthly_visitors?: {
+                rate: number;
+                period: "day" | "week" | "month" | "quarter" | "year";
+                formula?: string;
+            };
         };
         targets: {
             acquisition?: {

@@ -9,14 +9,8 @@
 #
 # This generates viability-dashboard.html showing:
 #   - Success criteria ($10M revenue target)
-#   - Work-backwards calculations with formulas
+#   - Work-backwards calculations with formulas (including CLV, churn, conversion)
 #   - Generated targets for AAARR metrics layer
-#
-# Note: This is a simplified Lean 1-2-3 model. Future enhancements could include:
-#   - Customer lifetime value (CLV)
-#   - Churn rate assumptions
-#   - Conversion funnel metrics (visitors, conversion rate)
-#   - These would require schema updates and are tracked separately
 #
 # Business orchestration support will be added in Feature 000009.
 
@@ -53,17 +47,38 @@ calculations:
     count: 8334
     formula: "annual_revenue / annual_revenue_per_customer = $10M / $1,200"
 
-  # Step 3: Calculate annual acquisition rate
+  # Step 3: Define customer retention assumptions
+  customer_lifetime_value:
+    years: 1
+    formula: "Based on average customer lifetime for early-stage SaaS"
+
+  # Step 4: Calculate churn rate from CLV
+  churn_rate:
+    monthly_rate: 0.0833
+    formula: "1 / (CLV_years * 12) = 1 / (1 * 12) = 8.33% monthly"
+
+  # Step 5: Calculate annual acquisition rate
   customer_acquisition_rate:
     rate: 2778
     period: year
     formula: "required_customers / time_horizon = 8,334 / 3 years"
 
-  # Step 4: Calculate monthly acquisition target (actionable metric)
+  # Step 6: Calculate monthly acquisition target (base, without churn)
   monthly_acquisition_target:
     rate: 231
     period: month
     formula: "customer_acquisition_rate / 12 = 2,778 / 12"
+
+  # Step 7: Define conversion assumptions
+  conversion_rate:
+    rate: 0.02
+    basis: "Assumption: 2% visitor-to-signup conversion (typical for developer tools)"
+
+  # Step 8: Calculate monthly visitors needed
+  monthly_visitors:
+    rate: 11550
+    period: month
+    formula: "monthly_acquisition_target / conversion_rate = 231 / 0.02"
 
 # Generated targets (consumed by AAARR metrics layer)
 # These targets flow down to define what metrics to track
