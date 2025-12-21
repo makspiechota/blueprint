@@ -63,6 +63,53 @@ how:
     description: "Description 3"`;
 
   fs.writeFileSync(path.join(testDir, 'architectural-scope.yaml'), validArchScope, 'utf8');
+
+  const validLeanCanvas = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-21"
+title: "Test Lean Canvas"
+problem:
+  top_3_problems:
+    - "Problem 1"`;
+
+  fs.writeFileSync(path.join(testDir, 'lean-canvas.yaml'), validLeanCanvas, 'utf8');
+
+  const validLeanViability = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-21"
+title: "Test Viability Analysis"
+lean_canvas_ref: "lean-canvas.yaml"
+time_horizon:
+  duration: 3
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 10000000
+    currency: USD
+  target_year: 3
+calculations:
+  annual_revenue_per_customer:
+    amount: 1200
+    currency: USD
+    basis: "Based on market research"
+  required_customers:
+    count: 8334
+    formula: "$10,000,000 / $1,200"
+  customer_acquisition_rate:
+    rate: 2778
+    period: year
+    formula: "8,334 / 3 years"
+  monthly_acquisition_target:
+    rate: 232
+    period: month
+    formula: "2,778 / 12 months"
+targets:
+  acquisition:
+    monthly_signups:
+      rate: 232
+      period: month`;
+
+  fs.writeFileSync(path.join(testDir, 'lean-viability.yaml'), validLeanViability, 'utf8');
 });
 
 afterAll(() => {
@@ -150,5 +197,79 @@ describe('CLI Integration Tests', () => {
     const content = fs.readFileSync(outputPath, 'utf8');
     expect(content).toContain('North Star');
     expect(content).toContain('Architectural Scope');
+  });
+
+  test('validate command succeeds for lean-viability file', () => {
+    const inputPath = path.join(testDir, 'lean-viability.yaml');
+
+    const result = execSync(`node dist/index.js validate ${inputPath}`, {
+      encoding: 'utf8',
+      cwd: path.join(__dirname, '..')
+    });
+
+    expect(result).toContain('valid');
+  });
+
+  test('visualize command generates viability dashboard', () => {
+    const inputPath = path.join(testDir, 'lean-viability.yaml');
+    const outputPath = path.join(outputDir, 'viability-dashboard.html');
+
+    const result = execSync(`node dist/index.js visualize ${inputPath} -o ${outputPath}`, {
+      encoding: 'utf8',
+      cwd: path.join(__dirname, '..')
+    });
+
+    expect(fs.existsSync(outputPath)).toBe(true);
+    expect(result).toContain('successfully');
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+    expect(content).toContain('Test Viability Analysis');
+    expect(content).toContain('Success Criteria');
+    expect(content).toContain('Work-Backwards Calculations');
+  });
+
+  test('visualize command displays warnings for lean-viability', () => {
+    // Create a viability file with a short time horizon (should trigger warning)
+    const shortHorizonViability = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-21"
+title: "Short Horizon Test"
+lean_canvas_ref: "lean-canvas.yaml"
+time_horizon:
+  duration: 1
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 1000000
+    currency: USD
+  target_year: 1
+calculations:
+  annual_revenue_per_customer:
+    amount: 1000
+    currency: USD
+    basis: "Test basis"
+  required_customers:
+    count: 1000
+    formula: "Test formula"
+  customer_acquisition_rate:
+    rate: 1000
+    period: year
+    formula: "Test formula"
+  monthly_acquisition_target:
+    rate: 84
+    period: month
+    formula: "Test formula"
+targets: {}`;
+
+    const inputPath = path.join(testDir, 'short-horizon.yaml');
+    fs.writeFileSync(inputPath, shortHorizonViability, 'utf8');
+
+    const result = execSync(`node dist/index.js visualize ${inputPath}`, {
+      encoding: 'utf8',
+      cwd: path.join(__dirname, '..')
+    });
+
+    expect(result).toContain('Warnings');
+    expect(result).toContain('too short');
   });
 });
