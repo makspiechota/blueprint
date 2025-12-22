@@ -29,6 +29,12 @@
       "description": "Viability layer - Lean 1-2-3 work-backwards calculations"
     },
     {
+      "name": "aaarr-metrics",
+      "version": "1.0",
+      "file": "aaarr-metrics.schema.json",
+      "description": "Customer lifecycle metrics layer - AAARR pirate metrics"
+    },
+    {
       "name": "business",
       "version": "1.0",
       "file": "business.schema.json",

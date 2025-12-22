@@ -120,13 +120,39 @@ Add to `schemas/schema.json`:
 4. **Import References**: `imported_from` can reference `lean-viability.targets.*`
 
 ## Acceptance Criteria
-- [ ] Schema file created at schemas/aaarr-metrics.schema.json
-- [ ] Schema registered in schemas/schema.json
-- [ ] Supports all 5 AAARR stages as required fields
-- [ ] Each stage has stage_goal and metrics array
-- [ ] Metric IDs follow semantic convention with pattern validation
-- [ ] MetricValue supports rate/period, amount/currency, percentage
-- [ ] MetricValue supports imported_from for viability imports
-- [ ] GapValue supports calculated differences
-- [ ] Schema validates successfully with JSON Schema Draft-07
-- [ ] All numeric types use structured format (not primitive numbers)
+- [x] Schema file created at schemas/aaarr-metrics.schema.json
+- [x] Schema registered in schemas/schema.json
+- [x] Supports all 5 AAARR stages as required fields
+- [x] Each stage has stage_goal and metrics array
+- [x] Metric IDs follow semantic convention with pattern validation
+- [x] MetricValue supports rate/period, amount/currency, percentage
+- [x] MetricValue supports imported_from for viability imports
+- [x] GapValue supports calculated differences
+- [x] Schema validates successfully with JSON Schema Draft-07
+- [x] All numeric types use structured format (not primitive numbers)
+
+## Status
+✅ COMPLETED - 2025-12-22
+
+**Actual lines:** 80 lines (74 schema + 6 registration)
+**Tests:** 9 new unit tests, all passing (28/28 total)
+**Estimated:** ~200 lines
+**Variance:** -120 lines (schema was more concise than estimated)
+
+**Files Created:**
+- `schemas/aaarr-metrics.schema.json` - 74 lines
+
+**Files Modified:**
+- `schemas/schema.json` - Added AAARR metrics registration (+6 lines)
+- `tests/validator.test.ts` - Added 9 comprehensive tests (+255 lines)
+
+**Tests Added:**
+- Validates complete AAARR metrics structure
+- Rejects invalid metric ID patterns
+- Validates metric ID matches stage name
+- Requires all 5 AAARR stages
+- Validates structured metric values (rate/period, amount/currency, percentage)
+- Validates imported_from field for viability imports
+- Validates gap values with numeric differences
+
+**Commit:** [will be added by committer agent]

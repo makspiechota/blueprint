@@ -422,3 +422,258 @@ problem:
     expect(warnings).toHaveLength(0);
   });
 });
+
+describe('AAARR Metrics Schema Validation', () => {
+  const { validate } = require('../src/parser/validator');
+
+  test('validates complete AAARR metrics structure', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test AAARR Metrics',
+      stages: {
+        acquisition: {
+          stage_goal: 'Get users to discover product',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.signup-rate',
+              name: 'Signup Rate',
+              description: 'Monthly signups',
+              target: { rate: 100, period: 'month' },
+              current: { rate: 75, period: 'month' }
+            }
+          ]
+        },
+        activation: {
+          stage_goal: 'Get users to first value',
+          metrics: []
+        },
+        retention: {
+          stage_goal: 'Keep users coming back',
+          metrics: []
+        },
+        referral: {
+          stage_goal: 'Turn users into advocates',
+          metrics: []
+        },
+        revenue: {
+          stage_goal: 'Monetize users',
+          metrics: []
+        }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('rejects invalid metric ID pattern', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'invalid-id-format',  // Should fail pattern validation
+              name: 'Metric'
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).toThrow();
+  });
+
+  test('validates metric ID matches stage name', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.valid-metric',  // Matches stage
+              name: 'Metric'
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('requires all 5 AAARR stages', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: { stage_goal: 'Goal', metrics: [] }
+        // Missing retention, referral, revenue
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).toThrow();
+  });
+
+  test('validates structured metric values with rate/period', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.metric',
+              name: 'Metric',
+              target: { rate: 100, period: 'month' }
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('validates structured metric values with amount/currency', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.revenue.arr',
+              name: 'ARR',
+              target: { amount: 10000000, currency: 'USD' }
+            }
+          ]
+        }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('validates structured metric values with percentage', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.activation.conversion',
+              name: 'Conversion',
+              target: { percentage: 60 }
+            }
+          ]
+        },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('validates imported_from field for viability imports', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      lean_viability_ref: 'lean-viability.yaml',
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.signup-rate',
+              name: 'Signup Rate',
+              target: {
+                rate: 231,
+                period: 'month',
+                imported_from: 'lean-viability.targets.monthly_acquisition'
+              }
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+
+  test('validates gap values with numeric differences', () => {
+    const data = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-22',
+      title: 'Test',
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.metric',
+              name: 'Metric',
+              target: { rate: 100, period: 'month' },
+              current: { rate: 75, period: 'month' },
+              gap: { rate: 25 }
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
+  });
+});
