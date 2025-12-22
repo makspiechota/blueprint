@@ -1,5 +1,53 @@
 declare namespace Schemas {
     /**
+     * AAARR Metrics Schema
+     * Customer lifecycle metrics across 5 stages (Acquisition, Activation, Retention, Referral, Revenue)
+     */
+    export interface AaarrMetrics {
+        type: "aaarr-metrics";
+        version: string;
+        last_updated: string; // date
+        title: string;
+        lean_viability_ref?: string;
+        north_star_ref?: string;
+        stages: {
+            acquisition: AaarrMetrics.Definitions.AARRRStage;
+            activation: AaarrMetrics.Definitions.AARRRStage;
+            retention: AaarrMetrics.Definitions.AARRRStage;
+            referral: AaarrMetrics.Definitions.AARRRStage;
+            revenue: AaarrMetrics.Definitions.AARRRStage;
+        };
+    }
+    namespace AaarrMetrics {
+        namespace Definitions {
+            export interface AARRRStage {
+                stage_goal: string;
+                metrics: Metric[];
+            }
+            export interface GapValue {
+                rate?: number;
+                amount?: number;
+                percentage?: number;
+            }
+            export interface Metric {
+                id: string; // ^aaarr\.(acquisition|activation|retention|referral|revenue)\.[a-z][a-z0-9-]*$
+                name: string;
+                description?: string;
+                target?: MetricValue;
+                current?: MetricValue;
+                gap?: GapValue;
+            }
+            export interface MetricValue {
+                rate?: number;
+                period?: "day" | "week" | "month" | "quarter" | "year";
+                amount?: number;
+                currency?: "USD" | "EUR" | "PLN" | "GBP";
+                percentage?: number;
+                imported_from?: string;
+            }
+        }
+    }
+    /**
      * Architectural Scope Schema
      * Solution boundaries layer using six scope lists to box the business solution space
      */
