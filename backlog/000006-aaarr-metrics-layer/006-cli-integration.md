@@ -39,7 +39,7 @@ Add to visualize command (after lean-viability block):
     console.log('\nWarnings:');
     aarrrWarnings.forEach(warning => console.log(`  ⚠ ${warning}`));
   }
-  const aarrrHtml = generateAARRRMetricsHTML(aarrr);
+  const aarrrHtml = generateAARRRMetricsHTML(aarrr, inputDir);
   const aarrrOutputPath = options.output || path.join(inputDir, 'aaarr-dashboard.html');
   fs.writeFileSync(aarrrOutputPath, aarrrHtml);
   logger.success(`AAARR Metrics visualization generated successfully: ${aarrrOutputPath}`);
