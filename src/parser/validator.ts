@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability } from './types';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -193,4 +193,91 @@ export function validateLeanViabilityBusinessRules(
   }
 
   return warnings;
+}
+
+// ============================================================================
+// AAARR Metrics Validation
+// ============================================================================
+
+export function validateAARRRMetrics(data: any): asserts data is AARRRMetrics {
+  validate(data, 'aaarr-metrics');
+}
+
+export function validateAARRRMetricsBusinessRules(
+  data: any,
+  baseDir: string = process.cwd()
+): string[] {
+  const warnings: string[] = [];
+
+  // 1. Validate lean_viability_ref exists (if provided)
+  if (data.lean_viability_ref) {
+    const viabilityPath = path.isAbsolute(data.lean_viability_ref)
+      ? data.lean_viability_ref
+      : path.join(baseDir, data.lean_viability_ref);
+
+    if (!fs.existsSync(viabilityPath)) {
+      throw new Error(`Lean viability file not found: ${data.lean_viability_ref}`);
+    }
+  }
+
+  // 2. Validate metric IDs are unique across all stages
+  const metricIds = new Set<string>();
+  const stages = ['acquisition', 'activation', 'retention', 'referral', 'revenue'];
+
+  stages.forEach(stageName => {
+    const stage = data.stages?.[stageName];
+    if (stage?.metrics) {
+      stage.metrics.forEach((metric: any) => {
+        if (metricIds.has(metric.id)) {
+          throw new Error(`Duplicate metric ID: ${metric.id}`);
+        }
+        metricIds.add(metric.id);
+
+        // Validate ID matches stage
+        if (!metric.id.startsWith(`aaarr.${stageName}.`)) {
+          throw new Error(`Metric ID '${metric.id}' does not match stage '${stageName}'`);
+        }
+      });
+    }
+  });
+
+  // 3. Validate target/current type consistency
+  stages.forEach(stageName => {
+    const stage = data.stages?.[stageName];
+    if (stage?.metrics) {
+      stage.metrics.forEach((metric: any) => {
+        if (metric.target && metric.current) {
+          const targetType = getMetricType(metric.target);
+          const currentType = getMetricType(metric.current);
+
+          if (targetType !== currentType) {
+            throw new Error(
+              `Metric '${metric.id}': target type '${targetType}' does not match current type '${currentType}'`
+            );
+          }
+
+          // Currency consistency
+          if (targetType === 'amount' && metric.target.currency !== metric.current.currency) {
+            throw new Error(
+              `Metric '${metric.id}': currency mismatch (target: ${metric.target.currency}, current: ${metric.current.currency})`
+            );
+          }
+        }
+      });
+    }
+  });
+
+  // 4. Warn if no viability reference
+  if (!data.lean_viability_ref) {
+    warnings.push('No lean_viability_ref provided - targets will not be imported automatically');
+  }
+
+  return warnings;
+}
+
+function getMetricType(value: any): 'rate' | 'amount' | 'percentage' | 'unknown' {
+  if (value.rate !== undefined && value.period !== undefined) return 'rate';
+  if (value.amount !== undefined && value.currency !== undefined) return 'amount';
+  if (value.percentage !== undefined) return 'percentage';
+  return 'unknown';
 }
