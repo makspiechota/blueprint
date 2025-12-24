@@ -677,3 +677,173 @@ describe('AAARR Metrics Schema Validation', () => {
     expect(() => validate(data, 'aaarr-metrics')).not.toThrow();
   });
 });
+
+describe('validateAARRRMetricsBusinessRules', () => {
+  const { validateAARRRMetricsBusinessRules } = require('../src/parser/validator');
+
+  test('throws error when lean viability file does not exist', () => {
+    const data = {
+      lean_viability_ref: 'non-existent.yaml',
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validateAARRRMetricsBusinessRules(data, __dirname)).toThrow('Lean viability file not found');
+  });
+
+  test('throws error when metric IDs are duplicated', () => {
+    const data = {
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            { id: 'aaarr.acquisition.metric1', name: 'Metric 1' },
+            { id: 'aaarr.acquisition.metric1', name: 'Duplicate' }  // Duplicate ID
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validateAARRRMetricsBusinessRules(data)).toThrow('Duplicate metric ID: aaarr.acquisition.metric1');
+  });
+
+  test('throws error when metric ID does not match stage', () => {
+    const data = {
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            { id: 'aaarr.retention.wrong-stage', name: 'Metric' }  // Wrong stage in ID
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validateAARRRMetricsBusinessRules(data)).toThrow(
+      "Metric ID 'aaarr.retention.wrong-stage' does not match stage 'acquisition'"
+    );
+  });
+
+  test('throws error when target/current types mismatch', () => {
+    const data = {
+      stages: {
+        acquisition: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.metric',
+              name: 'Metric',
+              target: { rate: 100, period: 'month' },
+              current: { percentage: 50 }  // Type mismatch
+            }
+          ]
+        },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    expect(() => validateAARRRMetricsBusinessRules(data)).toThrow(
+      "Metric 'aaarr.acquisition.metric': target type 'rate' does not match current type 'percentage'"
+    );
+  });
+
+  test('throws error when currencies are inconsistent', () => {
+    const data = {
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: {
+          stage_goal: 'Goal',
+          metrics: [
+            {
+              id: 'aaarr.revenue.arr',
+              name: 'ARR',
+              target: { amount: 10000, currency: 'USD' },
+              current: { amount: 5000, currency: 'EUR' }  // Currency mismatch
+            }
+          ]
+        }
+      }
+    };
+
+    expect(() => validateAARRRMetricsBusinessRules(data)).toThrow(
+      "Metric 'aaarr.revenue.arr': currency mismatch (target: USD, current: EUR)"
+    );
+  });
+
+  test('warns when no viability reference provided', () => {
+    const data = {
+      stages: {
+        acquisition: { stage_goal: 'Goal', metrics: [] },
+        activation: { stage_goal: 'Goal', metrics: [] },
+        retention: { stage_goal: 'Goal', metrics: [] },
+        referral: { stage_goal: 'Goal', metrics: [] },
+        revenue: { stage_goal: 'Goal', metrics: [] }
+      }
+    };
+
+    const warnings = validateAARRRMetricsBusinessRules(data);
+    expect(warnings).toContain('No lean_viability_ref provided - targets will not be imported automatically');
+  });
+
+  test('passes with valid AAARR metrics', () => {
+    // Create valid lean viability file
+    const validViabilityPath = path.join(fixturesDir, 'valid-lean-viability.yaml');
+    fs.writeFileSync(validViabilityPath, `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-22"
+title: "Test Viability"`);
+
+    const data = {
+      lean_viability_ref: 'valid-lean-viability.yaml',
+      stages: {
+        acquisition: {
+          stage_goal: 'Get users',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.signup-rate',
+              name: 'Signup Rate',
+              target: { rate: 100, period: 'month' },
+              current: { rate: 75, period: 'month' }
+            }
+          ]
+        },
+        activation: { stage_goal: 'Activate users', metrics: [] },
+        retention: { stage_goal: 'Retain users', metrics: [] },
+        referral: { stage_goal: 'Get referrals', metrics: [] },
+        revenue: {
+          stage_goal: 'Generate revenue',
+          metrics: [
+            {
+              id: 'aaarr.revenue.arr',
+              name: 'ARR',
+              target: { amount: 10000, currency: 'USD' },
+              current: { amount: 5000, currency: 'USD' }  // Same currency
+            }
+          ]
+        }
+      }
+    };
+
+    const warnings = validateAARRRMetricsBusinessRules(data, fixturesDir);
+    expect(warnings).toHaveLength(0);
+  });
+});

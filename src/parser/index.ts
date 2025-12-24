@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import { validateNorthStar, validateArchitecturalScope, validateLeanCanvas, validateBusiness, validateLeanViability } from './validator';
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability } from './types';
+import { validateNorthStar, validateArchitecturalScope, validateLeanCanvas, validateBusiness, validateLeanViability, validateAARRRMetrics } from './validator';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics } from './types';
 
 export function parseNorthStar(filePath: string): NorthStar {
   const fileContents = fs.readFileSync(filePath, 'utf8');
@@ -44,6 +44,15 @@ export function parseLeanViability(filePath: string): LeanViability {
   const data = yaml.load(fileContents);
 
   validateLeanViability(data);
+
+  return data;
+}
+
+export function parseAARRRMetrics(filePath: string): AARRRMetrics {
+  const fileContents = fs.readFileSync(filePath, 'utf8');
+  const data = yaml.load(fileContents);
+
+  validateAARRRMetrics(data);
 
   return data;
 }
