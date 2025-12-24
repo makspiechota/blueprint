@@ -1,34 +1,3 @@
-# Task: Create Example AAARR Metrics File
-
-## Status
-[COMPLETED] - 2025-12-24
-Actual lines: 149
-Commit: [will be added by committer agent]
-
-## User Story Reference
-- As a product manager, I want to see a working example of AAARR metrics so that I can model my own customer factory
-- As a developer, I want a reference implementation to validate the schema and visualizer
-
-## Description
-Create `examples/aaarr-metrics.yaml` with realistic metrics for BLUEPRINT product, including all 5 stages with multiple metrics per stage, demonstrating target imports from lean-viability layer.
-
-## Files to Modify/Create
-- `examples/aaarr-metrics.yaml` - Create new example file
-
-## Estimated Lines of Code
-~120 lines
-
-## Dependencies
-- Task 001: Schema must exist
-- Task 006: CLI must support visualization
-
-## Implementation Notes
-
-### Create Example File
-
-Create `examples/aaarr-metrics.yaml`:
-
-```yaml
 type: aaarr-metrics
 version: "1.0"
 last_updated: "2024-01-15"
@@ -87,10 +56,10 @@ stages:
         description: "Average hours until first blueprint created"
         target:
           rate: 2
-          period: hours
+          period: hour
         current:
           rate: 3.5
-          period: hours
+          period: hour
 
   retention:
     stage_goal: "Keep developers actively using BLUEPRINT"
@@ -131,20 +100,16 @@ stages:
         description: "Likelihood to recommend (scale -100 to +100)"
         target:
           rate: 50
-          period: score
         current:
           rate: 35
-          period: score
 
       - id: aaarr.referral.viral-coefficient
         name: "Viral Coefficient"
         description: "Average new users referred per existing user"
         target:
           rate: 0.5
-          period: user
         current:
           rate: 0.3
-          period: user
 
   revenue:
     stage_goal: "Convert users to paying customers"
@@ -178,43 +143,3 @@ stages:
           percentage: 5.0
         current:
           percentage: 3.2
-```
-
-### Testing
-
-After creating the file:
-```bash
-# Validate the example
-blueprint validate examples/aaarr-metrics.yaml
-
-# Generate visualization
-blueprint visualize examples/aaarr-metrics.yaml
-
-# Open the dashboard
-open aaarr-dashboard.html
-```
-
-### Expected Output
-
-The visualization should show:
-- All 5 stages as connected pipeline
-- Acquisition stage: RED (gaps in signup-rate and organic-traffic)
-- Activation stage: RED (gaps in completion and time-to-value)
-- Retention stage: RED (gaps in MAU, churn, engagement)
-- Referral stage: RED (gaps in NPS and viral coefficient)
-- Revenue stage: RED (gap in ARR, but ARPU on target)
-- Clear visual indication of biggest bottlenecks
-
-## Acceptance Criteria
-- [ ] examples/aaarr-metrics.yaml file created
-- [ ] All 5 AAARR stages included
-- [ ] Each stage has 2-3 metrics with semantic IDs
-- [ ] Metrics include name and description
-- [ ] Targets import from lean-viability where applicable
-- [ ] Current values provided for all metrics
-- [ ] Mix of rate, amount, and percentage types
-- [ ] File validates successfully
-- [ ] Visualization generates successfully
-- [ ] Dashboard displays all stages and metrics
-- [ ] Gap visualization shows bottlenecks clearly
-- [ ] Example is realistic for BLUEPRINT product
