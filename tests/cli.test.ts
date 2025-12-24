@@ -109,8 +109,80 @@ targets:
       rate: 232
       period: month`;
 
-  fs.writeFileSync(path.join(testDir, 'lean-viability.yaml'), validLeanViability, 'utf8');
-});
+   fs.writeFileSync(path.join(testDir, 'lean-viability.yaml'), validLeanViability, 'utf8');
+
+   const validAaarrMetrics = `type: aaarr-metrics
+version: "1.0"
+last_updated: "2025-12-24"
+title: "Test AAARR Metrics"
+lean_viability_ref: "lean-viability.yaml"
+stages:
+  acquisition:
+    stage_goal: "Acquire 1000 customers per month"
+    metrics:
+      - id: "aaarr.acquisition.visitors"
+        name: "Monthly Website Visitors"
+        description: "Number of unique visitors to website"
+        target:
+          rate: 50000
+          period: month
+        current:
+          rate: 45000
+          period: month
+      - id: "aaarr.acquisition.conversions"
+        name: "Conversion Rate"
+        description: "Percentage of visitors who sign up"
+        target:
+          percentage: 2.0
+        current:
+          percentage: 1.8
+  activation:
+    stage_goal: "Activate 80% of acquired customers"
+    metrics:
+      - id: "aaarr.activation.onboarding"
+        name: "Onboarding Completion Rate"
+        description: "Percentage who complete onboarding"
+        target:
+          percentage: 80.0
+        current:
+          percentage: 75.0
+  retention:
+    stage_goal: "Retain 90% of customers monthly"
+    metrics:
+      - id: "aaarr.retention.churn"
+        name: "Monthly Churn Rate"
+        description: "Percentage of customers who leave"
+        target:
+          percentage: 10.0
+        current:
+          percentage: 12.0
+  referral:
+    stage_goal: "Generate referrals from 20% of customers"
+    metrics:
+      - id: "aaarr.referral.rate"
+        name: "Referral Rate"
+        description: "Percentage of customers who refer others"
+        target:
+          percentage: 20.0
+        current:
+          percentage: 15.0
+  revenue:
+    stage_goal: "Achieve $100K monthly recurring revenue"
+    metrics:
+      - id: "aaarr.revenue.mrr"
+        name: "Monthly Recurring Revenue"
+        description: "Total MRR from active customers"
+        target:
+          amount: 100000
+          currency: USD
+          period: month
+        current:
+          amount: 85000
+          currency: USD
+          period: month`;
+
+   fs.writeFileSync(path.join(testDir, 'aaarr-metrics.yaml'), validAaarrMetrics, 'utf8');
+ });
 
 afterAll(() => {
   if (fs.existsSync(testDir)) {
@@ -271,5 +343,81 @@ targets: {}`;
 
     expect(result).toContain('Warnings');
     expect(result).toContain('too short');
+  });
+
+  describe('AAARR Metrics CLI', () => {
+    test('validates aaarr-metrics file', () => {
+      const inputPath = path.join(testDir, 'aaarr-metrics.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('AAARR Metrics file is valid');
+    });
+
+    test('generates aaarr-dashboard.html', () => {
+      const inputPath = path.join(testDir, 'aaarr-metrics.yaml');
+      const outputPath = path.join(outputDir, 'aaarr-dashboard.html');
+
+      const result = execSync(`node dist/index.js visualize ${inputPath} -o ${outputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(fs.existsSync(outputPath)).toBe(true);
+      expect(result).toContain('AAARR Metrics visualization generated successfully');
+
+      const content = fs.readFileSync(outputPath, 'utf8');
+      expect(content).toContain('Test AAARR Metrics');
+      expect(content).toContain('Acquisition');
+      expect(content).toContain('Activation');
+      expect(content).toContain('Retention');
+      expect(content).toContain('Referral');
+      expect(content).toContain('Revenue');
+    });
+
+    test('displays warnings for missing viability reference', () => {
+      // Create aaarr-metrics file without lean_viability_ref
+      const noRefMetrics = `type: aaarr-metrics
+version: "1.0"
+last_updated: "2025-12-24"
+title: "Test AAARR Metrics No Ref"
+stages:
+  acquisition:
+    stage_goal: "Acquire customers"
+    metrics:
+      - id: "aaarr.acquisition.test"
+        name: "Test Metric"
+        target:
+          rate: 100
+          period: month
+        current:
+          rate: 90
+          period: month
+  activation:
+    stage_goal: "Activate customers"
+    metrics: []
+  retention:
+    stage_goal: "Retain customers"
+    metrics: []
+  referral:
+    stage_goal: "Get referrals"
+    metrics: []
+  revenue:
+    stage_goal: "Generate revenue"
+    metrics: []`;
+
+      const inputPath = path.join(testDir, 'no-ref-aaarr.yaml');
+      fs.writeFileSync(inputPath, noRefMetrics, 'utf8');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('Validation warnings');
+    });
   });
 });

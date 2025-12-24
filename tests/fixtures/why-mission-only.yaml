@@ -1,0 +1,13 @@
+type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Scope"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to enable"
+    service: "seamless payments"
+    beneficiary: "online shoppers"
+what:
+  - title: "Entity 1"
+    description: "Description 1"

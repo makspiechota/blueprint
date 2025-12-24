@@ -1,0 +1,8 @@
+type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Without WHY"
+north_star_ref: "test-north-star.yaml"
+what:
+  - title: "Entity 1"
+    description: "Description 1"
