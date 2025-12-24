@@ -100,20 +100,16 @@ stages:
         description: "Likelihood to recommend (scale -100 to +100)"
         target:
           rate: 50
-          period: score
         current:
           rate: 35
-          period: score
 
       - id: aaarr.referral.viral-coefficient
         name: "Viral Coefficient"
         description: "Average new users referred per existing user"
         target:
           rate: 0.5
-          period: user
         current:
           rate: 0.3
-          period: user
 
   revenue:
     stage_goal: "Convert users to paying customers"
