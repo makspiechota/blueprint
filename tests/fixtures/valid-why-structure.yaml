@@ -1,0 +1,18 @@
+type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-19"
+title: "Test Scope with WHY"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "intelligent course recommendations"
+    beneficiary: "students and educators"
+  goals:
+    - title: "To increase student engagement"
+      description: "Improve learning outcomes through personalized recommendations"
+    - title: "To reduce course selection time"
+      description: "Help students find relevant courses faster"
+what:
+  - title: "Entity 1"
+    description: "Description 1"

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas, parseBusiness, parseLeanViability } from './parser';
+import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas, parseBusiness, parseLeanViability, parseAARRRMetrics } from './parser';
 import { generateVisualization, generateCombinedVisualization, visualizeBusiness } from './visualizer';
 import { generateLeanCanvasHTML } from './visualizer/lean-canvas-visualizer';
 import { generateLeanViabilityHTML } from './visualizer/lean-viability-visualizer';
-import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules } from './parser/validator';
+import { generateAARRRMetricsHTML } from './visualizer/aaarr-visualizer';
+import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules, validateAARRRMetricsBusinessRules } from './parser/validator';
 import { LeanViability } from './parser/types';
 import * as logger from './utils/logger';
 import * as fs from 'fs';
@@ -20,7 +21,7 @@ program
 program
   .command('visualize')
   .description('Parse DSL and generate visualization')
-  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, Lean Viability, or Business YAML file')
+  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, Lean Viability, AAARR Metrics, or Business YAML file')
   .option('-o, --output <file>', 'Output HTML file', 'northstar-visualization.html')
   .action((input: string, options: { output: string }) => {
     try {
@@ -88,6 +89,17 @@ program
         fs.writeFileSync(viabilityOutputPath, viabilityHtml);
 
         logger.success(`Lean Viability visualization generated successfully: ${viabilityOutputPath}`);
+      } else if (data.type === 'aaarr-metrics') {
+        const aarrr = parseAARRRMetrics(input);
+        const aarrrWarnings = validateAARRRMetricsBusinessRules(data, inputDir);
+        if (aarrrWarnings.length > 0) {
+          console.log('\nWarnings:');
+          aarrrWarnings.forEach(warning => console.log(`  ⚠ ${warning}`));
+        }
+        const aarrrHtml = generateAARRRMetricsHTML(aarrr, inputDir);
+        const aarrrOutputPath = options.output || path.join(inputDir, 'aaarr-dashboard.html');
+        fs.writeFileSync(aarrrOutputPath, aarrrHtml);
+        logger.success(`AAARR Metrics visualization generated successfully: ${aarrrOutputPath}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);
@@ -100,8 +112,8 @@ program
 
 program
   .command('validate')
-  .description('Validate North Star, Architectural Scope, Lean Canvas, Lean Viability, or Business DSL file')
-  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, Lean Viability, or Business YAML file')
+  .description('Validate North Star, Architectural Scope, Lean Canvas, Lean Viability, AAARR Metrics, or Business DSL file')
+  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, Lean Viability, AAARR Metrics, or Business YAML file')
   .action((input: string) => {
     try {
       if (!fs.existsSync(input)) {
@@ -143,6 +155,14 @@ program
         }
 
         logger.success(`Lean Viability file is valid: ${input}`);
+      } else if (data.type === 'aaarr-metrics') {
+        parseAARRRMetrics(input);
+        const warnings = validateAARRRMetricsBusinessRules(data, inputDir);
+        if (warnings.length > 0) {
+          logger.warning('Validation warnings:');
+          warnings.forEach(warning => logger.warning(`  - ${warning}`));
+        }
+        logger.success(`AAARR Metrics file is valid: ${input}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);
