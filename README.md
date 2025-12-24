@@ -8,14 +8,16 @@ BLUEPRINT helps you define and communicate your strategic vision and business mo
 
 1. **North Star** - Strategic vision: problem, solution, and goals
 2. **Lean Canvas** - Business model: customers, revenue, costs, and metrics
-3. **Lean 1-2-3 Viability** ✨ NEW - Quantitative viability test with work-backwards calculations
-4. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
+3. **Lean 1-2-3 Viability** - Quantitative viability test with work-backwards calculations
+4. **AAARR Metrics** ✨ NEW - Customer lifecycle metrics (Pirate Metrics)
+5. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
+6. **Business Orchestration** - Multi-layer visualization
 
 Use `business.yaml` as the entry point to orchestrate all layers. Together, these create a complete business blueprint from strategy to execution.
 
 ## Features
 
-- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + Architectural Scope (capabilities)
+- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + AAARR Metrics (customer factory) + Architectural Scope (capabilities)
 - **business.yaml Orchestration** - Single entry point for all layers with flexible combinations
 - **YAML DSL** - Simple, version-controlled format for business knowledge
 - **Lean Canvas Support** - 9-box business model framework (problem, solution, customers, revenue, costs)
@@ -52,6 +54,8 @@ title: "My Product"
 # All references are optional - use what makes sense for your project
 north_star_ref: "north-star.yaml"              # Vision and strategy
 lean_canvas_ref: "lean-canvas.yaml"            # Business model
+lean_viability_ref: "lean-viability.yaml"      # Viability calculations
+aaarr_metrics_ref: "aaarr-metrics.yaml"        # Customer metrics
 architectural_scope_ref: "architectural-scope.yaml"  # Architecture
 ```
 
@@ -239,6 +243,154 @@ See `examples/lean-viability.yaml` for a complete working example with:
 - Conversion funnel metrics
 - Generated targets for AAARR import
 
+## AAARR Metrics (Customer Factory)
+
+### Quick Start
+
+1. Create `aaarr-metrics.yaml`:
+```yaml
+type: aaarr-metrics
+version: "1.0"
+title: "Your Customer Metrics"
+lean_viability_ref: "lean-viability.yaml"
+
+stages:
+  acquisition:
+    stage_goal: "Get users to discover your product"
+    metrics:
+      - id: aaarr.acquisition.signup-rate
+        name: "Monthly Signups"
+        target:
+          rate: 231
+          period: month
+          imported_from: lean-viability.targets.monthly_acquisition
+        current:
+          rate: 150
+          period: month
+
+  activation:
+    stage_goal: "Get users to first value"
+    metrics:
+      - id: aaarr.activation.first-value
+        name: "First Action Completion"
+        target:
+          percentage: 60
+        current:
+          percentage: 45
+
+  retention:
+    stage_goal: "Keep users coming back"
+    metrics:
+      - id: aaarr.retention.mau
+        name: "Monthly Active Users"
+        target:
+          rate: 8334
+          period: month
+        current:
+          rate: 5000
+          period: month
+
+  referral:
+    stage_goal: "Turn users into advocates"
+    metrics:
+      - id: aaarr.referral.nps
+        name: "Net Promoter Score"
+        target:
+          rate: 50
+          period: score
+        current:
+          rate: 35
+          period: score
+
+  revenue:
+    stage_goal: "Monetize the user base"
+    metrics:
+      - id: aaarr.revenue.arr
+        name: "Annual Recurring Revenue"
+        target:
+          amount: 10000000
+          currency: USD
+        current:
+          amount: 6000000
+          currency: USD
+```
+
+2. Generate Customer Factory visualization:
+```bash
+blueprint visualize aaarr-metrics.yaml
+```
+
+3. Review `aaarr-dashboard.html` to identify bottlenecks
+
+### Key Concepts
+
+**Semantic IDs**
+- Format: `aaarr.{stage}.{metric-name}`
+- Example: `aaarr.acquisition.signup-rate`
+- Validated by schema pattern
+
+**Metric Types**
+- Rate/Period: `{ rate: 231, period: "month" }`
+- Amount/Currency: `{ amount: 10000, currency: "USD" }`
+- Percentage: `{ percentage: 60 }`
+
+**Gap Calculation**
+- Automatic: Gap = Target - Current
+- Positive gap (red): Current below target
+- Negative gap (green): Current exceeds target
+- Visual indicators in dashboard
+
+**Target Import**
+- Import targets FROM lean-viability layer
+- Uses `imported_from` field
+- Reference format: `lean-viability.{section}.{field}`
+- Example: `imported_from: lean-viability.targets.monthly_acquisition`
+
+**Unidirectional Dependencies**
+- AAARR references: ✅ Lean Viability (upward)
+- AAARR references: ✅ North Star (upward)
+- AAARR references: ❌ Policy Charter (downward - would create circular dependency)
+- Policy Charter links TO AAARR (upward reference)
+
+**Validations**
+- All 5 stages required
+- Metric IDs must be unique
+- Metric ID must match stage name
+- Target/current types must be consistent
+- Currency must match for amount types
+- Warns if no viability reference
+
+### Customer Factory Visualization
+
+The generated dashboard shows:
+- **Pipeline View**: 5 stages connected left-to-right
+- **Stage Status**: Red border = gaps exist, Green = on track
+- **Metrics**: Each metric shows target, current, gap
+- **Bottleneck Identification**: Quickly spot underperforming stages
+- **Responsive Design**: Stacks vertically on mobile
+
+### Layer Integration
+
+AAARR Metrics connects viability targets to actionable KPIs:
+```
+Lean Canvas (revenue model)
+  ↓ referenced by
+Lean Viability (work-backwards calculations)
+  ↓ generates targets for
+AAARR Metrics (import targets) ← YOU ARE HERE
+  ↓ justified by
+Policy Charter (KPIs link to AAARR)
+  ↓ prioritizes
+Backlog (features by AAARR impact)
+```
+
+**Example Integration Flow:**
+1. Lean Viability calculates: Need 231 customers/month
+2. AAARR imports as target: `aaarr.acquisition.signup-rate`
+3. Policy Charter creates KPI: "Increase signup rate to 231/month"
+4. Policy Charter links KPI to metric: `aaarr.acquisition.signup-rate`
+5. Backlog prioritizes features that improve signup rate
+
 ## Documentation
 
 - [User Guide](docs/user-guide.md) - Detailed usage instructions
@@ -256,12 +408,13 @@ See `examples/lean-viability.yaml` for a complete working example with:
 # Validation
 blueprint validate <file>        # Validate any layer file
                                  # Supports: business, north-star, lean-canvas,
-                                 #           lean-viability, architectural-scope
+                                 #           lean-viability, aaarr-metrics, architectural-scope
 
 # Visualization
 blueprint visualize <file>       # Generate HTML visualization
                                  # business.yaml creates tabbed view with all referenced layers
                                  # lean-viability.yaml creates viability dashboard
+                                 # aaarr-metrics.yaml creates aaarr-dashboard.html
 
 # Other
 blueprint --version              # Show version
