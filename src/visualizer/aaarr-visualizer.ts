@@ -1,43 +1,3 @@
-# Task: Create Customer Factory Visualizer
-
-## User Story Reference
-- As a product manager, I want to see AAARR metrics with targets and current values so that I can identify the biggest gaps
-- As a business analyst, I want to visualize the customer factory so that I can identify bottlenecks
-
-## Description
-Create HTML visualizer for AAARR metrics that displays the Customer Factory pipeline showing all 5 stages (Acquisition, Activation, Retention, Referral, Revenue) with their metrics, targets, current values, and gaps. When lean_viability_ref is provided, load and display the viability data to show imported target context with clickable navigation between layers.
-
-## Files to Modify/Create
-- `src/visualizer/aaarr-visualizer.ts` - Create new visualizer module
-- `tests/visualizer.test.ts` - Add unit tests
-
-## Estimated Lines of Code
-~250 lines (200 implementation + 50 tests)
-
-## Dependencies
-- Task 002: Types must be generated
-- Task 004: Gap calculator must exist
-
-## Implementation Notes
-
-### Viability Integration Strategy
-
-When `lean_viability_ref` is present in AAARR metrics:
-1. Load the lean-viability.yaml file from the same directory
-2. Parse it to extract viability targets
-3. Create a tabbed interface with:
-   - **Tab 1**: AAARR Customer Factory (main view)
-   - **Tab 2**: Lean Viability Context (imported targets)
-4. In the AAARR view:
-   - Make values with `imported_from` clickable
-   - Clicking switches to Viability tab and highlights the source
-5. Use anchor links for navigation (#viability-section-field)
-
-### Create Visualizer Module
-
-Create `src/visualizer/aaarr-visualizer.ts`:
-
-```typescript
 import * as fs from 'fs';
 import * as path from 'path';
 import { AARRRMetrics, LeanViability } from '../parser/types';
@@ -145,7 +105,7 @@ function renderPipelineOnly(metrics: AARRRMetrics): string {
 
 function renderPipeline(metrics: AARRRMetrics, viability: LeanViability | null): string {
   const stages = ['acquisition', 'activation', 'retention', 'referral', 'revenue'];
-  const stageLabels = {
+  const stageLabels: { [key: string]: string } = {
     acquisition: 'Acquisition',
     activation: 'Activation',
     retention: 'Retention',
@@ -154,10 +114,10 @@ function renderPipeline(metrics: AARRRMetrics, viability: LeanViability | null):
   };
 
   return stages.map((stageName, index) => {
-    const stage = metrics.stages[stageName];
+    const stage = (metrics.stages as any)[stageName];
     if (!stage) return '';
 
-    const hasGaps = stage.metrics?.some(m =>
+    const hasGaps = stage.metrics?.some((m: any) =>
       m.gap && !isNegativeGap(m.gap) &&
       (m.gap.rate !== 0 || m.gap.amount !== 0 || m.gap.percentage !== 0)
     );
@@ -169,7 +129,7 @@ function renderPipeline(metrics: AARRRMetrics, viability: LeanViability | null):
           <p class="stage-goal">${escapeHtml(stage.stage_goal)}</p>
         </div>
         <div class="metrics">
-          ${stage.metrics?.map(metric => renderMetric(metric, viability)).join('') || ''}
+          ${stage.metrics?.map((metric: any) => renderMetric(metric, viability)).join('') || ''}
         </div>
       </div>
       ${index < stages.length - 1 ? '<div class="connector">→</div>' : ''}
@@ -236,14 +196,14 @@ function formatMetricValue(value: any): string {
 function renderViabilityContext(viability: LeanViability): string {
   return `
     <div class="viability-context">
-      <h2>Lean Viability Context</h2>
+      <h2>${escapeHtml(viability.title)}</h2>
       <p class="viability-subtitle">Target sources for AAARR metrics</p>
 
       <div id="lean-viability-success_criteria-annual_revenue" class="viability-section">
         <h3>Success Criteria</h3>
         <div class="viability-field">
           <span class="field-label">Annual Revenue Target:</span>
-          <span class="field-value">${viability.success_criteria.annual_revenue.currency} ${viability.success_criteria.annual_revenue.amount.toLocaleString()}</span>
+          <span class="field-value">${viability.success_criteria.annual_revenue.currency === 'USD' ? '$' : '€'}${viability.success_criteria.annual_revenue.amount.toLocaleString()}</span>
         </div>
       </div>
 
@@ -255,7 +215,7 @@ function renderViabilityContext(viability: LeanViability): string {
               <span class="field-label">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
               <span class="field-value">
                 ${calc.rate !== undefined ? `${calc.rate}/${calc.period}` : ''}
-                ${calc.amount !== undefined ? `${calc.currency} ${calc.amount.toLocaleString()}` : ''}
+                ${calc.amount !== undefined ? `${calc.currency === 'USD' ? '$' : '€'}${calc.amount.toLocaleString()}` : ''}
                 ${calc.count !== undefined ? calc.count.toLocaleString() : ''}
                 ${calc.percentage !== undefined ? `${calc.percentage}%` : ''}
                 ${calc.monthly_rate !== undefined ? `${(calc.monthly_rate * 100).toFixed(2)}%` : ''}
@@ -274,8 +234,9 @@ function renderViabilityContext(viability: LeanViability): string {
             <div id="lean-viability-targets-${key}" class="viability-field">
               <span class="field-label">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
               <span class="field-value">
-                ${target.rate !== undefined ? `${target.rate}/${target.period}` : ''}
-                ${target.amount !== undefined ? `${target.currency} ${target.amount.toLocaleString()}` : ''}
+                ${Object.entries(target).map(([subKey, value]: [string, any]) => 
+                  `${subKey.replace(/_/g, ' ')}: ${value.rate !== undefined ? `${value.rate}/${value.period}` : ''}${value.amount !== undefined ? `${value.currency === 'USD' ? '$' : '€'}${value.amount.toLocaleString()}` : ''}`
+                ).join(', ')}
               </span>
             </div>
           `).join('')}
@@ -558,94 +519,3 @@ function getStyles(hasTabs: boolean): string {
     ` : ''}
   `;
 }
-```
-
-### Add Unit Tests
-
-Add to `tests/visualizer.test.ts`:
-
-```typescript
-describe('generateAARRRMetricsHTML', () => {
-  test('generates complete HTML with all 5 stages', () => {
-    // Test with full AAARR metrics structure
-  });
-
-  test('displays metrics with targets, current, and gaps', () => {
-    // Test metric value rendering
-  });
-
-  test('highlights stages with gaps', () => {
-    // Test gap visualization
-  });
-
-  test('formats rate, amount, and percentage values correctly', () => {
-    // Test value formatting
-  });
-
-  test('handles missing current or target values', () => {
-    // Test partial data
-  });
-
-  test('loads and displays viability context when lean_viability_ref is provided', () => {
-    // Test viability integration
-  });
-
-  test('makes imported_from values clickable when viability is loaded', () => {
-    // Test navigation links
-  });
-
-  test('renders tabs when viability is present', () => {
-    // Test tabbed interface
-  });
-});
-```
-
-## Acceptance Criteria
-- [x] generateAARRRMetricsHTML function created with baseDir parameter
-- [x] All 5 AAARR stages rendered as pipeline
-- [x] Stages display horizontally with arrow connectors
-- [x] Each stage shows stage_goal
-- [x] Metrics display name, description, target, current, gap
-- [x] Gaps calculated and displayed with formatting
-- [x] Visual indication for stages with gaps (red border)
-- [x] Visual indication for on-track stages (green border)
-- [x] Lean viability file loaded when lean_viability_ref is provided
-- [x] Tabbed interface displays when viability is present
-- [x] Tab 1 shows AAARR Customer Factory
-- [x] Tab 2 shows Lean Viability Context
-- [x] Viability context displays success criteria, calculations, targets
-- [x] Metrics with imported_from show clickable links with icon
-- [x] Clicking imported value navigates to viability tab and highlights source
-- [x] Anchor IDs match imported_from paths
-- [x] Highlight animation shows on navigation
-- [x] Responsive design (mobile: vertical stack)
-- [x] Print styles included (tabs hidden, both sections visible)
-- [x] Unit tests added for viability integration
-- [x] Unit tests added for navigation
-- [x] All tests passing
-- [x] TypeScript compiles without errors
-
-## Implementation Summary
-
-**Files Created:**
-- `src/visualizer/aaarr-visualizer.ts` (521 lines)
-
-**Files Modified:**
-- `tests/visualizer.test.ts` (+385 lines of comprehensive tests)
-- `src/visualizer/index.ts` (+1 line export)
-
-**Test Results:**
-- 9 new test cases added for AAARR visualizer
-- All 100 tests passing
-- TypeScript compilation successful with no errors
-
-**Key Features Implemented:**
-1. Full AAARR Customer Factory visualization with 5-stage pipeline
-2. Gap calculation integration with visual indicators
-3. Tabbed interface when viability reference is present
-4. Clickable imported values with navigation and highlight animation
-5. Responsive design with mobile support
-6. Print-friendly styles
-7. Comprehensive error handling for optional viability loading
-
-**Completed:** 2025-12-24

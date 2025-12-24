@@ -1,8 +1,16 @@
 import { generateVisualization, generateCombinedVisualization } from '../src/visualizer';
 import { generateLeanViabilityHTML } from '../src/visualizer/lean-viability-visualizer';
-import { NorthStar, ArchitecturalScope, LeanViability } from '../src/parser/types';
+import { NorthStar, ArchitecturalScope, LeanViability, AARRRMetrics } from '../src/parser/types';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// Import will be available once aaarr-visualizer.ts is created
+let generateAARRRMetricsHTML: any;
+try {
+  ({ generateAARRRMetricsHTML } = require('../src/visualizer/aaarr-visualizer'));
+} catch {
+  generateAARRRMetricsHTML = () => '';
+}
 
 const outputDir = path.join(__dirname, 'output');
 
@@ -510,5 +518,383 @@ describe('generateLeanViabilityHTML', () => {
 
     expect(html).toContain('Revenue');
     expect(html).toContain('ARPU: $100/month');
+  });
+});
+
+describe('generateAARRRMetricsHTML', () => {
+  const createTestMetrics = (overrides: Partial<any> = {}): AARRRMetrics => ({
+    type: 'aaarr-metrics',
+    version: '1.0',
+    last_updated: '2025-12-24',
+    title: 'Test AAARR Metrics',
+    stages: {
+      acquisition: {
+        stage_goal: 'Get users to our platform',
+        metrics: [
+          {
+            id: 'aaarr.acquisition.signups',
+            name: 'Monthly Signups',
+            description: 'New user registrations per month',
+            target: { rate: 100, period: 'month' },
+            current: { rate: 80, period: 'month' }
+          }
+        ]
+      },
+      activation: {
+        stage_goal: 'Get users to experience value',
+        metrics: [
+          {
+            id: 'aaarr.activation.first-use',
+            name: 'First Use Completion',
+            description: 'Users who complete first action',
+            target: { percentage: 70 },
+            current: { percentage: 65 }
+          }
+        ]
+      },
+      retention: {
+        stage_goal: 'Keep users coming back',
+        metrics: []
+      },
+      referral: {
+        stage_goal: 'Turn users into advocates',
+        metrics: []
+      },
+      revenue: {
+        stage_goal: 'Generate sustainable income',
+        metrics: [
+          {
+            id: 'aaarr.revenue.arpu',
+            name: 'ARPU',
+            description: 'Average revenue per user',
+            target: { amount: 100, currency: 'USD' },
+            current: { amount: 85, currency: 'USD' }
+          }
+        ]
+      }
+    },
+    ...overrides
+  });
+
+  test('generates complete HTML with all 5 stages', () => {
+    const metrics = createTestMetrics();
+    const html = generateAARRRMetricsHTML(metrics);
+
+    // Check HTML structure
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('</html>');
+    expect(html).toContain('Test AAARR Metrics');
+
+    // Check all 5 stages are present
+    expect(html).toContain('Acquisition');
+    expect(html).toContain('Activation');
+    expect(html).toContain('Retention');
+    expect(html).toContain('Referral');
+    expect(html).toContain('Revenue');
+
+    // Check stage goals
+    expect(html).toContain('Get users to our platform');
+    expect(html).toContain('Get users to experience value');
+  });
+
+  test('displays metrics with targets, current, and gaps', () => {
+    const metrics = createTestMetrics();
+    const html = generateAARRRMetricsHTML(metrics);
+
+    // Check metric names
+    expect(html).toContain('Monthly Signups');
+    expect(html).toContain('First Use Completion');
+
+    // Check target values
+    expect(html).toContain('Target:');
+    expect(html).toContain('100/month');
+    expect(html).toContain('70%');
+
+    // Check current values
+    expect(html).toContain('Current:');
+    expect(html).toContain('80/month');
+    expect(html).toContain('65%');
+
+    // Check gap display
+    expect(html).toContain('Gap:');
+  });
+
+  test('highlights stages with gaps', () => {
+    const metrics = createTestMetrics();
+    const html = generateAARRRMetricsHTML(metrics);
+
+    // Stages with gaps should have has-gaps class
+    expect(html).toContain('class="stage has-gaps"');
+    
+    // Stages without metrics or on track should have on-track class
+    expect(html).toContain('class="stage on-track"');
+  });
+
+  test('formats rate, amount, and percentage values correctly', () => {
+    const metrics = createTestMetrics();
+    const html = generateAARRRMetricsHTML(metrics);
+
+    // Rate formatting: rate/period
+    expect(html).toContain('100/month');
+    expect(html).toContain('80/month');
+
+    // Percentage formatting: value%
+    expect(html).toContain('70%');
+    expect(html).toContain('65%');
+
+    // Amount formatting: currency amount
+    expect(html).toContain('USD 100');
+    expect(html).toContain('USD 85');
+  });
+
+  test('handles missing current or target values', () => {
+    const metrics: AARRRMetrics = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-24',
+      title: 'Partial Metrics',
+      stages: {
+        acquisition: {
+          stage_goal: 'Get users',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.signups',
+              name: 'Signups',
+              target: { rate: 100, period: 'month' }
+              // No current value
+            }
+          ]
+        },
+        activation: { stage_goal: 'Activate', metrics: [] },
+        retention: { stage_goal: 'Retain', metrics: [] },
+        referral: { stage_goal: 'Refer', metrics: [] },
+        revenue: { stage_goal: 'Revenue', metrics: [] }
+      }
+    };
+
+    const html = generateAARRRMetricsHTML(metrics);
+    
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('Signups');
+    expect(html).toContain('100/month');
+    // Should not have gap without current value
+    expect(html).not.toContain('Gap:');
+  });
+
+  test('loads and displays viability context when lean_viability_ref is provided', () => {
+    // Create test viability file
+    const viabilityPath = path.join(__dirname, 'fixtures', 'test-viability-ref.yaml');
+    const viabilityContent = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-24"
+title: "Test Viability"
+lean_canvas_ref: "lean-canvas.yaml"
+time_horizon:
+  duration: 3
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 1000000
+    currency: USD
+  target_year: 3
+calculations:
+  annual_revenue_per_customer:
+    amount: 1000
+    currency: USD
+    basis: "Test basis"
+  required_customers:
+    count: 1000
+    formula: "Test formula"
+  customer_acquisition_rate:
+    rate: 333
+    period: year
+    formula: "Test formula"
+  monthly_acquisition_target:
+    rate: 28
+    period: month
+    formula: "Test formula"
+targets:
+  acquisition:
+    monthly_signups:
+      rate: 28
+      period: month
+`;
+    
+    fs.writeFileSync(viabilityPath, viabilityContent);
+
+    const metrics = createTestMetrics({
+      lean_viability_ref: 'test-viability-ref.yaml'
+    });
+
+    const baseDir = path.join(__dirname, 'fixtures');
+    const html = generateAARRRMetricsHTML(metrics, baseDir);
+
+    // Cleanup
+    if (fs.existsSync(viabilityPath)) {
+      fs.unlinkSync(viabilityPath);
+    }
+
+    // Check that viability context is loaded
+    expect(html).toContain('Lean Viability Context');
+    expect(html).toContain('Test Viability');
+    expect(html).toContain('$1,000,000');
+  });
+
+  test('makes imported_from values clickable when viability is loaded', () => {
+    // Create test viability file
+    const viabilityPath = path.join(__dirname, 'fixtures', 'test-import-ref.yaml');
+    const viabilityContent = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-24"
+title: "Test Viability"
+lean_canvas_ref: "lean-canvas.yaml"
+time_horizon:
+  duration: 3
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 1000000
+    currency: USD
+  target_year: 3
+calculations:
+  annual_revenue_per_customer:
+    amount: 1000
+    currency: USD
+    basis: "Test basis"
+  required_customers:
+    count: 1000
+    formula: "Test formula"
+  customer_acquisition_rate:
+    rate: 333
+    period: year
+    formula: "Test formula"
+  monthly_acquisition_target:
+    rate: 100
+    period: month
+    formula: "Test formula"
+targets:
+  acquisition:
+    monthly_signups:
+      rate: 100
+      period: month
+`;
+    
+    fs.writeFileSync(viabilityPath, viabilityContent);
+
+    const metricsWithImport: AARRRMetrics = {
+      type: 'aaarr-metrics',
+      version: '1.0',
+      last_updated: '2025-12-24',
+      title: 'Test Import',
+      lean_viability_ref: 'test-import-ref.yaml',
+      stages: {
+        acquisition: {
+          stage_goal: 'Get users',
+          metrics: [
+            {
+              id: 'aaarr.acquisition.signups',
+              name: 'Monthly Signups',
+              target: {
+                rate: 100,
+                period: 'month',
+                imported_from: 'lean-viability.targets.acquisition'
+              },
+              current: { rate: 80, period: 'month' }
+            }
+          ]
+        },
+        activation: { stage_goal: 'Activate', metrics: [] },
+        retention: { stage_goal: 'Retain', metrics: [] },
+        referral: { stage_goal: 'Refer', metrics: [] },
+        revenue: { stage_goal: 'Revenue', metrics: [] }
+      }
+    };
+
+    const baseDir = path.join(__dirname, 'fixtures');
+    const html = generateAARRRMetricsHTML(metricsWithImport, baseDir);
+
+    // Cleanup
+    if (fs.existsSync(viabilityPath)) {
+      fs.unlinkSync(viabilityPath);
+    }
+
+    // Check for clickable import indicator
+    expect(html).toContain('clickable');
+    expect(html).toContain('import-icon');
+    expect(html).toContain('From:');
+    expect(html).toContain('lean-viability.targets.acquisition');
+    expect(html).toContain('navigateToViability');
+  });
+
+  test('renders tabs when viability is present', () => {
+    // Create test viability file
+    const viabilityPath = path.join(__dirname, 'fixtures', 'test-tabs-ref.yaml');
+    const viabilityContent = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-24"
+title: "Test Viability"
+lean_canvas_ref: "lean-canvas.yaml"
+time_horizon:
+  duration: 3
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 1000000
+    currency: USD
+  target_year: 3
+calculations:
+  annual_revenue_per_customer:
+    amount: 1000
+    currency: USD
+    basis: "Test basis"
+  required_customers:
+    count: 1000
+    formula: "Test formula"
+  customer_acquisition_rate:
+    rate: 333
+    period: year
+    formula: "Test formula"
+  monthly_acquisition_target:
+    rate: 28
+    period: month
+    formula: "Test formula"
+targets: {}
+`;
+    
+    fs.writeFileSync(viabilityPath, viabilityContent);
+
+    const metrics = createTestMetrics({
+      lean_viability_ref: 'test-tabs-ref.yaml'
+    });
+
+    const baseDir = path.join(__dirname, 'fixtures');
+    const html = generateAARRRMetricsHTML(metrics, baseDir);
+
+    // Cleanup
+    if (fs.existsSync(viabilityPath)) {
+      fs.unlinkSync(viabilityPath);
+    }
+
+    // Check for tab interface
+    expect(html).toContain('class="tabs"');
+    expect(html).toContain('tab-button');
+    expect(html).toContain('AAARR Customer Factory');
+    expect(html).toContain('Lean Viability Context');
+    expect(html).toContain('tab-content');
+    expect(html).toContain('switchTab');
+  });
+
+  test('renders without tabs when no viability reference', () => {
+    const metrics = createTestMetrics();
+    const html = generateAARRRMetricsHTML(metrics);
+
+    // Should not have tabs
+    expect(html).not.toContain('class="tabs"');
+    expect(html).not.toContain('tab-button');
+    expect(html).not.toContain('switchTab');
+    
+    // Should still have customer factory
+    expect(html).toContain('customer-factory');
   });
 });
