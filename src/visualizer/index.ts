@@ -5,6 +5,9 @@ import { generateTabbedHTML } from './tabbed-visualizer';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Re-export specialized visualizers
+export { generateAARRRMetricsHTML } from './aaarr-visualizer';
+
 export function generateVisualization(parsedData: NorthStar, outputPath: string): void {
   const html = `<!DOCTYPE html>
 <html lang="en">
