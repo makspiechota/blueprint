@@ -55,7 +55,7 @@
       "type": "object",
       "properties": {
         "rate": { "type": "number", "minimum": 0 },
-        "period": { "type": "string", "enum": ["day", "week", "month", "quarter", "year"] },
+        "period": { "type": "string", "enum": ["day", "week", "month", "quarter", "year", "hour", "score", "user"] },
         "amount": { "type": "number", "minimum": 0 },
         "currency": { "type": "string", "enum": ["USD", "EUR", "PLN", "GBP"] },
         "percentage": { "type": "number", "minimum": 0, "maximum": 100 },

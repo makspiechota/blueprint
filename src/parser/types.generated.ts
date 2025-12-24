@@ -39,7 +39,7 @@ declare namespace Schemas {
             }
             export interface MetricValue {
                 rate?: number;
-                period?: "day" | "week" | "month" | "quarter" | "year";
+                period?: "day" | "week" | "month" | "quarter" | "year" | "hour" | "score" | "user";
                 amount?: number;
                 currency?: "USD" | "EUR" | "PLN" | "GBP";
                 percentage?: number;
