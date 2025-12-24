@@ -1,4 +1,4 @@
-import { parseNorthStar, parseArchitecturalScope } from '../src/parser';
+import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas } from '../src/parser';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -39,8 +39,104 @@ strategic_goals:
       strategic_goals: [
         { title: 'Goal 1', description: 'Description 1' }
       ]
-    });
   });
+});
+
+describe('parseLeanCanvas', () => {
+  it('should parse valid Lean Canvas YAML file', async () => {
+    const result = await parseLeanCanvas('tests/fixtures/valid-lean-canvas.yaml');
+
+    expect(result.type).toBe('lean-canvas');
+    expect(result.version).toBe('1.0');
+    expect(result.last_updated).toBe('2025-12-20');
+    expect(result.title).toBe('Test Lean Canvas');
+    expect(result.north_star_ref).toBe('north-star.yaml');
+
+    expect(result.problem).toBeDefined();
+    expect(result.problem?.top_3_problems).toEqual(['Problem 1', 'Problem 2', 'Problem 3']);
+    expect(result.problem?.existing_alternatives).toBe('Current solutions');
+
+    expect(result.customer_segments).toBeDefined();
+    expect(result.customer_segments?.target_customers).toBe('Target customers');
+    expect(result.customer_segments?.early_adopters).toBe('Early adopters');
+
+    expect(result.unique_value_proposition).toBeDefined();
+    expect(result.unique_value_proposition?.single_clear_message).toBe('Unique value');
+    expect(result.unique_value_proposition?.high_level_concept).toBe('X for Y');
+
+    expect(result.solution).toBeDefined();
+    expect(result.solution?.top_3_features).toEqual(['Feature 1', 'Feature 2', 'Feature 3']);
+
+    expect(result.channels).toBeDefined();
+    expect(result.channels?.path_to_customers).toEqual(['Channel 1', 'Channel 2']);
+
+    expect(result.revenue_streams).toBeDefined();
+    expect(result.revenue_streams?.revenue_model).toBe('Revenue model');
+    expect(result.revenue_streams?.lifetime_value).toBe('LTV');
+
+    expect(result.cost_structure).toBeDefined();
+    expect(result.cost_structure?.customer_acquisition_cost).toBe('CAC');
+    expect(result.cost_structure?.distribution_costs).toBe('Distribution');
+    expect(result.cost_structure?.hosting_costs).toBe('Hosting');
+    expect(result.cost_structure?.people_costs).toBe('People');
+
+    expect(result.key_metrics).toBeDefined();
+    expect(result.key_metrics?.activities_to_measure).toEqual(['Metric 1', 'Metric 2']);
+
+    expect(result.unfair_advantage).toBeDefined();
+    expect(result.unfair_advantage?.cant_be_copied).toBe('Unfair advantage');
+  });
+
+  it('should parse Lean Canvas with minimal required fields', async () => {
+    // Create a temporary minimal file
+    const minimalContent = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-20"
+title: "Minimal Canvas"`;
+
+    // Write to a temp file for testing
+    const fs = require('fs');
+    fs.writeFileSync('tests/fixtures/minimal-lean-canvas.yaml', minimalContent);
+
+    const result = await parseLeanCanvas('tests/fixtures/minimal-lean-canvas.yaml');
+
+    expect(result.type).toBe('lean-canvas');
+    expect(result.version).toBe('1.0');
+    expect(result.title).toBe('Minimal Canvas');
+    expect(result.problem).toBeUndefined();
+
+    // Clean up
+    fs.unlinkSync('tests/fixtures/minimal-lean-canvas.yaml');
+  });
+
+  it('should throw error for invalid YAML', async () => {
+    const invalidYaml = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-20"
+title: "Test"
+invalid_yaml: [unclosed`;
+
+    const fs = require('fs');
+    fs.writeFileSync('tests/fixtures/invalid-lean-canvas.yaml', invalidYaml);
+
+    await expect(parseLeanCanvas('tests/fixtures/invalid-lean-canvas.yaml')).rejects.toThrow();
+
+    fs.unlinkSync('tests/fixtures/invalid-lean-canvas.yaml');
+  });
+
+  it('should throw error for missing required fields', async () => {
+    const invalidContent = `type: lean-canvas
+version: "1.0"
+# missing last_updated and title`;
+
+    const fs = require('fs');
+    fs.writeFileSync('tests/fixtures/invalid-required-lean-canvas.yaml', invalidContent);
+
+    await expect(parseLeanCanvas('tests/fixtures/invalid-required-lean-canvas.yaml')).rejects.toThrow();
+
+    fs.unlinkSync('tests/fixtures/invalid-required-lean-canvas.yaml');
+  });
+});
 
   test('throws error for missing required field', () => {
     const invalidYaml = `type: north-star
