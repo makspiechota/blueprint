@@ -11,13 +11,14 @@ BLUEPRINT helps you define and communicate your strategic vision and business mo
 3. **Lean 1-2-3 Viability** - Quantitative viability test with work-backwards calculations
 4. **AAARR Metrics** ✨ NEW - Customer lifecycle metrics (Pirate Metrics)
 5. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
-6. **Business Orchestration** - Multi-layer visualization
+6. **Policy Charter** ✨ NEW - Operational goals, tactics, policies, risks, and KPIs using Ronald Ross framework
+7. **Business Orchestration** - Multi-layer visualization
 
 Use `business.yaml` as the entry point to orchestrate all layers. Together, these create a complete business blueprint from strategy to execution.
 
 ## Features
 
-- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + AAARR Metrics (customer factory) + Architectural Scope (capabilities)
+- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + AAARR Metrics (customer factory) + Architectural Scope (capabilities) + Policy Charter (operational governance)
 - **business.yaml Orchestration** - Single entry point for all layers with flexible combinations
 - **YAML DSL** - Simple, version-controlled format for business knowledge
 - **Lean Canvas Support** - 9-box business model framework (problem, solution, customers, revenue, costs)
@@ -57,6 +58,7 @@ lean_canvas_ref: "lean-canvas.yaml"            # Business model
 lean_viability_ref: "lean-viability.yaml"      # Viability calculations
 aaarr_metrics_ref: "aaarr-metrics.yaml"        # Customer metrics
 architectural_scope_ref: "architectural-scope.yaml"  # Architecture
+policy_charter_ref: "policy-charter.yaml"      # Operational governance
 ```
 
 ### 2. Create your strategic layer(s)
@@ -390,6 +392,132 @@ Backlog (features by AAARR impact)
 3. Policy Charter creates KPI: "Increase signup rate to 231/month"
 4. Policy Charter links KPI to metric: `aaarr.acquisition.signup-rate`
 5. Backlog prioritizes features that improve signup rate
+
+## Policy Charter (Operational Governance)
+
+### Quick Start
+
+Policy Charter implements Ronald Ross's framework for connecting strategy to execution:
+
+```yaml
+type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Software Factory Policy Charter"
+
+# Required references
+architectural_scope_ref: "architectural-scope.yaml"
+aaarr_metrics_ref: "aaarr-metrics.yaml"
+
+goals:
+  - id: pc.goal.delivery-velocity
+    title: "Accelerate Engineering Velocity"
+    description: "Enable teams to deliver features faster"
+    addresses:
+      - arch.goal.velocity
+    aaarr_impact:
+      - acquisition
+    tactics:
+      - pc.tactic.tdd-mandate
+    policies:
+      - pc.policy.tdd-required
+    kpis:
+      - pc.kpi.deployment-frequency
+
+tactics:
+  - id: pc.tactic.tdd-mandate
+    title: "Mandate Test-Driven Development"
+    description: "Require TDD for all features"
+    drives_policies:
+      - pc.policy.tdd-required
+
+policies:
+  - id: pc.policy.tdd-required
+    title: "TDD Required for New Features"
+    rule: "All new features must use Test-Driven Development"
+    driven_by_tactic: pc.tactic.tdd-mandate
+    enforcement: mandatory
+    brackets:
+      - condition: "High complexity"
+        rule: "Full TDD required"
+      - condition: "Low complexity"
+        rule: "TDD encouraged"
+
+risks:
+  - id: pc.risk.skill-gap
+    description: "Team lacks TDD skills"
+    probability: high
+    impact: medium
+    mitigation:
+      - pc.tactic.training-program
+
+kpis:
+  - id: pc.kpi.deployment-frequency
+    name: "Deployment Frequency"
+    target:
+      rate: 30
+      period: day
+    current:
+      rate: 12
+      period: day
+    measurement_frequency: daily
+    justification: aaarr.activation.feature-rollout-rate
+```
+
+### Key Concepts
+
+**Ronald Ross Framework:**
+```
+Goals (Why) → Tactics (How) → Policies (What)
+```
+
+**Semantic IDs:** Structured identifiers for all entities
+- `pc.goal.*` - Goals
+- `pc.tactic.*` - Tactics
+- `pc.policy.*` - Policies
+- `pc.risk.*` - Risks
+- `pc.kpi.*` - KPIs
+
+**Graduated Brackets:** Conditional policy rules for complex scenarios
+
+**Bidirectional Relationships:** Tactics drive policies, policies reference tactics
+
+### Three-Level Validation
+
+1. **Schema Validation** - JSON Schema compliance
+2. **Reference Existence** - File and cross-layer references exist
+3. **Logical Consistency** - Business rule validation
+
+### Policy Charter Visualization
+
+Comprehensive tabbed interface with:
+- **Goals Overview** - Goals with architectural addresses and AAARR impact
+- **Tactics Tree** - Hierarchical tactics with policy relationships
+- **Policies Matrix** - Policies with enforcement levels and graduated brackets
+- **Risk Management** - Risks with mitigation strategies
+- **KPI Dashboard** - KPIs with targets, current values, and justifications
+
+### Layer Integration
+
+Policy Charter connects strategy to operational execution:
+
+```
+North Star (strategy)
+  ↓ informs
+Architectural Scope (capabilities)
+  ↓ addressed by
+Policy Charter (operational goals) ← YOU ARE HERE
+  ↓ drives
+Backlog (implementation)
+```
+
+**Integration Flow:**
+1. Architectural Scope defines capability goals
+2. Policy Charter creates operational goals addressing scope goals
+3. Policy Charter defines tactics to achieve goals
+4. Policy Charter establishes policies driven by tactics
+5. Policy Charter identifies risks and mitigation strategies
+6. Policy Charter defines KPIs justified by AAARR metrics
 
 ## Documentation
 
