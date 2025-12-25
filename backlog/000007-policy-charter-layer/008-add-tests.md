@@ -4,7 +4,7 @@
 - As a developer, I want comprehensive tests so that Policy Charter functionality works reliably
 
 ## Description
-Add unit tests for parser, validator, and visualizer functions. Cover happy paths, error cases, and edge cases including all three validation levels and visualization features.
+Add unit tests for parser, validator, and visualizer functions using TDD approach. Tests will be created alongside implementation to ensure functionality works correctly. Cover happy paths, error cases, and edge cases including all three validation levels and visualization features.
 
 ## Files to Modify/Create
 - `tests/policy-charter.test.ts` - New test file
