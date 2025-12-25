@@ -1,6 +1,6 @@
 import { generateVisualization, generateCombinedVisualization } from '../src/visualizer';
 import { generateLeanViabilityHTML } from '../src/visualizer/lean-viability-visualizer';
-import { NorthStar, ArchitecturalScope, LeanViability, AARRRMetrics } from '../src/parser/types';
+import { NorthStar, ArchitecturalScope, LeanViability, AARRRMetrics, PolicyCharter } from '../src/parser/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -896,5 +896,234 @@ targets: {}
     
     // Should still have customer factory
     expect(html).toContain('customer-factory');
+  });
+});
+
+describe('generatePolicyCharterHTML', () => {
+  test('generates complete HTML with goals, tactics, and policies hierarchy', () => {
+    const { generatePolicyCharterHTML } = require('../src/visualizer/policy-charter-visualizer');
+
+    const policyCharter = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test Policy Charter',
+      architectural_scope_ref: 'test-arch-scope.yaml',
+      aaarr_metrics_ref: 'test-aaarr.yaml',
+      goals: [
+        {
+          id: 'pc.goal.test-goal',
+          title: 'Test Goal',
+          description: 'A test operational goal',
+          addresses: ['arch.goal.test'],
+          aaarr_impact: ['acquisition'],
+          tactics: ['pc.tactic.test-tactic'],
+          policies: ['pc.policy.test-policy'],
+          kpis: ['pc.kpi.test-kpi'],
+          risks: ['pc.risk.test-risk']
+        }
+      ],
+      tactics: [
+        {
+          id: 'pc.tactic.test-tactic',
+          title: 'Test Tactic',
+          description: 'A test tactic',
+          drives_policies: ['pc.policy.test-policy']
+        }
+      ],
+      policies: [
+        {
+          id: 'pc.policy.test-policy',
+          title: 'Test Policy',
+          rule: 'Test rule',
+          driven_by_tactic: 'pc.tactic.test-tactic',
+          enforcement: 'mandatory',
+          brackets: [
+            {
+              condition: 'Test condition',
+              rule: 'Test bracket rule'
+            }
+          ]
+        }
+      ],
+      risks: [
+        {
+          id: 'pc.risk.test-risk',
+          description: 'Test risk',
+          probability: 'medium',
+          impact: 'high',
+          mitigation: ['pc.tactic.test-tactic']
+        }
+      ],
+      kpis: [
+        {
+          id: 'pc.kpi.test-kpi',
+          name: 'Test KPI',
+          target: { rate: 100 },
+          current: { rate: 80 },
+          measurement_frequency: 'monthly',
+          justification: 'aaarr.acquisition.test-metric'
+        }
+      ]
+    };
+
+    const html = generatePolicyCharterHTML(policyCharter);
+
+    // Check HTML structure
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('</html>');
+    expect(html).toContain('Test Policy Charter');
+
+    // Check tabs
+    expect(html).toContain('Goals Overview');
+    expect(html).toContain('Tactics Tree');
+    expect(html).toContain('Policies Matrix');
+    expect(html).toContain('Risk Management');
+    expect(html).toContain('KPI Dashboard');
+
+    // Check content
+    expect(html).toContain('Test Goal');
+    expect(html).toContain('Test Tactic');
+    expect(html).toContain('Test Policy');
+    expect(html).toContain('Test risk');
+    expect(html).toContain('Test KPI');
+  });
+
+  test('handles empty arrays gracefully', () => {
+    const { generatePolicyCharterHTML } = require('../src/visualizer/policy-charter-visualizer');
+
+    const minimalPolicyCharter = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Minimal Policy Charter',
+      architectural_scope_ref: 'test.yaml',
+      aaarr_metrics_ref: 'test.yaml',
+      goals: [],
+      tactics: [],
+      policies: [],
+      risks: [],
+      kpis: []
+    };
+
+    const html = generatePolicyCharterHTML(minimalPolicyCharter);
+
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('Minimal Policy Charter');
+    expect(html).toContain('No goals defined');
+  });
+
+  test('displays policy enforcement levels with color coding', () => {
+    const { generatePolicyCharterHTML } = require('../src/visualizer/policy-charter-visualizer');
+
+    const policyCharter = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Enforcement Test',
+      architectural_scope_ref: 'test.yaml',
+      aaarr_metrics_ref: 'test.yaml',
+      goals: [],
+      tactics: [],
+      policies: [
+        {
+          id: 'pc.policy.mandatory',
+          title: 'Mandatory Policy',
+          rule: 'Must do this',
+          driven_by_tactic: 'pc.tactic.test',
+          enforcement: 'mandatory'
+        },
+        {
+          id: 'pc.policy.guideline',
+          title: 'Guideline Policy',
+          rule: 'Should do this',
+          driven_by_tactic: 'pc.tactic.test',
+          enforcement: 'guideline'
+        }
+      ],
+      risks: [],
+      kpis: []
+    };
+
+    const html = generatePolicyCharterHTML(policyCharter);
+
+    expect(html).toContain('Mandatory Policy');
+    expect(html).toContain('Guideline Policy');
+    expect(html).toContain('mandatory');
+    expect(html).toContain('guideline');
+  });
+
+  test('shows risk mitigation relationships', () => {
+    const { generatePolicyCharterHTML } = require('../src/visualizer/policy-charter-visualizer');
+
+    const policyCharter = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Risk Test',
+      architectural_scope_ref: 'test.yaml',
+      aaarr_metrics_ref: 'test.yaml',
+      goals: [],
+      tactics: [
+        {
+          id: 'pc.tactic.mitigation',
+          title: 'Mitigation Tactic',
+          description: 'How to mitigate risk',
+          drives_policies: []
+        }
+      ],
+      policies: [],
+      risks: [
+        {
+          id: 'pc.risk.test',
+          description: 'High impact risk',
+          probability: 'high',
+          impact: 'high',
+          mitigation: ['pc.tactic.mitigation']
+        }
+      ],
+      kpis: []
+    };
+
+    const html = generatePolicyCharterHTML(policyCharter);
+
+    expect(html).toContain('High impact risk');
+    expect(html).toContain('Mitigation Tactic');
+  });
+
+  test('displays KPI values and justification', () => {
+    const { generatePolicyCharterHTML } = require('../src/visualizer/policy-charter-visualizer');
+
+    const policyCharter = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'KPI Test',
+      architectural_scope_ref: 'test.yaml',
+      aaarr_metrics_ref: 'test.yaml',
+      goals: [],
+      tactics: [],
+      policies: [],
+      risks: [],
+      kpis: [
+        {
+          id: 'pc.kpi.test',
+          name: 'Test KPI',
+          target: { rate: 100, period: 'month' },
+          current: { rate: 80, period: 'month' },
+          measurement_frequency: 'monthly',
+          justification: 'aaarr.acquisition.signup-rate'
+        }
+      ]
+    };
+
+    const html = generatePolicyCharterHTML(policyCharter);
+
+    expect(html).toContain('Test KPI');
+    expect(html).toContain('100/month');
+    expect(html).toContain('80/month');
+    expect(html).toContain('monthly');
+    expect(html).toContain('aaarr.acquisition.signup-rate');
   });
 });

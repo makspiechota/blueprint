@@ -25,6 +25,13 @@ BLUEPRINT uses a multi-layer approach to capture your complete business blueprin
 - 7±2 items per list (optimal for cognitive load)
 - Best for: Technical architecture, capability mapping
 
+### Operational Layer
+
+**Layer 4: Policy Charter** (execution-focused)
+- Goals, Tactics, Policies, Risks, KPIs using Ronald Ross framework
+- Graduated policy brackets and bidirectional relationships
+- Best for: Operational governance, compliance, risk management
+
 ### business.yaml - The Entry Point
 
 `business.yaml` orchestrates all layers as a single source of truth:
@@ -38,6 +45,9 @@ title: "My Product"
 north_star_ref: "north-star.yaml"
 lean_canvas_ref: "lean-canvas.yaml"
 architectural_scope_ref: "architectural-scope.yaml"
+policy_charter_ref: "policy-charter.yaml"
+aaarr_metrics_ref: "aaarr-metrics.yaml"
+lean_viability_ref: "lean-viability.yaml"
 ```
 
 **Benefits:**
@@ -432,9 +442,124 @@ Let's create a North Star from scratch:
     git commit -m "Add north star definition"
     ```
 
+## Understanding Policy Charter Framework
+
+BLUEPRINT's Policy Charter layer implements Ronald Ross's framework for connecting strategy to execution:
+
+```
+Goals (Why) → Tactics (How) → Policies (What)
+```
+
+### Goals
+Operational objectives that address Architectural Scope goals and impact AAARR metrics. Goals translate strategy into measurable operational outcomes.
+
+### Tactics
+Concrete courses of action that drive policy creation. Tactics provide the operational approach to achieving goals.
+
+### Policies
+Enforceable business rules with graduated brackets for complex scenarios. Policies define acceptable behavior with conditional rules based on context.
+
+### Key Features
+- **Semantic IDs**: All entities use structured identifiers (pc.goal.*, pc.tactic.*, etc.)
+- **Bidirectional Relationships**: Tactics drive policies, policies reference their tactics
+- **Graduated Brackets**: Conditional policy rules for different scenarios
+- **Risk Management**: Risks linked to mitigation tactics and policies
+- **KPI Justification**: All metrics justified through AAARR framework
+
+## Writing a Policy Charter File
+
+### Basic Structure
+
+```yaml
+type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Software Factory Policy Charter"
+
+# Required references
+architectural_scope_ref: "architectural-scope.yaml"
+aaarr_metrics_ref: "aaarr-metrics.yaml"
+
+goals:
+  - id: pc.goal.delivery-velocity
+    title: "Accelerate Engineering Velocity"
+    description: "Enable teams to deliver features faster"
+    addresses:
+      - arch.goal.velocity
+    aaarr_impact:
+      - acquisition
+      - activation
+    tactics:
+      - pc.tactic.tdd-mandate
+    policies:
+      - pc.policy.tdd-required
+    kpis:
+      - pc.kpi.deployment-frequency
+
+tactics:
+  - id: pc.tactic.tdd-mandate
+    title: "Mandate Test-Driven Development"
+    description: "Require TDD for all features"
+    drives_policies:
+      - pc.policy.tdd-required
+
+policies:
+  - id: pc.policy.tdd-required
+    title: "TDD Required for New Features"
+    rule: "All new features must use Test-Driven Development"
+    driven_by_tactic: pc.tactic.tdd-mandate
+    enforcement: mandatory
+    brackets:
+      - condition: "Feature complexity > 5 story points"
+        rule: "Full TDD with 90%+ coverage required"
+      - condition: "Feature complexity ≤ 5 story points"
+        rule: "TDD encouraged but simplified acceptable"
+
+risks:
+  - id: pc.risk.skill-gap
+    description: "Team lacks TDD skills"
+    probability: high
+    impact: medium
+    mitigation:
+      - pc.tactic.training-program
+
+kpis:
+  - id: pc.kpi.deployment-frequency
+    name: "Deployment Frequency"
+    target:
+      rate: 30
+      period: day
+    current:
+      rate: 12
+      period: day
+    measurement_frequency: daily
+    justification: aaarr.activation.feature-rollout-rate
+```
+
+### CLI Commands
+
+Policy Charter supports the same CLI commands as other layers:
+
+```bash
+# Validate
+blueprint validate policy-charter.yaml
+
+# Visualize
+blueprint visualize policy-charter.yaml
+blueprint visualize policy-charter.yaml -o policy-charter.html
+```
+
+The visualization provides a comprehensive tabbed interface with:
+- **Goals Overview**: Goals with architectural addresses and AAARR impact
+- **Tactics Tree**: Hierarchical tactics with policy relationships
+- **Policies Matrix**: Policies with enforcement levels and graduated brackets
+- **Risk Management**: Risks with mitigation strategies
+- **KPI Dashboard**: KPIs with targets, current values, and justifications
+
 ## Next Steps
 
-- Review the [Architectural Scope Guide](architectural-scope-guide.md) for detailed architectural scope information
+- Review the [Policy Charter Guide](policy-charter-guide.md) for comprehensive framework documentation
+- Review the [Architectural Scope Guide](architectural-scope-guide.md) for architectural scope information
 - Review the [North Star DSL Specification](north-star-dsl-spec.md) for complete technical details
 - Check [Troubleshooting](troubleshooting.md) if you encounter issues
 - Explore the [examples](../examples/) for inspiration

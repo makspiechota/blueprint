@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas, parseBusiness, parseLeanViability, parseAARRRMetrics } from './parser';
-import { generateVisualization, generateCombinedVisualization, visualizeBusiness } from './visualizer';
+import { parseNorthStar, parseArchitecturalScope, parseLeanCanvas, parseBusiness, parseLeanViability, parseAARRRMetrics, parsePolicyCharter } from './parser';
+import { generateVisualization, generateCombinedVisualization, visualizeBusiness, visualizePolicyCharter, generatePolicyCharterHTML } from './visualizer';
 import { generateLeanCanvasHTML } from './visualizer/lean-canvas-visualizer';
 import { generateLeanViabilityHTML } from './visualizer/lean-viability-visualizer';
 import { generateAARRRMetricsHTML } from './visualizer/aaarr-visualizer';
@@ -100,6 +100,15 @@ program
         const aarrrOutputPath = options.output || path.join(inputDir, 'aaarr-dashboard.html');
         fs.writeFileSync(aarrrOutputPath, aarrrHtml);
         logger.success(`AAARR Metrics visualization generated successfully: ${aarrrOutputPath}`);
+      } else if (data.type === 'policy-charter') {
+        // Parse policy charter
+        const policyCharter = parsePolicyCharter(input);
+
+        // Generate policy charter visualization
+        const policyCharterOutputPath = options.output || path.join(inputDir, 'policy-charter.html');
+        visualizePolicyCharter(input, policyCharterOutputPath);
+
+        logger.success(`Policy Charter visualization generated successfully: ${policyCharterOutputPath}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);
@@ -163,6 +172,9 @@ program
           warnings.forEach(warning => logger.warning(`  - ${warning}`));
         }
         logger.success(`AAARR Metrics file is valid: ${input}`);
+      } else if (data.type === 'policy-charter') {
+        parsePolicyCharter(input);
+        logger.success(`Policy Charter file is valid: ${input}`);
       } else {
         logger.error(`Unknown file type: ${data.type}`);
         process.exit(1);

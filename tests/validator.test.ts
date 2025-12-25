@@ -847,3 +847,251 @@ title: "Test Viability"`);
     expect(warnings).toHaveLength(0);
   });
 });
+
+describe('Policy Charter Schema Validation', () => {
+  const { validate } = require('../src/parser/validator');
+
+  test('validates complete policy charter structure', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test Policy Charter',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml',
+      goals: [
+        {
+          id: 'pc.goal.test-goal',
+          title: 'Test Goal',
+          description: 'A test operational goal',
+          addresses: ['arch.goal.test'],
+          aaarr_impact: ['acquisition'],
+          tactics: ['pc.tactic.test-tactic'],
+          policies: ['pc.policy.test-policy'],
+          kpis: ['pc.kpi.test-kpi'],
+          risks: ['pc.risk.test-risk']
+        }
+      ],
+      tactics: [
+        {
+          id: 'pc.tactic.test-tactic',
+          title: 'Test Tactic',
+          description: 'A test tactic',
+          drives_policies: ['pc.policy.test-policy']
+        }
+      ],
+      policies: [
+        {
+          id: 'pc.policy.test-policy',
+          title: 'Test Policy',
+          rule: 'Test rule',
+          driven_by_tactic: 'pc.tactic.test-tactic',
+          enforcement: 'mandatory',
+          brackets: [
+            {
+              condition: 'Test condition',
+              rule: 'Test bracket rule'
+            }
+          ]
+        }
+      ],
+      risks: [
+        {
+          id: 'pc.risk.test-risk',
+          description: 'Test risk',
+          probability: 'medium',
+          impact: 'high',
+          mitigation: ['pc.tactic.test-tactic']
+        }
+      ],
+      kpis: [
+        {
+          id: 'pc.kpi.test-kpi',
+          name: 'Test KPI',
+          target: { rate: 100 },
+          current: { rate: 80 },
+          measurement_frequency: 'monthly',
+          justification: 'aaarr.acquisition.test-metric'
+        }
+      ]
+    };
+
+    expect(() => validate(data, 'policy-charter')).not.toThrow();
+  });
+
+  test('rejects invalid goal ID pattern', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml',
+      goals: [
+        {
+          id: 'invalid-goal-id',  // Should fail pattern validation
+          title: 'Test Goal',
+          description: 'Test',
+          addresses: [],
+          aaarr_impact: [],
+          tactics: [],
+          policies: [],
+          kpis: [],
+          risks: []
+        }
+      ],
+      tactics: [],
+      policies: [],
+      risks: [],
+      kpis: []
+    };
+
+    expect(() => validate(data, 'policy-charter')).toThrow();
+  });
+
+  test('requires all required fields', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml'
+      // missing goals
+    };
+
+    expect(() => validate(data, 'policy-charter')).toThrow();
+  });
+
+  test('validates semantic ID patterns for all entities', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml',
+      goals: [
+        {
+          id: 'pc.goal.valid',
+          title: 'Test Goal',
+          description: 'Test',
+          addresses: [],
+          aaarr_impact: [],
+          tactics: [],
+          policies: [],
+          kpis: [],
+          risks: []
+        }
+      ],
+      tactics: [
+        {
+          id: 'pc.tactic.valid',
+          title: 'Test Tactic',
+          description: 'Test',
+          drives_policies: []
+        }
+      ],
+      policies: [
+        {
+          id: 'pc.policy.valid',
+          title: 'Test Policy',
+          rule: 'Test rule',
+          driven_by_tactic: 'pc.tactic.valid',
+          enforcement: 'mandatory'
+        }
+      ],
+      risks: [
+        {
+          id: 'pc.risk.valid',
+          description: 'Test risk',
+          probability: 'medium',
+          impact: 'high',
+          mitigation: []
+        }
+      ],
+      kpis: [
+        {
+          id: 'pc.kpi.valid',
+          name: 'Test KPI',
+          target: { rate: 100 },
+          current: { rate: 80 },
+          measurement_frequency: 'monthly',
+          justification: 'aaarr.acquisition.test-metric'
+        }
+      ]
+    };
+
+    expect(() => validate(data, 'policy-charter')).not.toThrow();
+  });
+
+  test('validates graduated policy brackets structure', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml',
+      goals: [],
+      tactics: [
+        {
+          id: 'pc.tactic.test',
+          title: 'Test Tactic',
+          description: 'Test',
+          drives_policies: []
+        }
+      ],
+      policies: [
+        {
+          id: 'pc.policy.test',
+          title: 'Test Policy',
+          rule: 'Test rule',
+          driven_by_tactic: 'pc.tactic.test',
+          enforcement: 'mandatory',
+          brackets: [
+            {
+              condition: 'High complexity',
+              rule: 'Require full review'
+            },
+            {
+              condition: 'Low complexity',
+              rule: 'Allow self-review'
+            }
+          ]
+        }
+      ],
+      risks: [],
+      kpis: []
+    };
+
+    expect(() => validate(data, 'policy-charter')).not.toThrow();
+  });
+
+  test('validates KPI value structures', () => {
+    const data = {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: '2025-12-25',
+      title: 'Test',
+      architectural_scope_ref: 'valid-arch-scope.yaml',
+      aaarr_metrics_ref: 'valid-aaarr-metrics.yaml',
+      goals: [],
+      tactics: [],
+      policies: [],
+      risks: [],
+      kpis: [
+        {
+          id: 'pc.kpi.test',
+          name: 'Test KPI',
+          target: { rate: 100, period: 'month' },
+          current: { rate: 80, period: 'month' },
+          measurement_frequency: 'monthly',
+          justification: 'aaarr.acquisition.test-metric'
+        }
+      ]
+    };
+
+    expect(() => validate(data, 'policy-charter')).not.toThrow();
+  });
+});

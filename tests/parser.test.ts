@@ -448,3 +448,151 @@ why:
     expect(result.why.mission.action).toBe('To provide');
   });
 });
+
+describe('parsePolicyCharter', () => {
+  test('parses valid policy charter YAML file', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    const validYaml = `type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Policy Charter"
+architectural_scope_ref: "valid-arch-scope.yaml"
+aaarr_metrics_ref: "valid-aaarr-metrics.yaml"
+goals:
+  - id: pc.goal.test-goal
+    title: "Test Goal"
+    description: "A test operational goal"
+    addresses:
+      - arch.goal.test
+    aaarr_impact:
+      - acquisition
+    tactics:
+      - pc.tactic.test-tactic
+    policies:
+      - pc.policy.test-policy
+    kpis:
+      - pc.kpi.test-kpi
+    risks:
+      - pc.risk.test-risk
+tactics:
+  - id: pc.tactic.test-tactic
+    title: "Test Tactic"
+    description: "A test tactic"
+    drives_policies:
+      - pc.policy.test-policy
+policies:
+  - id: pc.policy.test-policy
+    title: "Test Policy"
+    rule: "Test rule"
+    driven_by_tactic: pc.tactic.test-tactic
+    enforcement: mandatory
+    brackets:
+      - condition: "Test condition"
+        rule: "Test bracket rule"
+risks:
+  - id: pc.risk.test-risk
+    description: "Test risk"
+    probability: medium
+    impact: high
+    mitigation:
+      - pc.tactic.test-tactic
+kpis:
+  - id: pc.kpi.test-kpi
+    name: "Test KPI"
+    target:
+      rate: 100
+    current:
+      rate: 80
+    measurement_frequency: monthly
+    justification: aaarr.acquisition.test-metric`;
+
+    const filePath = path.join(fixturesDir, 'valid-policy-charter.yaml');
+    fs.writeFileSync(filePath, validYaml);
+
+    const result = parsePolicyCharter(filePath);
+
+    expect(result.type).toBe('policy-charter');
+    expect(result.title).toBe('Test Policy Charter');
+    expect(result.goals).toHaveLength(1);
+    expect(result.tactics).toHaveLength(1);
+    expect(result.policies).toHaveLength(1);
+    expect(result.risks).toHaveLength(1);
+    expect(result.kpis).toHaveLength(1);
+  });
+
+  test('throws error for missing required field', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    const invalidYaml = `type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Policy Charter"
+architectural_scope_ref: "valid-arch-scope.yaml"
+aaarr_metrics_ref: "valid-aaarr-metrics.yaml"`;
+
+    const filePath = path.join(fixturesDir, 'missing-goals.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parsePolicyCharter(filePath)).toThrow('Validation failed');
+  });
+
+  test('throws error for invalid goal ID pattern', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    const invalidYaml = `type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Policy Charter"
+architectural_scope_ref: "valid-arch-scope.yaml"
+aaarr_metrics_ref: "valid-aaarr-metrics.yaml"
+goals:
+  - id: invalid-goal-id
+    title: "Test Goal"
+    description: "Test"
+    addresses: []
+    aaarr_impact: []
+    tactics: []
+    policies: []
+    kpis: []
+    risks: []
+tactics: []
+policies: []
+risks: []
+kpis: []`;
+
+    const filePath = path.join(fixturesDir, 'invalid-goal-id.yaml');
+    fs.writeFileSync(filePath, invalidYaml);
+
+    expect(() => parsePolicyCharter(filePath)).toThrow('Validation failed');
+  });
+
+  test('throws error for non-existent file', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    expect(() => parsePolicyCharter('non-existent.yaml')).toThrow();
+  });
+
+  test('parses example policy charter file', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    const result = parsePolicyCharter('examples/policy-charter.yaml');
+
+    expect(result.type).toBe('policy-charter');
+    expect(result.title).toBe('Software Factory Policy Charter');
+    expect(result.goals).toHaveLength(3);
+    expect(result.tactics).toHaveLength(7);
+    expect(result.policies).toHaveLength(11);
+    expect(result.risks).toHaveLength(4);
+    expect(result.kpis).toHaveLength(8);
+
+    // Verify specific relationships
+    const tddTactic = result.tactics.find((t: any) => t.id === 'pc.tactic.tdd-mandate');
+    expect(tddTactic.drives_policies).toContain('pc.policy.tdd-required');
+
+    const tddPolicy = result.policies.find((p: any) => p.id === 'pc.policy.tdd-required');
+    expect(tddPolicy.driven_by_tactic).toBe('pc.tactic.tdd-mandate');
+    expect(tddPolicy.enforcement).toBe('mandatory');
+    expect(tddPolicy.brackets).toHaveLength(3);
+  });
+});
