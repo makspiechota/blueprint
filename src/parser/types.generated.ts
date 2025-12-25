@@ -339,6 +339,101 @@ declare namespace Schemas {
             description: string;
         }[];
     }
+    /**
+     * Policy Charter Schema
+     * Operational goals, tactics, policies, risks, and KPIs using Ronald Ross Policy Charter framework
+     */
+    export interface PolicyCharter {
+        type: "policy-charter";
+        version: string;
+        last_updated: string; // ^\d{4}-\d{2}-\d{2}$
+        title: string;
+        architectural_scope_ref: string;
+        aaarr_metrics_ref: string;
+        goals: PolicyCharter.Definitions.Goal[];
+        tactics?: PolicyCharter.Definitions.Tactic[];
+        policies?: PolicyCharter.Definitions.Policy[];
+        risks?: PolicyCharter.Definitions.Risk[];
+        kpis?: PolicyCharter.Definitions.KPI[];
+    }
+    namespace PolicyCharter {
+        namespace Definitions {
+            export interface Goal {
+                id: string; // ^pc\.goal\.[a-z][a-z0-9-]*$
+                title: string;
+                description: string;
+                /**
+                 * Architectural Scope goal IDs this addresses
+                 */
+                addresses: string[];
+                /**
+                 * AAARR stages impacted
+                 */
+                aaarr_impact: string[];
+                /**
+                 * Tactic IDs that achieve this goal
+                 */
+                tactics: string[];
+                /**
+                 * Policy IDs that support this goal
+                 */
+                policies?: string[];
+                /**
+                 * KPI IDs that measure this goal
+                 */
+                kpis?: string[];
+                /**
+                 * Risk IDs that threaten this goal
+                 */
+                risks?: string[];
+            }
+            export interface KPI {
+                id: string; // ^pc\.kpi\.[a-z][a-z0-9-]*$
+                name: string;
+                description?: string;
+                target: KPIValue;
+                current: KPIValue;
+                measurement_frequency: "daily" | "weekly" | "monthly" | "quarterly";
+                justification: string;
+            }
+            export interface KPIValue {
+                rate?: number;
+                amount?: number;
+                percentage?: number;
+            }
+            export interface Policy {
+                id: string; // ^pc\.policy\.[a-z][a-z0-9-]*$
+                title: string;
+                rule: string;
+                driven_by_tactic: string;
+                enforcement: "mandatory" | "guideline";
+                brackets?: PolicyBracket[];
+            }
+            export interface PolicyBracket {
+                condition: string;
+                rule: string;
+            }
+            export interface Risk {
+                id: string; // ^pc\.risk\.[a-z][a-z0-9-]*$
+                description: string;
+                probability: "low" | "medium" | "high";
+                impact: "low" | "medium" | "high";
+                /**
+                 * Tactic or policy IDs that mitigate this risk
+                 */
+                mitigation: string[];
+            }
+            export interface Tactic {
+                id: string; // ^pc\.tactic\.[a-z][a-z0-9-]*$
+                title: string;
+                description: string;
+                /**
+                 * Policy IDs driven by this tactic
+                 */
+                drives_policies: string[];
+            }
+        }
+    }
 }
 
 export { Schemas };

@@ -10,3 +10,4 @@ export type LeanCanvas = Schemas.LeanCanvas;
 export type Business = Schemas.Business;
 export type LeanViability = Schemas.LeanViability;
 export type AARRRMetrics = Schemas.AaarrMetrics;
+export type PolicyCharter = Schemas.PolicyCharter;

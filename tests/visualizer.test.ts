@@ -1,6 +1,6 @@
 import { generateVisualization, generateCombinedVisualization } from '../src/visualizer';
 import { generateLeanViabilityHTML } from '../src/visualizer/lean-viability-visualizer';
-import { NorthStar, ArchitecturalScope, LeanViability, AARRRMetrics } from '../src/parser/types';
+import { NorthStar, ArchitecturalScope, LeanViability, AARRRMetrics, PolicyCharter } from '../src/parser/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
