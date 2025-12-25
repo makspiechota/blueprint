@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics, PolicyCharter } from './types';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics, PolicyCharter, OrchestratedBusiness, ValidationResult, ValidationIssue } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -50,6 +50,14 @@ export function validateBusiness(data: any): asserts data is Business {
 
 export function validateLeanViability(data: any): asserts data is LeanViability {
   validate(data, 'lean-viability');
+}
+
+export function validateAARRRMetrics(data: any): asserts data is AARRRMetrics {
+  validate(data, 'aaarr-metrics');
+}
+
+export function validatePolicyCharter(data: any): asserts data is PolicyCharter {
+  validate(data, 'policy-charter');
 }
 
 const SCOPE_LISTS = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
@@ -141,7 +149,7 @@ export function validateArchitecturalScopeBusinessRules(
     }
   }
 
-  return warnings;
+   return warnings;
 }
 
 export function validateLeanViabilityBusinessRules(
@@ -158,6 +166,16 @@ export function validateLeanViabilityBusinessRules(
 
     if (!fs.existsSync(leanCanvasPath)) {
       throw new Error(`Lean canvas file not found: ${data.lean_canvas_ref}`);
+    }
+
+    // Validate lean canvas file is valid
+    try {
+      const leanCanvasContent = fs.readFileSync(leanCanvasPath, 'utf8');
+      const yaml = require('js-yaml');
+      const leanCanvasData = yaml.load(leanCanvasContent);
+      validateLeanCanvas(leanCanvasData);
+    } catch (error) {
+      throw new Error(`Lean canvas file is invalid: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -196,15 +214,352 @@ export function validateLeanViabilityBusinessRules(
 }
 
 // ============================================================================
-// AAARR Metrics Validation
+// Cross-Layer Validation
 // ============================================================================
 
-export function validateAARRRMetrics(data: any): asserts data is AARRRMetrics {
-  validate(data, 'aaarr-metrics');
+/**
+ * Validates cross-layer references, consistency, and detects issues
+ */
+export function validateCrossLayerReferences(orchestrated: OrchestratedBusiness): ValidationResult {
+  const issues: ValidationIssue[] = [];
+
+  // 1. Validate all references point to existing entities
+  validateReferenceExistence(orchestrated, issues);
+
+  // 2. Detect circular dependencies (using topological sort)
+  detectCircularDependencies(orchestrated, issues);
+
+  // 3. Identify orphaned entities
+  identifyOrphanedEntities(orchestrated, issues);
+
+  // 4. Check logical consistency between layers
+  checkLogicalConsistency(orchestrated, issues);
+
+  const isValid = !issues.some(issue => issue.type === 'error');
+
+  return {
+    isValid,
+    issues
+  };
 }
 
-export function validatePolicyCharter(data: any): asserts data is PolicyCharter {
-  validate(data, 'policy-charter');
+/**
+ * Validates that all referenced entities exist
+ */
+function validateReferenceExistence(orchestrated: OrchestratedBusiness, issues: ValidationIssue[]): void {
+  const { business } = orchestrated;
+
+  // Check business layer references
+  if (business.north_star_ref && !orchestrated.northStar) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `North star reference '${business.north_star_ref}' does not exist or is invalid`,
+      field: 'north_star_ref'
+    });
+  }
+
+  if (business.lean_canvas_ref && !orchestrated.leanCanvas) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `Lean canvas reference '${business.lean_canvas_ref}' does not exist or is invalid`,
+      field: 'lean_canvas_ref'
+    });
+  }
+
+  if (business.architectural_scope_ref && !orchestrated.architecturalScope) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `Architectural scope reference '${business.architectural_scope_ref}' does not exist or is invalid`,
+      field: 'architectural_scope_ref'
+    });
+  }
+
+  if (business.lean_viability_ref && !orchestrated.leanViability) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `Lean viability reference '${business.lean_viability_ref}' does not exist or is invalid`,
+      field: 'lean_viability_ref'
+    });
+  }
+
+  if (business.aaarr_ref && !orchestrated.aaarr) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `AAARR metrics reference '${business.aaarr_ref}' does not exist or is invalid`,
+      field: 'aaarr_ref'
+    });
+  }
+
+  if (business.policy_charter_ref && !orchestrated.policyCharter) {
+    issues.push({
+      type: 'error',
+      layer: 'business',
+      message: `Policy charter reference '${business.policy_charter_ref}' does not exist or is invalid`,
+      field: 'policy_charter_ref'
+    });
+  }
+
+  // Check architectural scope references
+  if (orchestrated.architecturalScope && orchestrated.architecturalScope.north_star_ref && !orchestrated.northStar) {
+    issues.push({
+      type: 'error',
+      layer: 'architectural-scope',
+      message: `North star reference '${orchestrated.architecturalScope.north_star_ref}' does not exist or is invalid`,
+      field: 'north_star_ref'
+    });
+  }
+
+  // Check lean canvas references
+  if (orchestrated.leanCanvas && orchestrated.leanCanvas.north_star_ref && !orchestrated.northStar) {
+    issues.push({
+      type: 'error',
+      layer: 'lean-canvas',
+      message: `North star reference '${orchestrated.leanCanvas.north_star_ref}' does not exist or is invalid`,
+      field: 'north_star_ref'
+    });
+  }
+
+  // Check lean viability references
+  if (orchestrated.leanViability && orchestrated.leanViability.lean_canvas_ref && !orchestrated.leanCanvas) {
+    issues.push({
+      type: 'error',
+      layer: 'lean-viability',
+      message: `Lean canvas reference '${orchestrated.leanViability.lean_canvas_ref}' does not exist or is invalid`,
+      field: 'lean_canvas_ref'
+    });
+  }
+
+  // Check AAARR metrics references
+  if (orchestrated.aaarr) {
+    if (orchestrated.aaarr.lean_viability_ref && !orchestrated.leanViability) {
+      issues.push({
+        type: 'error',
+        layer: 'aaarr-metrics',
+        message: `Lean viability reference '${orchestrated.aaarr.lean_viability_ref}' does not exist or is invalid`,
+        field: 'lean_viability_ref'
+      });
+    }
+
+    if (orchestrated.aaarr.north_star_ref && !orchestrated.northStar) {
+      issues.push({
+        type: 'error',
+        layer: 'aaarr-metrics',
+        message: `North star reference '${orchestrated.aaarr.north_star_ref}' does not exist or is invalid`,
+        field: 'north_star_ref'
+      });
+    }
+  }
+
+  // Check policy charter references
+  if (orchestrated.policyCharter) {
+    if (orchestrated.policyCharter.architectural_scope_ref && !orchestrated.architecturalScope) {
+      issues.push({
+        type: 'error',
+        layer: 'policy-charter',
+        message: `Architectural scope reference '${orchestrated.policyCharter.architectural_scope_ref}' does not exist or is invalid`,
+        field: 'architectural_scope_ref'
+      });
+    }
+
+    if (orchestrated.policyCharter.aaarr_metrics_ref && !orchestrated.aaarr) {
+      issues.push({
+        type: 'error',
+        layer: 'policy-charter',
+        message: `AAARR metrics reference '${orchestrated.policyCharter.aaarr_metrics_ref}' does not exist or is invalid`,
+        field: 'aaarr_metrics_ref'
+      });
+    }
+  }
+}
+
+/**
+ * Detects circular dependencies using topological sort
+ */
+function detectCircularDependencies(orchestrated: OrchestratedBusiness, issues: ValidationIssue[]): void {
+  // Build dependency graph
+  const graph: Record<string, string[]> = {};
+  const layers = ['business', 'north-star', 'lean-canvas', 'architectural-scope', 'lean-viability', 'aaarr-metrics', 'policy-charter'];
+
+  layers.forEach(layer => {
+    graph[layer] = [];
+  });
+
+  // Add dependencies based on references
+  if (orchestrated.business.north_star_ref) graph.business.push('north-star');
+  if (orchestrated.business.lean_canvas_ref) graph.business.push('lean-canvas');
+  if (orchestrated.business.architectural_scope_ref) graph.business.push('architectural-scope');
+  if (orchestrated.business.lean_viability_ref) graph.business.push('lean-viability');
+  if (orchestrated.business.aaarr_ref) graph.business.push('aaarr-metrics');
+  if (orchestrated.business.policy_charter_ref) graph.business.push('policy-charter');
+
+  if (orchestrated.architecturalScope?.north_star_ref) graph['architectural-scope'].push('north-star');
+  if (orchestrated.leanCanvas?.north_star_ref) graph['lean-canvas'].push('north-star');
+  if (orchestrated.leanViability?.lean_canvas_ref) graph['lean-viability'].push('lean-canvas');
+  if (orchestrated.aaarr?.lean_viability_ref) graph['aaarr-metrics'].push('lean-viability');
+  if (orchestrated.aaarr?.north_star_ref) graph['aaarr-metrics'].push('north-star');
+  if (orchestrated.policyCharter?.architectural_scope_ref) graph['policy-charter'].push('architectural-scope');
+  if (orchestrated.policyCharter?.aaarr_metrics_ref) graph['policy-charter'].push('aaarr-metrics');
+
+  // Detect cycles using DFS
+  const visited = new Set<string>();
+  const recStack = new Set<string>();
+
+  function hasCycle(node: string): boolean {
+    if (recStack.has(node)) return true;
+    if (visited.has(node)) return false;
+
+    visited.add(node);
+    recStack.add(node);
+
+    for (const neighbor of graph[node] || []) {
+      if (hasCycle(neighbor)) {
+        return true;
+      }
+    }
+
+    recStack.delete(node);
+    return false;
+  }
+
+  for (const layer of layers) {
+    if (hasCycle(layer)) {
+      issues.push({
+        type: 'error',
+        layer: 'cross-layer',
+        message: `Circular dependency detected involving layer '${layer}'`
+      });
+      break; // Only report once
+    }
+  }
+}
+
+/**
+ * Identifies entities that are not referenced by higher layers
+ */
+function identifyOrphanedEntities(orchestrated: OrchestratedBusiness, issues: ValidationIssue[]): void {
+  // Check for orphaned goals in architectural scope
+  if (orchestrated.architecturalScope && orchestrated.architecturalScope.why?.goals) {
+    const referencedGoals = new Set<string>();
+
+    // Collect goals referenced by policy charter
+    if (orchestrated.policyCharter?.goals) {
+      orchestrated.policyCharter.goals.forEach(goal => {
+        if (goal.addresses) {
+          goal.addresses.forEach(addr => referencedGoals.add(addr));
+        }
+      });
+    }
+
+    // Check for orphaned goals
+    orchestrated.architecturalScope.why.goals.forEach(goal => {
+      if (!referencedGoals.has(goal.title)) {
+        issues.push({
+          type: 'warning',
+          layer: 'architectural-scope',
+          message: `Goal '${goal.title}' is not addressed by any policy charter goal`,
+          entityId: goal.title
+        });
+      }
+    });
+  }
+
+  // Check for orphaned policies in policy charter
+  if (orchestrated.policyCharter?.policies) {
+    const drivenPolicies = new Set<string>();
+
+    // Collect policies driven by tactics
+    if (orchestrated.policyCharter.tactics) {
+      orchestrated.policyCharter.tactics.forEach(tactic => {
+        if (tactic.drives_policies) {
+          tactic.drives_policies.forEach(policyId => drivenPolicies.add(policyId));
+        }
+      });
+    }
+
+    // Check for orphaned policies
+    orchestrated.policyCharter.policies.forEach(policy => {
+      if (!drivenPolicies.has(policy.id)) {
+        issues.push({
+          type: 'warning',
+          layer: 'policy-charter',
+          message: `Policy '${policy.id}' is not driven by any tactic`,
+          entityId: policy.id
+        });
+      }
+    });
+  }
+}
+
+/**
+ * Checks logical consistency between layers
+ */
+function checkLogicalConsistency(orchestrated: OrchestratedBusiness, issues: ValidationIssue[]): void {
+  // Check AAARR metrics alignment with viability targets
+  if (orchestrated.aaarr && orchestrated.leanViability) {
+    // Check revenue targets alignment
+    const viabilityRevenue = orchestrated.leanViability.success_criteria?.annual_revenue;
+    if (viabilityRevenue) {
+      // Find revenue metrics in AAARR
+      const revenueMetrics = findRevenueMetrics(orchestrated.aaarr);
+      if (revenueMetrics.length === 0) {
+        issues.push({
+          type: 'warning',
+          layer: 'aaarr-metrics',
+          message: 'No revenue metrics defined, but lean viability has revenue targets'
+        });
+      }
+    }
+  }
+
+  // Check strategic goals alignment
+  if (orchestrated.northStar?.strategic_goals && orchestrated.architecturalScope?.why?.goals) {
+    const northStarTitles = new Set(orchestrated.northStar.strategic_goals.map(g => g.title.toLowerCase()));
+    const archScopeTitles = new Set(orchestrated.architecturalScope.why.goals.map(g => g.title.toLowerCase()));
+
+    // Check for missing alignment
+    const alignedGoals = new Set<string>();
+    northStarTitles.forEach(title => {
+      archScopeTitles.forEach(archTitle => {
+        if (title.includes(archTitle) || archTitle.includes(title)) {
+          alignedGoals.add(title);
+        }
+      });
+    });
+
+    if (alignedGoals.size === 0) {
+      issues.push({
+        type: 'warning',
+        layer: 'cross-layer',
+        message: 'No clear alignment between north star strategic goals and architectural scope goals'
+      });
+    }
+  }
+}
+
+/**
+ * Helper to find revenue-related metrics in AAARR
+ */
+function findRevenueMetrics(aaarr: AARRRMetrics): any[] {
+  const revenueMetrics: any[] = [];
+
+  const stages = ['acquisition', 'activation', 'retention', 'referral', 'revenue'] as const;
+  stages.forEach(stage => {
+    const stageData = aaarr.stages?.[stage];
+    if (stageData?.metrics) {
+      stageData.metrics.forEach((metric: any) => {
+        if (metric.id && metric.id.includes('revenue')) {
+          revenueMetrics.push(metric);
+        }
+      });
+    }
+  });
+
+  return revenueMetrics;
 }
 
 export function validateAARRRMetricsBusinessRules(

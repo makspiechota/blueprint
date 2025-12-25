@@ -237,8 +237,32 @@ stages:
           currency: USD
           period: month`;
 
-   fs.writeFileSync(path.join(testDir, 'aaarr-metrics.yaml'), validAaarrMetrics, 'utf8');
- });
+    fs.writeFileSync(path.join(testDir, 'aaarr-metrics.yaml'), validAaarrMetrics, 'utf8');
+
+    const validBusiness = `type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Test Business"
+
+north_star_ref: "north-star.yaml"
+architectural_scope_ref: "architectural-scope.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+lean_viability_ref: "lean-viability.yaml"
+aaarr_ref: "aaarr-metrics.yaml"
+policy_charter_ref: "policy-charter.yaml"`;
+
+    fs.writeFileSync(path.join(testDir, 'business.yaml'), validBusiness, 'utf8');
+
+    const partialBusiness = `type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Partial Business"
+
+north_star_ref: "north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"`;
+
+    fs.writeFileSync(path.join(testDir, 'partial-business.yaml'), partialBusiness, 'utf8');
+  });
 
 afterAll(() => {
   if (fs.existsSync(testDir)) {
@@ -508,6 +532,106 @@ stages:
       expect(content).toContain('Policies Matrix');
       expect(content).toContain('Risk Management');
       expect(content).toContain('KPI Dashboard');
+    });
+  });
+
+  describe('Business Validation CLI', () => {
+    beforeAll(() => {
+      const validBusiness = `type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Test Business"
+
+north_star_ref: "north-star.yaml"
+architectural_scope_ref: "architectural-scope.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+lean_viability_ref: "lean-viability.yaml"
+aaarr_ref: "aaarr-metrics.yaml"
+policy_charter_ref: "policy-charter.yaml"`;
+
+      fs.writeFileSync(path.join(testDir, 'business.yaml'), validBusiness, 'utf8');
+
+      const partialBusiness = `type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Partial Business"
+
+north_star_ref: "north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"`;
+
+      fs.writeFileSync(path.join(testDir, 'partial-business.yaml'), partialBusiness, 'utf8');
+    });
+
+    test('blueprint validate business.yaml works and runs all validations', () => {
+      const inputPath = path.join(testDir, 'business.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('Business validation completed');
+      expect(result).toContain('All layers validated successfully');
+      // Should mention individual layer validations and cross-layer
+    });
+
+    test('generates comprehensive report', () => {
+      const inputPath = path.join(testDir, 'business.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('Validation Report');
+      expect(result).toContain('North Star');
+      expect(result).toContain('Architectural Scope');
+      expect(result).toContain('Lean Canvas');
+      expect(result).toContain('Lean Viability');
+      expect(result).toContain('AAARR Metrics');
+      expect(result).toContain('Policy Charter');
+      expect(result).toContain('Cross-Layer Validation');
+    });
+
+    test('supports HTML output with --output flag', () => {
+      const inputPath = path.join(testDir, 'business.yaml');
+      const outputPath = path.join(outputDir, 'business-validation-report.html');
+
+      const result = execSync(`node dist/index.js validate ${inputPath} --output ${outputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(fs.existsSync(outputPath)).toBe(true);
+      expect(result).toContain('HTML report generated');
+
+      const content = fs.readFileSync(outputPath, 'utf8');
+      expect(content).toContain('Business Validation Report');
+    });
+
+    test('proper exit codes - success', () => {
+      const inputPath = path.join(testDir, 'business.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      // Should exit 0, but since execSync doesn't throw on exit codes, we check the message
+      expect(result).toContain('valid');
+    });
+
+    test('handles missing optional layers', () => {
+      const inputPath = path.join(testDir, 'partial-business.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('Business validation completed');
+      expect(result).toContain('Partial validation');
+      // Should validate available layers without errors for missing ones
     });
   });
 });

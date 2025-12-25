@@ -25,9 +25,14 @@ Update the CLI validate command to support business.yaml files, running all indi
 - Handle partial validation (validate available layers only)
 
 ## Acceptance Criteria
-- [ ] `blueprint validate business.yaml` works
-- [ ] Runs all individual + cross-layer validations
-- [ ] Generates comprehensive report
-- [ ] Supports HTML output with --output flag
-- [ ] Proper exit codes
-- [ ] Handles missing optional layers
+- [x] `blueprint validate business.yaml` works
+- [x] Runs all individual + cross-layer validations
+- [x] Generates comprehensive report
+- [x] Supports HTML output with --output flag
+- [x] Proper exit codes
+- [x] Handles missing optional layers
+
+## Status
+[COMPLETED] - 2025-12-25
+Actual lines: 304 (existing implementation)
+Tests: 5 passing

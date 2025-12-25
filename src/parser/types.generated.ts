@@ -7,6 +7,7 @@ declare namespace Schemas {
         type: "aaarr-metrics";
         version: string;
         last_updated: string; // date
+        last_synced?: string; // date
         title: string;
         lean_viability_ref?: string;
         north_star_ref?: string;
@@ -155,6 +156,10 @@ declare namespace Schemas {
         north_star_ref?: string;
         lean_canvas_ref?: string;
         architectural_scope_ref?: string;
+        lean_viability_ref?: string;
+        aaarr_ref?: string;
+        policy_charter_ref?: string;
+        backlog_ref?: string;
     }
     /**
      * Lean Canvas Schema

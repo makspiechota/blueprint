@@ -1,0 +1,5 @@
+type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Invalid Layer Business"
+north_star_ref: "invalid-north-star.yaml"

@@ -12,6 +12,11 @@
     "title": { "type": "string" },
     "north_star_ref": { "type": "string" },
     "lean_canvas_ref": { "type": "string" },
-    "architectural_scope_ref": { "type": "string" }
-  }
+    "architectural_scope_ref": { "type": "string" },
+    "lean_viability_ref": { "type": "string" },
+    "aaarr_ref": { "type": "string" },
+    "policy_charter_ref": { "type": "string" },
+    "backlog_ref": { "type": "string" }
+  },
+  "additionalProperties": false
 }

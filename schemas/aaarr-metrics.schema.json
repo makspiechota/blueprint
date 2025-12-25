@@ -4,12 +4,13 @@
   "title": "AAARR Metrics Schema",
   "description": "Customer lifecycle metrics across 5 stages (Acquisition, Activation, Retention, Referral, Revenue)",
   "type": "object",
-  "required": ["type", "version", "last_updated", "title", "stages"],
-  "properties": {
-    "type": { "const": "aaarr-metrics" },
-    "version": { "type": "string" },
-    "last_updated": { "type": "string", "format": "date" },
-    "title": { "type": "string" },
+   "required": ["type", "version", "last_updated", "title", "stages"],
+   "properties": {
+     "type": { "const": "aaarr-metrics" },
+     "version": { "type": "string" },
+     "last_updated": { "type": "string", "format": "date" },
+     "last_synced": { "type": "string", "format": "date" },
+     "title": { "type": "string" },
     "lean_viability_ref": { "type": "string" },
     "north_star_ref": { "type": "string" },
     "stages": {

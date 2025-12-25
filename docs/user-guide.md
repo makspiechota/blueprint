@@ -38,7 +38,7 @@ BLUEPRINT uses a multi-layer approach to capture your complete business blueprin
 
 ```yaml
 type: business
-version: "1.0"
+version: "2.0"
 title: "My Product"
 
 # All references are optional
@@ -81,6 +81,83 @@ See [Layer Orchestration Guide](layer-orchestration.md) for details.
 3. **Architectural Scope operationalizes** - Breaks down into concrete capabilities
 4. **Visualize together** - See the complete blueprint in tabbed interface
 5. **Version control all** - Track evolution of strategy, business, and execution
+
+## Multi-Layer Orchestration
+
+BLUEPRINT's multi-layer orchestration provides a comprehensive framework for connecting strategy to execution across all business layers. The system enables cross-layer validation, traceability analysis, and automated synchronization between related metrics.
+
+### Orchestration Workflow
+
+The orchestration process follows a systematic approach:
+
+1. **Define Strategy** - Start with North Star for vision and strategic goals
+2. **Validate Business Model** - Use Lean Canvas and Lean Viability for economic validation
+3. **Operationalize Architecture** - Define capabilities with Architectural Scope
+4. **Track Performance** - Monitor AAARR metrics for customer lifecycle management
+5. **Govern Operations** - Implement Policy Charter for execution governance
+6. **Maintain Traceability** - Use traceability graphs to understand relationships
+7. **Sync Metrics** - Automatically synchronize targets between layers
+
+### Traceability Graph Usage
+
+The traceability graph visualizes relationships between all business elements:
+
+- **Strategic Flow**: North Star goals → Architectural Scope goals → Policy Charter goals
+- **Economic Flow**: Lean Canvas revenue → Lean Viability targets → AAARR metrics
+- **Operational Flow**: Policy Charter KPIs → AAARR metrics justification
+- **Validation Flow**: Cross-layer consistency checks and gap analysis
+
+Use the traceability view to:
+- Identify missing connections between strategy and execution
+- Understand the impact of changes across layers
+- Validate that operational metrics support strategic goals
+- Track dependencies and cascading effects
+
+### Sync and Validate Commands
+
+BLUEPRINT provides specialized commands for multi-layer management:
+
+#### Validate Command
+
+Validates cross-layer consistency and references:
+
+```bash
+blueprint validate business.yaml
+```
+
+Checks:
+- All referenced files exist and are valid
+- Cross-layer references are correct
+- Business rules are satisfied
+- Schema compliance across all layers
+
+#### Sync Command
+
+Automatically synchronizes metrics between layers:
+
+```bash
+# Sync AAARR targets from Lean Viability calculations
+blueprint sync aaarr lean-viability.yaml aaarr-metrics.yaml
+
+# Preview changes before applying
+blueprint sync aaarr lean-viability.yaml aaarr-metrics.yaml --dry-run
+```
+
+Benefits:
+- Eliminates manual calculation errors
+- Maintains consistency between economic models and metrics
+- Updates targets automatically when business assumptions change
+- Provides audit trail of synchronization operations
+
+### Edge Cases and Best Practices
+
+**Missing Layers**: Orchestration works with any combination of layers. Start with what makes sense for your context.
+
+**Circular Dependencies**: The system prevents circular references between layers to maintain unidirectional flow.
+
+**Version Compatibility**: business.yaml v2.0 supports all layer versions. Use the latest versions for new features.
+
+**Performance**: Large orchestration files (>10 layers) may benefit from incremental validation rather than full orchestration validation.
 
 ## What is North Star DSL?
 

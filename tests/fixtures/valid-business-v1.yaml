@@ -1,0 +1,7 @@
+type: business
+version: "1.0"
+last_updated: "2025-12-20"
+title: "Test Business"
+north_star_ref: "sample-north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+architectural_scope_ref: "sample-architectural-scope.yaml"
