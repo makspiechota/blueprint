@@ -317,7 +317,8 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
     const aaarrPath = resolvePath(businessFilePath, business.aaarr_ref);
     if (fs.existsSync(aaarrPath)) {
       const aaarr = parseAARRRMetrics(aaarrPath);
-      const html = generateAARRRMetricsHTML(aaarr);
+      const baseDir = path.dirname(aaarrPath);
+      const html = generateAARRRMetricsHTML(aaarr, baseDir, true);
       layers.push({ title: 'AAARR Metrics', content: html });
     }
   }
@@ -326,7 +327,7 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
     const archScopePath = resolvePath(businessFilePath, business.architectural_scope_ref);
     if (fs.existsSync(archScopePath)) {
       const archScope = parseArchitecturalScope(archScopePath);
-      const html = generateArchitecturalScopeHTML(archScope);
+      const html = generateArchitecturalScopeHTML(archScope, true);
       layers.push({ title: 'Architectural Scope', content: html });
     }
   }
@@ -335,7 +336,7 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
     const policyCharterPath = resolvePath(businessFilePath, business.policy_charter_ref);
     if (fs.existsSync(policyCharterPath)) {
       const policyCharter = parsePolicyCharter(policyCharterPath);
-      const html = generatePolicyCharterHTML(policyCharter);
+      const html = generatePolicyCharterHTML(policyCharter, true);
       layers.push({ title: 'Policy Charter', content: html });
     }
   }
@@ -418,7 +419,7 @@ function generateNorthStarHTML(northStar: NorthStar): string {
 </html>`;
 }
 
-function generateArchitecturalScopeHTML(archScope: ArchitecturalScope): string {
+function generateArchitecturalScopeHTML(archScope: ArchitecturalScope, multiLayer: boolean = false): string {
   const scopeLists = ['why', 'what', 'how', 'where', 'who', 'when'] as const;
 
   return `<!DOCTYPE html>
@@ -453,18 +454,20 @@ function generateArchitecturalScopeHTML(archScope: ArchitecturalScope): string {
     .goals-section { margin-top: 1.5rem; }
     .goals-label { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.9; }
     .goals-list { display: grid; gap: 0.75rem; }
-    .goal-item { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); }
-    .goal-item .goal-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .goal-item .goal-description { font-size: 0.9rem; opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>${escapeHtml(archScope.title)}</h1>
-    <div class="metadata">
-      Version ${escapeHtml(archScope.version)} • Last updated: ${escapeHtml(archScope.last_updated)}
-      <br>North Star Reference: ${escapeHtml(archScope.north_star_ref)}
-    </div>
+     .goal-item { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); }
+     .goal-item .goal-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+     .goal-item .goal-description { font-size: 0.9rem; opacity: 0.9; }
+     .cross-layer-link { color: #4299e1; text-decoration: none; font-weight: 500; }
+     .cross-layer-link:hover { text-decoration: underline; }
+   </style>
+ </head>
+ <body>
+   <div class="container">
+     <h1>${escapeHtml(archScope.title)}</h1>
+     <div class="metadata">
+       Version ${escapeHtml(archScope.version)} • Last updated: ${escapeHtml(archScope.last_updated)}
+       <br>North Star Reference: ${multiLayer ? `<a href="#" onclick="window.switchTab(null, 'North Star'); return false;" class="cross-layer-link">${escapeHtml(archScope.north_star_ref)}</a>` : escapeHtml(archScope.north_star_ref)}
+     </div>
 
     ${archScope.why ? `
       <div class="why-card">

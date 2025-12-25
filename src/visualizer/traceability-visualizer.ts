@@ -180,20 +180,44 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
       }
     </style>
 
-    <script src="https://d3js.org/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
     <script>
+      console.log('Traceability graph script loading...');
+
+      // Node color function
+      function getNodeColor(layer) {
+        const colors = {
+          'business': '#FF6B6B', // Red
+          'north-star': '#4ECDC4', // Teal
+          'lean-canvas': '#45B7D1', // Blue
+          'architectural-scope': '#96CEB4', // Green
+          'lean-viability': '#FFEAA7', // Yellow
+          'aaarr-metrics': '#DDA0DD', // Plum
+          'policy-charter': '#98D8C8' // Mint
+        };
+        return colors[layer] || '#CCCCCC';
+      }
+
       // Graph data
       const graphData = ${JSON.stringify(graph)};
+      console.log('Graph data loaded:', graphData.nodes.length, 'nodes,', graphData.edges.length, 'edges');
+
+      // Set fixed dimensions to match CSS container
+      const width = 800;
+      const height = 600;
 
       // Set up SVG
       const svg = d3.select('#traceability-graph')
         .append('svg')
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .call(d3.zoom().on('zoom', function(event) {
-          svg.attr('transform', event.transform);
-        }))
-        .append('g');
+        .attr('width', width)
+        .attr('height', height);
+
+      const g = svg.append('g');
+
+      // Add zoom behavior
+      svg.call(d3.zoom().on('zoom', function(event) {
+        g.attr('transform', event.transform);
+      }));
 
       // Add arrow marker
       svg.append('defs').append('marker')
@@ -207,7 +231,7 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
         .attr('xoverflow', 'visible')
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-        .attr('fill', '#999');
+         .attr('fill', '#999');
 
       // Create force simulation
       const simulation = d3.forceSimulation(graphData.nodes)
@@ -217,7 +241,7 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
         .force('collision', d3.forceCollide().radius(30));
 
       // Create links
-      const link = svg.append('g')
+      const link = g.append('g')
         .attr('class', 'links')
         .selectAll('line')
         .data(graphData.edges)
@@ -226,7 +250,7 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
         .attr('stroke-width', d => Math.sqrt(d.strength) * 2);
 
       // Create nodes
-      const node = svg.append('g')
+      const node = g.append('g')
         .attr('class', 'nodes')
         .selectAll('circle')
         .data(graphData.nodes)
@@ -243,7 +267,7 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
         .on('mouseout', nodeMouseout);
 
       // Add labels
-      const labels = svg.append('g')
+      const labels = g.append('g')
         .attr('class', 'labels')
         .selectAll('text')
         .data(graphData.nodes)
@@ -294,6 +318,9 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
       function nodeClick(event, d) {
         // Highlight connected nodes and edges
         highlightConnections(d.id);
+
+        // Navigate to the corresponding tab
+        navigateToTab(d.layer);
       }
 
       function nodeMouseover(event, d) {
@@ -355,9 +382,23 @@ export function generateTraceabilityGraphHTML(businessFilePath: string): string 
 
       // Navigation function for cross-tab navigation
       function navigateToTab(layerType) {
-        // This function would be called from other tabs to navigate here
-        // Implementation would depend on the parent tab system
-        console.log('Navigate to layer:', layerType);
+        // Map layer types to tab titles
+        const tabTitles = {
+          'business': 'Business',
+          'north-star': 'North Star',
+          'lean-canvas': 'Lean Canvas',
+          'architectural-scope': 'Architectural Scope',
+          'lean-viability': 'Lean Viability',
+          'aaarr-metrics': 'AAARR Metrics',
+          'policy-charter': 'Policy Charter'
+        };
+
+        const tabTitle = tabTitles[layerType] || layerType;
+
+        // Use the main tab navigation if available
+        if (window.switchTab) {
+          window.switchTab(null, tabTitle);
+        }
       }
 
       // Make functions globally available
