@@ -6,6 +6,8 @@
 ## Description
 Add `parsePolicyCharter` function to parser/index.ts and `validatePolicyCharter` function to validator.ts. Implement three-level validation: reference existence, type consistency, and logical consistency.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `src/parser/index.ts` - Add parsePolicyCharter function
 - `src/parser/validator.ts` - Add validatePolicyCharter function with three-level validation

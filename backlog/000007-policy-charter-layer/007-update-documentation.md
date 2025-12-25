@@ -7,6 +7,8 @@
 ## Description
 Update docs/ with Policy Charter guide and user guide sections explaining the framework, usage patterns, and examples.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `docs/policy-charter-guide.md` - New comprehensive guide
 - `docs/user-guide.md` - Add Policy Charter section

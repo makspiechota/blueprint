@@ -6,6 +6,8 @@
 ## Description
 Run the type generation script to create TypeScript interfaces from the new policy-charter.schema.json. This will generate PolicyCharter, Goal, Tactic, Policy, Risk, and KPI types.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `src/parser/types.generated.ts` - Regenerated with new types
 - `src/parser/types.ts` - Add PolicyCharter type export

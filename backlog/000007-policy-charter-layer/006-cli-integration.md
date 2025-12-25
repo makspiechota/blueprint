@@ -6,6 +6,8 @@
 ## Description
 Update CLI index.ts and visualizer/index.ts to support parsing and visualizing Policy Charter YAML files. Add policy-charter command support and integrate with existing visualization pipeline.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `src/index.ts` - Add policy-charter command support
 - `src/visualizer/index.ts` - Add visualizePolicyCharter function

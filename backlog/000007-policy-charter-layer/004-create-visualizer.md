@@ -8,6 +8,8 @@
 ## Description
 Create `policy-charter-visualizer.ts` that generates HTML visualization showing the complete policy charter hierarchy: goals → tactics → policies → risks/KPIs with all relationships and traceability links.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `src/visualizer/policy-charter-visualizer.ts` - New visualizer module
 - `src/visualizer/index.ts` - Export new visualizer function

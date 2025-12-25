@@ -7,6 +7,8 @@
 ## Description
 Create `examples/policy-charter.yaml` with realistic operational policies for the software factory capability, demonstrating all Policy Charter features including goals, tactics, policies with graduated brackets, risks, and KPIs.
 
+Follow TDD: write tests first, then implement.
+
 ## Files to Modify/Create
 - `examples/policy-charter.yaml` - New example file
 
