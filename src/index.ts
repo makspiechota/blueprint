@@ -7,7 +7,8 @@ import { generateLeanCanvasHTML } from './visualizer/lean-canvas-visualizer';
 import { generateLeanViabilityHTML } from './visualizer/lean-viability-visualizer';
 import { generateAARRRMetricsHTML } from './visualizer/aaarr-visualizer';
 import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules, validateAARRRMetricsBusinessRules } from './parser/validator';
-import { LeanViability } from './parser/types';
+import { createSyncCommand } from './commands/sync';
+import { createValidateCommand } from './commands/validate';
 import * as logger from './utils/logger';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -119,70 +120,9 @@ program
     }
   });
 
-program
-  .command('validate')
-  .description('Validate North Star, Architectural Scope, Lean Canvas, Lean Viability, AAARR Metrics, or Business DSL file')
-  .argument('<input>', 'North Star, Architectural Scope, Lean Canvas, Lean Viability, AAARR Metrics, or Business YAML file')
-  .action((input: string) => {
-    try {
-      if (!fs.existsSync(input)) {
-        logger.error(`File not found: ${input}`);
-        process.exit(1);
-      }
 
-      // Detect file type
-      const fileContent = fs.readFileSync(input, 'utf8');
-      const data: any = yaml.load(fileContent);
-      const inputDir = path.dirname(input);
 
-      if (data.type === 'architectural-scope') {
-        parseArchitecturalScope(input);
-        const warnings = validateArchitecturalScopeBusinessRules(data, inputDir);
-
-        if (warnings.length > 0) {
-          logger.warning('Validation warnings:');
-          warnings.forEach(warning => logger.warning(`  - ${warning}`));
-        }
-
-        logger.success(`Architectural Scope file is valid: ${input}`);
-      } else if (data.type === 'north-star') {
-        parseNorthStar(input);
-        logger.success(`North Star file is valid: ${input}`);
-      } else if (data.type === 'lean-canvas') {
-        parseLeanCanvas(input);
-        logger.success(`Lean Canvas file is valid: ${input}`);
-      } else if (data.type === 'business') {
-        parseBusiness(input);
-        logger.success(`Business file is valid: ${input}`);
-      } else if (data.type === 'lean-viability') {
-        parseLeanViability(input);
-        const warnings = validateLeanViabilityBusinessRules(data, inputDir);
-
-        if (warnings.length > 0) {
-          logger.warning('Validation warnings:');
-          warnings.forEach(warning => logger.warning(`  - ${warning}`));
-        }
-
-        logger.success(`Lean Viability file is valid: ${input}`);
-      } else if (data.type === 'aaarr-metrics') {
-        parseAARRRMetrics(input);
-        const warnings = validateAARRRMetricsBusinessRules(data, inputDir);
-        if (warnings.length > 0) {
-          logger.warning('Validation warnings:');
-          warnings.forEach(warning => logger.warning(`  - ${warning}`));
-        }
-        logger.success(`AAARR Metrics file is valid: ${input}`);
-      } else if (data.type === 'policy-charter') {
-        parsePolicyCharter(input);
-        logger.success(`Policy Charter file is valid: ${input}`);
-      } else {
-        logger.error(`Unknown file type: ${data.type}`);
-        process.exit(1);
-      }
-    } catch (err) {
-      logger.error(`Validation failed: ${(err as Error).message}`);
-      process.exit(1);
-    }
-  });
+program.addCommand(createValidateCommand());
+program.addCommand(createSyncCommand());
 
 program.parse();

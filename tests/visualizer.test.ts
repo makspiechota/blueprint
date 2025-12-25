@@ -1127,3 +1127,444 @@ describe('generatePolicyCharterHTML', () => {
     expect(html).toContain('aaarr.acquisition.signup-rate');
   });
 });
+
+// Tests for extended multi-layer visualization
+describe('visualizeBusiness', () => {
+  test('generates tabbed view with all 7+ layers', () => {
+    // Create test business file with all refs
+    const businessPath = path.join(__dirname, 'fixtures', 'test-full-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Full Business"
+north_star_ref: "test-north-star.yaml"
+lean_canvas_ref: "test-lean-canvas.yaml"
+architectural_scope_ref: "test-arch-scope.yaml"
+lean_viability_ref: "test-lean-viability.yaml"
+aaarr_ref: "test-aaarr.yaml"
+policy_charter_ref: "test-policy-charter.yaml"
+`;
+
+    // Create minimal test files for each layer
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals: []
+`;
+
+    const leanCanvasContent = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Lean Canvas"
+problem:
+  top_3_problems: ["Problem 1"]
+customer_segments:
+  target_customers: "Test customers"
+unique_value_proposition:
+  single_clear_message: "Test UVP"
+solution:
+  top_3_features: ["Feature 1"]
+channels:
+  path_to_customers: ["Channel 1"]
+revenue_streams:
+  revenue_model: "Test model"
+cost_structure:
+  customer_acquisition_cost: "Test cost"
+`;
+
+    const archScopeContent = `type: architectural-scope
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Arch Scope"
+north_star_ref: "test-north-star.yaml"
+why:
+  mission:
+    action: "to provide"
+    service: "test service"
+    beneficiary: "test users"
+  goals: []
+what: []
+how: []
+where: []
+who: []
+when: []
+`;
+
+    const leanViabilityContent = `type: lean-viability
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Lean Viability"
+lean_canvas_ref: "test-lean-canvas.yaml"
+time_horizon:
+  duration: 3
+  unit: years
+success_criteria:
+  annual_revenue:
+    amount: 1000000
+    currency: USD
+  target_year: 3
+calculations:
+  annual_revenue_per_customer:
+    amount: 1000
+    currency: USD
+    basis: "Test basis"
+  required_customers:
+    count: 1000
+    formula: "Test formula"
+  customer_acquisition_rate:
+    rate: 333
+    period: year
+    formula: "Test formula"
+  monthly_acquisition_target:
+    rate: 28
+    period: month
+    formula: "Test formula"
+targets: {}
+`;
+
+    const aaarrContent = `type: aaarr-metrics
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test AAARR"
+stages:
+  acquisition:
+    stage_goal: "Get users"
+    metrics: []
+  activation:
+    stage_goal: "Activate users"
+    metrics: []
+  retention:
+    stage_goal: "Retain users"
+    metrics: []
+  referral:
+    stage_goal: "Get referrals"
+    metrics: []
+  revenue:
+    stage_goal: "Generate revenue"
+    metrics: []
+`;
+
+    const policyCharterContent = `type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Policy Charter"
+architectural_scope_ref: "test-arch-scope.yaml"
+aaarr_metrics_ref: "test-aaarr.yaml"
+goals: []
+tactics: []
+policies: []
+risks: []
+kpis: []
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-north-star.yaml'), northStarContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-lean-canvas.yaml'), leanCanvasContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-arch-scope.yaml'), archScopeContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-lean-viability.yaml'), leanViabilityContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-aaarr.yaml'), aaarrContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-policy-charter.yaml'), policyCharterContent);
+
+    const outputPath = path.join(outputDir, 'full-business.html');
+
+    // This should fail initially since visualizeBusiness doesn't support all layers yet
+    expect(() => {
+      const { visualizeBusiness } = require('../src/visualizer');
+      visualizeBusiness(businessPath, outputPath);
+    }).not.toThrow();
+
+    // Check that file was created
+    expect(fs.existsSync(outputPath)).toBe(true);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for all layer tabs
+    expect(content).toContain('North Star');
+    expect(content).toContain('Lean Canvas');
+    expect(content).toContain('Architectural Scope');
+    expect(content).toContain('Lean Viability');
+    expect(content).toContain('AAARR Metrics');
+    expect(content).toContain('Policy Charter');
+    expect(content).toContain('Traceability Graph');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-north-star.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-lean-canvas.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-arch-scope.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-lean-viability.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-aaarr.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-policy-charter.yaml'));
+  });
+
+  test('includes interactive traceability graph with D3.js', () => {
+    // Create minimal test business
+    const businessPath = path.join(__dirname, 'fixtures', 'test-traceability-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Traceability Business"
+north_star_ref: "test-traceability-north-star.yaml"
+`;
+
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals:
+  - title: "Goal 1"
+    description: "Description 1"
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-traceability-north-star.yaml'), northStarContent);
+
+    const outputPath = path.join(outputDir, 'traceability-business.html');
+
+    const { visualizeBusiness } = require('../src/visualizer');
+    visualizeBusiness(businessPath, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for D3.js library
+    expect(content).toContain('d3.min.js');
+    expect(content).toContain('traceability-graph');
+
+    // Check for graph interactivity
+    expect(content).toContain('zoom');
+    expect(content).toContain('drag');
+    expect(content).toContain('click');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-traceability-north-star.yaml'));
+  });
+
+  test('supports click navigation between tabs and graph', () => {
+    // Create test business with multiple layers
+    const businessPath = path.join(__dirname, 'fixtures', 'test-navigation-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Navigation Business"
+north_star_ref: "test-nav-north-star.yaml"
+lean_canvas_ref: "test-nav-lean-canvas.yaml"
+`;
+
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals: []
+`;
+
+    const leanCanvasContent = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Lean Canvas"
+problem:
+  top_3_problems: ["Problem 1"]
+customer_segments:
+  target_customers: "Test customers"
+unique_value_proposition:
+  single_clear_message: "Test UVP"
+solution:
+  top_3_features: ["Feature 1"]
+channels:
+  path_to_customers: ["Channel 1"]
+revenue_streams:
+  revenue_model: "Test model"
+cost_structure:
+  customer_acquisition_cost: "Test cost"
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-nav-north-star.yaml'), northStarContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-nav-lean-canvas.yaml'), leanCanvasContent);
+
+    const outputPath = path.join(outputDir, 'navigation-business.html');
+
+    const { visualizeBusiness } = require('../src/visualizer');
+    visualizeBusiness(businessPath, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for navigation functions
+    expect(content).toContain('switchTab');
+    expect(content).toContain('navigateToTab');
+
+    // Check for graph click handlers
+    expect(content).toContain('nodeClick');
+    expect(content).toContain('highlightConnections');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-nav-north-star.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-nav-lean-canvas.yaml'));
+  });
+
+  test('provides print-friendly output with all tabs printing', () => {
+    // Create test business
+    const businessPath = path.join(__dirname, 'fixtures', 'test-print-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Print Business"
+north_star_ref: "test-print-north-star.yaml"
+`;
+
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals: []
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-print-north-star.yaml'), northStarContent);
+
+    const outputPath = path.join(outputDir, 'print-business.html');
+
+    const { visualizeBusiness } = require('../src/visualizer');
+    visualizeBusiness(businessPath, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for print styles
+    expect(content).toContain('@media print');
+    expect(content).toContain('display: block !important');
+    expect(content).toContain('page-break-after');
+    expect(content).toContain('break-inside: avoid');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-print-north-star.yaml'));
+  });
+
+  test('handles large datasets with pagination/filtering', () => {
+    // Create business with many items
+    const businessPath = path.join(__dirname, 'fixtures', 'test-large-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Large Business"
+north_star_ref: "test-large-north-star.yaml"
+`;
+
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals:
+${Array.from({ length: 50 }, (_, i) => `  - title: "Goal ${i + 1}"
+    description: "Description ${i + 1}"`).join('\n')}
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-large-north-star.yaml'), northStarContent);
+
+    const outputPath = path.join(outputDir, 'large-business.html');
+
+    const { visualizeBusiness } = require('../src/visualizer');
+    visualizeBusiness(businessPath, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for pagination/filtering features
+    expect(content).toContain('.pagination');
+    expect(content).toContain('.filters');
+    expect(content).toContain('.search-input');
+    expect(content).toContain('.expandable-content');
+    expect(content).toContain('.expand-toggle');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-large-north-star.yaml'));
+  });
+
+  test('maintains consistent styling across all tabs', () => {
+    // Create test business with multiple layers
+    const businessPath = path.join(__dirname, 'fixtures', 'test-styling-business.yaml');
+    const businessContent = `type: business
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Styling Business"
+north_star_ref: "test-styling-north-star.yaml"
+lean_canvas_ref: "test-styling-lean-canvas.yaml"
+`;
+
+    const northStarContent = `type: north-star
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test North Star"
+vision: "Test vision"
+problem: "Test problem"
+solution: "Test solution"
+strategic_goals:
+  - title: "Goal 1"
+    description: "Description 1"
+`;
+
+    const leanCanvasContent = `type: lean-canvas
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Lean Canvas"
+problem:
+  top_3_problems: ["Problem 1"]
+customer_segments:
+  target_customers: "Test customers"
+unique_value_proposition:
+  single_clear_message: "Test UVP"
+solution:
+  top_3_features: ["Feature 1"]
+channels:
+  path_to_customers: ["Channel 1"]
+revenue_streams:
+  revenue_model: "Test model"
+cost_structure:
+  customer_acquisition_cost: "Test cost"
+`;
+
+    fs.writeFileSync(businessPath, businessContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-styling-north-star.yaml'), northStarContent);
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'test-styling-lean-canvas.yaml'), leanCanvasContent);
+
+    const outputPath = path.join(outputDir, 'styling-business.html');
+
+    const { visualizeBusiness } = require('../src/visualizer');
+    visualizeBusiness(businessPath, outputPath);
+
+    const content = fs.readFileSync(outputPath, 'utf8');
+
+    // Check for consistent CSS variables and shared styles
+    expect(content).toContain('--primary-color');
+    expect(content).toContain('--secondary-color');
+    expect(content).toContain('--text-color');
+    expect(content).toContain('--background-color');
+
+    // Check for consistent typography
+    expect(content).toContain('font-family');
+    expect(content).toContain('line-height');
+
+    // Cleanup
+    fs.unlinkSync(businessPath);
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-styling-north-star.yaml'));
+    fs.unlinkSync(path.join(__dirname, 'fixtures', 'test-styling-lean-canvas.yaml'));
+  });
+});

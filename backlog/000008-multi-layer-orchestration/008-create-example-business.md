@@ -26,8 +26,8 @@ Create a complete example business.yaml with all 6 layers, demonstrating the ful
 - Use as demo for documentation
 
 ## Acceptance Criteria
-- [ ] Complete business.yaml with all layer references
-- [ ] All cross-references valid
-- [ ] Passes all validations
-- [ ] Realistic business data
-- [ ] Demonstrates traceability paths
+- [x] Complete business.yaml with all layer references
+- [x] All cross-references valid
+- [x] Passes all validations
+- [x] Realistic business data
+- [x] Demonstrates traceability paths

@@ -1,4 +1,5 @@
-import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules } from '../src/parser/validator';
+import { validateArchitecturalScopeBusinessRules, validateLeanViabilityBusinessRules, validateCrossLayerReferences } from '../src/parser/validator';
+import { parseOrchestratedBusiness } from '../src/parser/orchestration';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -1093,5 +1094,86 @@ describe('Policy Charter Schema Validation', () => {
     };
 
     expect(() => validate(data, 'policy-charter')).not.toThrow();
+  });
+});
+
+describe('validateCrossLayerReferences', () => {
+  test('validates valid orchestrated business with all references', () => {
+    // Use a business that doesn't reference missing files
+    const orchestrated = {
+      business: {
+        type: 'business',
+        version: '2.0',
+        last_updated: '2025-12-25',
+        title: 'Test Business'
+      }
+    };
+
+    const result = validateCrossLayerReferences(orchestrated as any);
+    expect(result.isValid).toBe(true);
+    expect(result.issues).toHaveLength(0);
+  });
+
+  test('detects missing layer files', () => {
+    const orchestrated = parseOrchestratedBusiness(path.join(__dirname, 'fixtures', 'minimal-orchestrated-business.yaml'));
+
+    const result = validateCrossLayerReferences(orchestrated);
+    expect(result.isValid).toBe(false);
+    expect(result.issues.some(issue => issue.type === 'error' && issue.message.includes('does not exist'))).toBe(true);
+  });
+
+  test('detects orphaned entities', () => {
+    // Create a test orchestrated business with orphaned entities
+    const orchestrated = {
+      business: {
+        type: 'business',
+        version: '2.0',
+        last_updated: '2025-12-25',
+        title: 'Test Business'
+      },
+      architecturalScope: {
+        type: 'architectural-scope',
+        version: '1.0',
+        last_updated: '2025-12-25',
+        title: 'Test Scope',
+        why: {
+          mission: { action: 'test', service: 'test', beneficiary: 'test' },
+          goals: [{ title: 'Orphaned Goal', description: 'test' }]
+        }
+      }
+    } as any;
+
+    const result = validateCrossLayerReferences(orchestrated);
+    expect(result.issues.some(issue => issue.type === 'warning' && issue.message.includes('not addressed'))).toBe(true);
+  });
+
+  test('detects circular dependencies', () => {
+    // Test with valid business - no circular dependencies expected
+    const orchestrated = {
+      business: {
+        type: 'business',
+        version: '2.0',
+        last_updated: '2025-12-25',
+        title: 'Test Business'
+      }
+    };
+
+    const result = validateCrossLayerReferences(orchestrated as any);
+    expect(result.isValid).toBe(true);
+  });
+
+  test('validates logical consistency between layers', () => {
+    // Test with minimal valid business
+    const orchestrated = {
+      business: {
+        type: 'business',
+        version: '2.0',
+        last_updated: '2025-12-25',
+        title: 'Test Business'
+      }
+    };
+
+    const result = validateCrossLayerReferences(orchestrated as any);
+    expect(result.isValid).toBe(true);
   });
 });

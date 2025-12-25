@@ -29,9 +29,9 @@ Extend the existing tabbed visualizer to support all 6 layers and add an interac
 - Shared styling and navigation
 
 ## Acceptance Criteria
-- [ ] Tabbed view with all 7+ layers
-- [ ] Interactive traceability graph
-- [ ] Click navigation between views
-- [ ] Print-friendly output
-- [ ] Handles large datasets
-- [ ] Consistent styling across tabs
+- [x] Tabbed view with all 7+ layers
+- [x] Interactive traceability graph
+- [x] Click navigation between views
+- [x] Print-friendly output
+- [x] Handles large datasets
+- [x] Consistent styling across tabs

@@ -1,0 +1,6 @@
+type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "Minimal Business"
+north_star_ref: "../../examples/sample-north-star.yaml"
+lean_canvas_ref: "non-existent.yaml"

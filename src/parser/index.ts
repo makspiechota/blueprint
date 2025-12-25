@@ -65,3 +65,5 @@ export function parsePolicyCharter(filePath: string): PolicyCharter {
 
   return data;
 }
+
+export { parseOrchestratedBusiness, buildTraceabilityGraph } from './orchestration';

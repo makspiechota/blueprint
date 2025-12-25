@@ -1,5 +1,5 @@
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business } from '../parser/types';
-import { parseBusiness, parseLeanCanvas, parseNorthStar, parseArchitecturalScope, parsePolicyCharter } from '../parser';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics, PolicyCharter } from '../parser/types';
+import { parseBusiness, parseLeanCanvas, parseNorthStar, parseArchitecturalScope, parsePolicyCharter, parseLeanViability, parseAARRRMetrics } from '../parser';
 import { generateLeanCanvasHTML } from './lean-canvas-visualizer';
 import { generateTabbedHTML } from './tabbed-visualizer';
 import * as fs from 'fs';
@@ -279,7 +279,22 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
   const business = parseBusiness(businessFilePath);
   const layers: Array<{ title: string; content: string }> = [];
 
+  // Import additional visualizers
+  const { generateLeanViabilityHTML } = require('./lean-viability-visualizer');
+  const { generateAARRRMetricsHTML } = require('./aaarr-visualizer');
+  const { generatePolicyCharterHTML } = require('./policy-charter-visualizer');
+  const { generateTraceabilityGraphHTML } = require('./traceability-visualizer');
+
   // Discover and visualize each referenced layer
+  if (business.north_star_ref) {
+    const northStarPath = resolvePath(businessFilePath, business.north_star_ref);
+    if (fs.existsSync(northStarPath)) {
+      const northStar = parseNorthStar(northStarPath);
+      const html = generateNorthStarHTML(northStar);
+      layers.push({ title: 'North Star', content: html });
+    }
+  }
+
   if (business.lean_canvas_ref) {
     const leanCanvasPath = resolvePath(businessFilePath, business.lean_canvas_ref);
     if (fs.existsSync(leanCanvasPath)) {
@@ -289,12 +304,21 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
     }
   }
 
-  if (business.north_star_ref) {
-    const northStarPath = resolvePath(businessFilePath, business.north_star_ref);
-    if (fs.existsSync(northStarPath)) {
-      const northStar = parseNorthStar(northStarPath);
-      const html = generateNorthStarHTML(northStar);
-      layers.push({ title: 'North Star', content: html });
+  if (business.lean_viability_ref) {
+    const leanViabilityPath = resolvePath(businessFilePath, business.lean_viability_ref);
+    if (fs.existsSync(leanViabilityPath)) {
+      const leanViability = parseLeanViability(leanViabilityPath);
+      const html = generateLeanViabilityHTML(leanViability);
+      layers.push({ title: 'Lean Viability', content: html });
+    }
+  }
+
+  if (business.aaarr_ref) {
+    const aaarrPath = resolvePath(businessFilePath, business.aaarr_ref);
+    if (fs.existsSync(aaarrPath)) {
+      const aaarr = parseAARRRMetrics(aaarrPath);
+      const html = generateAARRRMetricsHTML(aaarr);
+      layers.push({ title: 'AAARR Metrics', content: html });
     }
   }
 
@@ -306,6 +330,19 @@ export function visualizeBusiness(businessFilePath: string, outputPath: string):
       layers.push({ title: 'Architectural Scope', content: html });
     }
   }
+
+  if (business.policy_charter_ref) {
+    const policyCharterPath = resolvePath(businessFilePath, business.policy_charter_ref);
+    if (fs.existsSync(policyCharterPath)) {
+      const policyCharter = parsePolicyCharter(policyCharterPath);
+      const html = generatePolicyCharterHTML(policyCharter);
+      layers.push({ title: 'Policy Charter', content: html });
+    }
+  }
+
+  // Add traceability graph as the last tab
+  const traceabilityHTML = generateTraceabilityGraphHTML(businessFilePath);
+  layers.push({ title: 'Traceability Graph', content: traceabilityHTML });
 
   // Generate tabbed HTML with all discovered layers
   const tabbedHTML = generateTabbedHTML(business.title, layers);

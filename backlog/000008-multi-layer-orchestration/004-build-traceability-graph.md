@@ -29,9 +29,9 @@ Create a traceability graph data structure that represents all entities and thei
 - Handle large graphs with 100+ entities efficiently
 
 ## Acceptance Criteria
-- [ ] Graph contains all entities as nodes
-- [ ] All references represented as directed edges
-- [ ] Supports bidirectional traversal
-- [ ] Enables path finding between any two entities
-- [ ] Nodes colored by layer
-- [ ] Handles large graphs efficiently
+- [x] Graph contains all entities as nodes
+- [x] All references represented as directed edges
+- [x] Supports bidirectional traversal
+- [x] Enables path finding between any two entities
+- [x] Nodes colored by layer
+- [x] Handles large graphs efficiently

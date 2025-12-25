@@ -1,2 +1,4 @@
-type: wrong-type
-version: "1.0"
+type: north-star
+version: "2.0"
+title: "Invalid North Star"
+# missing required last_updated and other fields

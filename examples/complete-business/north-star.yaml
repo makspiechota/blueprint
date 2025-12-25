@@ -1,0 +1,14 @@
+type: north-star
+version: "2.0"
+last_updated: "2025-12-25"
+title: "AI Support Assistant"
+vision: "Revolutionize customer support by making expert-level assistance instantly accessible to every business"
+problem: "Small and medium businesses struggle with inconsistent, slow, and expensive customer support that damages customer relationships and limits growth"
+solution: "Build an AI-powered support assistant that learns from expert interactions and provides 24/7 intelligent responses across all channels"
+strategic_goals:
+  - title: "Achieve Product-Market Fit"
+    description: "Validate that businesses are willing to pay for AI support that matches human expert quality"
+  - title: "Scale to 1000 Active Customers"
+    description: "Grow the user base to demonstrate market demand and network effects"
+  - title: "Establish Thought Leadership"
+    description: "Become recognized as the leading AI solution for customer support automation"

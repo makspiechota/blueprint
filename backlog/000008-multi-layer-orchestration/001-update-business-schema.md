@@ -23,7 +23,7 @@ None
 - Update example business.yaml to demonstrate all layers
 
 ## Acceptance Criteria
-- [ ] business.schema.json supports v2.0 with all layer references
-- [ ] Backward compatibility maintained for v1.0 files
-- [ ] examples/business.yaml updated to v2.0 format
-- [ ] Schema validates example file
+- [x] business.schema.json supports v2.0 with all layer references
+- [x] Backward compatibility maintained for v1.0 files
+- [x] examples/business.yaml updated to v2.0 format
+- [x] Schema validates example file

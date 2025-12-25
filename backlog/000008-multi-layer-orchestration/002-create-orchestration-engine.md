@@ -26,8 +26,8 @@ Create a new orchestration engine that loads and parses all referenced layer fil
 - Support optional layer references
 
 ## Acceptance Criteria
-- [ ] parseOrchestratedBusiness() loads all referenced layers
-- [ ] Validates each layer individually during loading
-- [ ] Returns typed OrchestratedBusiness with all parsed data
-- [ ] Handles missing optional layers gracefully
-- [ ] Errors on missing required layers
+- [x] parseOrchestratedBusiness() loads all referenced layers
+- [x] Validates each layer individually during loading
+- [x] Returns typed OrchestratedBusiness with all parsed data
+- [x] Handles missing optional layers gracefully
+- [x] Errors on missing required layers
