@@ -572,4 +572,27 @@ kpis: []`;
 
     expect(() => parsePolicyCharter('non-existent.yaml')).toThrow();
   });
+
+  test('parses example policy charter file', () => {
+    const { parsePolicyCharter } = require('../src/parser');
+
+    const result = parsePolicyCharter('examples/policy-charter.yaml');
+
+    expect(result.type).toBe('policy-charter');
+    expect(result.title).toBe('Software Factory Policy Charter');
+    expect(result.goals).toHaveLength(3);
+    expect(result.tactics).toHaveLength(7);
+    expect(result.policies).toHaveLength(11);
+    expect(result.risks).toHaveLength(4);
+    expect(result.kpis).toHaveLength(8);
+
+    // Verify specific relationships
+    const tddTactic = result.tactics.find((t: any) => t.id === 'pc.tactic.tdd-mandate');
+    expect(tddTactic.drives_policies).toContain('pc.policy.tdd-required');
+
+    const tddPolicy = result.policies.find((p: any) => p.id === 'pc.policy.tdd-required');
+    expect(tddPolicy.driven_by_tactic).toBe('pc.tactic.tdd-mandate');
+    expect(tddPolicy.enforcement).toBe('mandatory');
+    expect(tddPolicy.brackets).toHaveLength(3);
+  });
 });
