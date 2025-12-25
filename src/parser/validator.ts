@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { loadSchema } from './schema-loader';
-import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics } from './types';
+import { NorthStar, ArchitecturalScope, LeanCanvas, Business, LeanViability, AARRRMetrics, PolicyCharter } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -203,6 +203,10 @@ export function validateAARRRMetrics(data: any): asserts data is AARRRMetrics {
   validate(data, 'aaarr-metrics');
 }
 
+export function validatePolicyCharter(data: any): asserts data is PolicyCharter {
+  validate(data, 'policy-charter');
+}
+
 export function validateAARRRMetricsBusinessRules(
   data: any,
   baseDir: string = process.cwd()
@@ -280,4 +284,129 @@ function getMetricType(value: any): 'rate' | 'amount' | 'percentage' | 'unknown'
   if (value.amount !== undefined && value.currency !== undefined) return 'amount';
   if (value.percentage !== undefined) return 'percentage';
   return 'unknown';
+}
+
+// ============================================================================
+// Policy Charter Validation
+// ============================================================================
+
+export function validatePolicyCharterBusinessRules(
+  data: any,
+  baseDir: string = process.cwd()
+): string[] {
+  const warnings: string[] = [];
+
+  // Level 1: Reference Existence
+  // Validate architectural_scope_ref exists
+  if (data.architectural_scope_ref) {
+    const archScopePath = path.isAbsolute(data.architectural_scope_ref)
+      ? data.architectural_scope_ref
+      : path.join(baseDir, data.architectural_scope_ref);
+
+    if (!fs.existsSync(archScopePath)) {
+      throw new Error(`Architectural scope file not found: ${data.architectural_scope_ref}`);
+    }
+
+    // Validate architectural scope file is valid
+    try {
+      const archScopeContent = fs.readFileSync(archScopePath, 'utf8');
+      const yaml = require('js-yaml');
+      const archScopeData = yaml.load(archScopeContent);
+      validateArchitecturalScope(archScopeData);
+    } catch (error) {
+      throw new Error(`Architectural scope file is invalid: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  // Validate aaarr_metrics_ref exists
+  if (data.aaarr_metrics_ref) {
+    const aaarrMetricsPath = path.isAbsolute(data.aaarr_metrics_ref)
+      ? data.aaarr_metrics_ref
+      : path.join(baseDir, data.aaarr_metrics_ref);
+
+    if (!fs.existsSync(aaarrMetricsPath)) {
+      throw new Error(`AAARR metrics file not found: ${data.aaarr_metrics_ref}`);
+    }
+
+    // Validate AAARR metrics file is valid
+    try {
+      const aaarrMetricsContent = fs.readFileSync(aaarrMetricsPath, 'utf8');
+      const yaml = require('js-yaml');
+      const aaarrMetricsData = yaml.load(aaarrMetricsContent);
+      validateAARRRMetrics(aaarrMetricsData);
+    } catch (error) {
+      throw new Error(`AAARR metrics file is invalid: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  // Level 2: Type Consistency
+  // Validate goal addresses reference architectural scope goals
+  if (data.goals && Array.isArray(data.goals)) {
+    const validGoalIds = new Set<string>();
+    // TODO: Load and extract goal IDs from architectural scope file
+
+    for (const goal of data.goals) {
+      if (goal.addresses && Array.isArray(goal.addresses)) {
+        for (const address of goal.addresses) {
+          // TODO: Check if address exists in architectural scope goals
+          // For now, just validate it's a string
+          if (typeof address !== 'string') {
+            throw new Error(`Goal '${goal.id}' addresses must be strings`);
+          }
+        }
+      }
+    }
+  }
+
+  // Validate tactic drives_policies reference policy IDs
+  if (data.tactics && Array.isArray(data.tactics)) {
+    const policyIds = new Set((data.policies || []).map((p: any) => p.id));
+
+    for (const tactic of data.tactics) {
+      if (tactic.drives_policies && Array.isArray(tactic.drives_policies)) {
+        for (const policyId of tactic.drives_policies) {
+          if (!policyIds.has(policyId)) {
+            throw new Error(`Tactic '${tactic.id}' references non-existent policy '${policyId}'`);
+          }
+        }
+      }
+    }
+  }
+
+  // Validate policy driven_by_tactic references tactic IDs
+  if (data.policies && Array.isArray(data.policies)) {
+    const tacticIds = new Set((data.tactics || []).map((t: any) => t.id));
+
+    for (const policy of data.policies) {
+      if (policy.driven_by_tactic && !tacticIds.has(policy.driven_by_tactic)) {
+        throw new Error(`Policy '${policy.id}' references non-existent tactic '${policy.driven_by_tactic}'`);
+      }
+    }
+  }
+
+  // Level 3: Logical Consistency
+  // Validate goals address at least one architectural scope goal
+  if (data.goals && Array.isArray(data.goals)) {
+    for (const goal of data.goals) {
+      if (!goal.addresses || goal.addresses.length === 0) {
+        warnings.push(`Goal '${goal.id}' should address at least one architectural scope goal`);
+      }
+    }
+  }
+
+  // Validate tactics drive at least one policy
+  if (data.tactics && Array.isArray(data.tactics)) {
+    for (const tactic of data.tactics) {
+      if (!tactic.drives_policies || tactic.drives_policies.length === 0) {
+        warnings.push(`Tactic '${tactic.id}' should drive at least one policy`);
+      }
+    }
+  }
+
+  // Validate policies are driven by exactly one tactic (already checked in Level 2)
+  // This is enforced by the schema requiring driven_by_tactic to be a single string
+
+  // Additional logical checks can be added here
+
+  return warnings;
 }
