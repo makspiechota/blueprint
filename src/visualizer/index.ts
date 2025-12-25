@@ -7,6 +7,7 @@ import * as path from 'path';
 
 // Re-export specialized visualizers
 export { generateAARRRMetricsHTML } from './aaarr-visualizer';
+export { generatePolicyCharterHTML } from './policy-charter-visualizer';
 
 export function generateVisualization(parsedData: NorthStar, outputPath: string): void {
   const html = `<!DOCTYPE html>
