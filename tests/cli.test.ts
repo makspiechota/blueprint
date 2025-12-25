@@ -111,6 +111,62 @@ targets:
 
    fs.writeFileSync(path.join(testDir, 'lean-viability.yaml'), validLeanViability, 'utf8');
 
+  const validPolicyCharter = `type: policy-charter
+version: "1.0"
+last_updated: "2025-12-25"
+title: "Test Policy Charter"
+architectural_scope_ref: "architectural-scope.yaml"
+aaarr_metrics_ref: "aaarr-metrics.yaml"
+goals:
+  - id: pc.goal.test-goal
+    title: "Test Goal"
+    description: "A test operational goal"
+    addresses:
+      - arch.goal.test
+    aaarr_impact:
+      - acquisition
+    tactics:
+      - pc.tactic.test-tactic
+    policies:
+      - pc.policy.test-policy
+    kpis:
+      - pc.kpi.test-kpi
+    risks:
+      - pc.risk.test-risk
+tactics:
+  - id: pc.tactic.test-tactic
+    title: "Test Tactic"
+    description: "A test tactic"
+    drives_policies:
+      - pc.policy.test-policy
+policies:
+  - id: pc.policy.test-policy
+    title: "Test Policy"
+    rule: "Test rule"
+    driven_by_tactic: pc.tactic.test-tactic
+    enforcement: mandatory
+    brackets:
+      - condition: "Test condition"
+        rule: "Test bracket rule"
+risks:
+  - id: pc.risk.test-risk
+    description: "Test risk"
+    probability: medium
+    impact: high
+    mitigation:
+      - pc.tactic.test-tactic
+kpis:
+  - id: pc.kpi.test-kpi
+    name: "Test KPI"
+    target:
+      rate: 100
+    current:
+      rate: 80
+    measurement_frequency: monthly
+    justification: aaarr.acquisition.test-metric`;
+
+  fs.writeFileSync(path.join(testDir, 'policy-charter.yaml'), validPolicyCharter, 'utf8');
+
    const validAaarrMetrics = `type: aaarr-metrics
 version: "1.0"
 last_updated: "2025-12-24"
@@ -418,6 +474,40 @@ stages:
       });
 
       expect(result).toContain('Validation warnings');
+    });
+  });
+
+  describe('Policy Charter CLI', () => {
+    test('validates policy-charter file', () => {
+      const inputPath = path.join(testDir, 'policy-charter.yaml');
+
+      const result = execSync(`node dist/index.js validate ${inputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(result).toContain('Policy Charter file is valid');
+    });
+
+    test('generates policy-charter.html', () => {
+      const inputPath = path.join(testDir, 'policy-charter.yaml');
+      const outputPath = path.join(outputDir, 'policy-charter.html');
+
+      const result = execSync(`node dist/index.js visualize ${inputPath} -o ${outputPath}`, {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '..')
+      });
+
+      expect(fs.existsSync(outputPath)).toBe(true);
+      expect(result).toContain('Policy Charter visualization generated successfully');
+
+      const content = fs.readFileSync(outputPath, 'utf8');
+      expect(content).toContain('Test Policy Charter');
+      expect(content).toContain('Goals Overview');
+      expect(content).toContain('Tactics Tree');
+      expect(content).toContain('Policies Matrix');
+      expect(content).toContain('Risk Management');
+      expect(content).toContain('KPI Dashboard');
     });
   });
 });

@@ -1,5 +1,5 @@
 import { NorthStar, ArchitecturalScope, LeanCanvas, Business } from '../parser/types';
-import { parseBusiness, parseLeanCanvas, parseNorthStar, parseArchitecturalScope } from '../parser';
+import { parseBusiness, parseLeanCanvas, parseNorthStar, parseArchitecturalScope, parsePolicyCharter } from '../parser';
 import { generateLeanCanvasHTML } from './lean-canvas-visualizer';
 import { generateTabbedHTML } from './tabbed-visualizer';
 import * as fs from 'fs';
@@ -7,6 +7,10 @@ import * as path from 'path';
 
 // Re-export specialized visualizers
 export { generateAARRRMetricsHTML } from './aaarr-visualizer';
+
+// Import for internal use
+import { generatePolicyCharterHTML } from './policy-charter-visualizer';
+
 export { generatePolicyCharterHTML } from './policy-charter-visualizer';
 
 export function generateVisualization(parsedData: NorthStar, outputPath: string): void {
@@ -262,6 +266,12 @@ export function generateCombinedVisualization(
 </body>
 </html>`;
 
+  fs.writeFileSync(outputPath, html, 'utf8');
+}
+
+export function visualizePolicyCharter(filePath: string, outputPath: string): void {
+  const policyCharter = parsePolicyCharter(filePath);
+  const html = generatePolicyCharterHTML(policyCharter);
   fs.writeFileSync(outputPath, html, 'utf8');
 }
 
