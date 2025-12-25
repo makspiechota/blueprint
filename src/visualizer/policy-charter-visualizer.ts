@@ -7,9 +7,10 @@ export function generatePolicyCharterHTML(policyCharter: PolicyCharter, multiLay
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(policyCharter.title)} - Policy Charter</title>
-  <style>
-    ${getStyles()}
-  </style>
+    <style>
+      ${getStyles()}
+      ${multiLayer ? getTreeStyles() : ''}
+    </style>
 </head>
 <body>
   <div class="container">
@@ -21,30 +22,10 @@ export function generatePolicyCharterHTML(policyCharter: PolicyCharter, multiLay
       </div>
     </header>
 
-    ${multiLayer ? `
-    <div id="goals">
-      <h2>Goals Overview</h2>
-      ${renderGoalsOverview(policyCharter)}
-    </div>
-
-    <div id="tactics">
-      <h2>Tactics Tree</h2>
-      ${renderTacticsTree(policyCharter)}
-    </div>
-
-    <div id="policies">
-      <h2>Policies Matrix</h2>
-      ${renderPoliciesMatrix(policyCharter)}
-    </div>
-
-    <div id="risks">
-      <h2>Risk Management</h2>
-      ${renderRiskManagement(policyCharter)}
-    </div>
-
-    <div id="kpis">
-      <h2>KPI Dashboard</h2>
-      ${renderKPIDashboard(policyCharter)}
+     ${multiLayer ? `
+    <div class="policy-tree">
+      <h2>Policy Charter Strategy</h2>
+      <div id="policy-tree" class="tree-container"></div>
     </div>
     ` : `
     <div class="tabs">
@@ -115,9 +96,140 @@ export function generatePolicyCharterHTML(policyCharter: PolicyCharter, multiLay
         button.textContent = 'Show Brackets';
       }
     }
-  </script>
-</body>
-</html>`;
+    </script>
+
+    ${multiLayer ? `
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+    <script>
+      // Policy tree data
+      const treeData = ${JSON.stringify(buildPolicyTree(policyCharter))};
+
+      // Set up SVG dimensions (wider for descriptions)
+      const margin = {top: 40, right: 200, bottom: 40, left: 120};
+      const width = 1400 - margin.left - margin.right;
+      const height = 900 - margin.top - margin.bottom;
+
+      // Set up SVG
+      const svg = d3.select('#policy-tree')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      // Create tree layout with better spacing
+      const treeLayout = d3.tree()
+        .size([height, width - 100])  // Leave some margin
+        .nodeSize([70, 150]);  // Reasonable node spacing
+
+      // Create root node
+      const root = d3.hierarchy(treeData);
+      treeLayout(root);
+
+      // Center the tree by adjusting x positions
+      const minX = d3.min(root.descendants(), d => d.x) || 0;
+      const maxX = d3.max(root.descendants(), d => d.x) || 0;
+      const treeWidth = maxX - minX;
+      const centerOffset = (width - treeWidth) / 2 - minX;
+
+      // Adjust all node positions to center the tree
+      root.each(d => {
+        d.x += centerOffset;
+      });
+
+      // Add links (arrows)
+      svg.selectAll('.link')
+        .data(root.links())
+        .enter()
+        .append('path')
+        .attr('class', 'link')
+        .attr('d', d3.linkVertical()
+          .x(d => d.x)
+          .y(d => d.y));
+
+      // Add nodes
+      const nodes = svg.selectAll('.node')
+        .data(root.descendants())
+        .enter()
+        .append('g')
+        .attr('class', d => \`node \${d.data.type}\`)
+        .attr('transform', d => \`translate(\${d.x},\${d.y})\`);
+
+      // Add circles for nodes
+      nodes.append('circle')
+        .attr('r', 25)
+        .attr('fill', d => {
+          const colors = {
+            'goal': '#FF6B35',
+            'tactic': '#4ECDC4',
+            'policy': '#45B7D1',
+            'risk': '#E74C3C'
+          };
+          return colors[d.data.type] || '#CCCCCC';
+        });
+
+      // Add icons to circles
+      nodes.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('fill', 'white')
+        .attr('font-size', '18px')
+        .text(d => {
+          const icons = {
+            'goal': '🎯',
+            'tactic': '📝',
+            'policy': '☂️',
+            'risk': '⛈️'
+          };
+          return icons[d.data.type] || '●';
+        });
+
+      // Add labels
+      nodes.append('text')
+        .attr('dy', '2.5em')
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#333')
+        .attr('font-size', '12px')
+        .style('font-weight', 'bold')
+        .text(d => d.data.title);
+
+      // Create tooltip div
+      const tooltip = d3.select('#policy-tree')
+        .append('div')
+        .attr('class', 'policy-tooltip')
+        .style('position', 'absolute')
+        .style('visibility', 'hidden')
+        .style('background', 'rgba(0, 0, 0, 0.8)')
+        .style('color', 'white')
+        .style('padding', '8px 12px')
+        .style('border-radius', '4px')
+        .style('font-size', '12px')
+        .style('max-width', '300px')
+        .style('z-index', '1000')
+        .style('pointer-events', 'none');
+
+      // Add mouse events for tooltips
+      nodes
+        .on('mouseover', function(event, d) {
+          const description = d.data.description || 'No description available';
+          tooltip
+            .style('visibility', 'visible')
+            .html('<strong>' + d.data.title + '</strong><br>' + description)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 10) + 'px');
+        })
+        .on('mousemove', function(event) {
+          tooltip
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 10) + 'px');
+        })
+        .on('mouseout', function() {
+          tooltip.style('visibility', 'hidden');
+        });
+    </script>
+    ` : ''}
+  </body>
+  </html>`;
 }
 
 function renderGoalsOverview(policyCharter: PolicyCharter): string {
@@ -406,11 +518,139 @@ function getStyles(): string {
   `;
 }
 
+function buildPolicyTree(policyCharter: PolicyCharter) {
+  const root: any = {
+    title: 'Strategy',
+    type: 'root',
+    children: []
+  };
+
+  policyCharter.goals?.forEach(goal => {
+    const goalNode: any = {
+      title: goal.title,
+      description: goal.description,
+      type: 'goal',
+      children: []
+    };
+
+    goal.tactics?.forEach(tacticId => {
+      const tactic = policyCharter.tactics?.find(t => t.id === tacticId);
+      if (tactic) {
+        const tacticNode: any = {
+          title: tactic.title,
+          description: tactic.description,
+          type: 'tactic',
+          children: []
+        };
+
+        goal.policies?.forEach(policyId => {
+          const policy = policyCharter.policies?.find(p => p.id === policyId);
+          if (policy) {
+            const policyNode: any = {
+              title: policy.title,
+              description: policy.rule,
+              type: 'policy',
+              children: []
+            };
+
+            goal.risks?.forEach(riskId => {
+              const risk = policyCharter.risks?.find(r => r.id === riskId);
+              if (risk) {
+                policyNode.children.push({
+                  title: risk.description,
+                  description: `Probability: ${risk.probability}, Impact: ${risk.impact}`,
+                  type: 'risk',
+                  children: []
+                });
+              }
+            });
+
+            tacticNode.children.push(policyNode);
+          }
+        });
+
+        goalNode.children.push(tacticNode);
+      }
+    });
+
+    root.children.push(goalNode);
+  });
+
+  return root;
+}
+
+function getTreeStyles(): string {
+  return `
+    .policy-tree {
+      margin: 30px 0;
+    }
+
+    .tree-container {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fafafa;
+      overflow: auto;
+    }
+
+    .node {
+      cursor: pointer;
+    }
+
+    .node circle {
+      stroke: #fff;
+      stroke-width: 2px;
+    }
+
+    .node:hover circle {
+      stroke-width: 3px;
+    }
+
+    .node text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      pointer-events: none;
+    }
+
+    .link {
+      fill: none;
+      stroke: #999;
+      stroke-width: 2px;
+      marker-end: url(#arrowhead);
+    }
+
+    .tree-container {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: auto;
+    }
+
+    .policy-tooltip {
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .node text {
+      user-select: none;
+    }
+
+    @media print {
+      .tree-container {
+        display: none;
+      }
+    }
+  `;
+}
+
 function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+  const map: { [key: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
 }
