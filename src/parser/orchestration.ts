@@ -96,6 +96,13 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
   const nodes: TraceabilityNode[] = [];
   const edges: TraceabilityEdge[] = [];
 
+  // Maps to track references to node IDs
+  const archScopeGoalMap: { [title: string]: string } = {};
+  const policyTacticMap: { [id: string]: string } = {};
+  const policyPolicyMap: { [id: string]: string } = {};
+  const policyKpiMap: { [id: string]: string } = {};
+  const policyRiskMap: { [id: string]: string } = {};
+
   // Helper to add node if not exists
   const addNode = (id: string, layer: string, type: string, title: string, description?: string, data?: any) => {
     if (!nodes.find(n => n.id === id)) {
@@ -273,6 +280,9 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
         const goalId = `architectural-scope.goal.${index}`;
         addNode(goalId, 'architectural-scope', 'scope-goal', goal.title, goal.description, goal);
         addEdge('architectural-scope', goalId, 'contains', 9);
+
+        // Map goal title to node ID for Policy Charter references
+        archScopeGoalMap[goal.title] = goalId;
       });
     }
 
@@ -321,7 +331,7 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
     // Add calculations
     Object.keys(lv.calculations || {}).forEach(key => {
       const calc = (lv.calculations as any)[key];
-      const id = `lean-viability.calculation.${key}`;
+      const id = `lean-viability.calculations.${key}`;
       addNode(id, 'lean-viability', 'calculation', key, `Calculated value: ${calc}`, { key, value: calc });
       addEdge('lean-viability', id, 'contains', 9);
     });
@@ -338,8 +348,16 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
   // Process AAARR Metrics
   if (orchestrated.aaarr) {
     const aaarr = orchestrated.aaarr;
-    addNode('aaarr-metrics', 'aaarr-metrics', 'aaarr-metrics', aaarr.title, 'AAARR metrics tracking', aaarr);
+    addNode('aaarr-metrics', 'aaarr-metrics', 'aaarr-metrics', aaarr.title, 'AAARR customer factory metrics', aaarr);
     addEdge('business', 'aaarr-metrics', 'references', 8);
+
+    // Add stage nodes
+    Object.keys(aaarr.stages || {}).forEach(stageKey => {
+      const stage = (aaarr.stages as any)[stageKey];
+      const stageId = `aaarr-metrics.${stageKey}`;
+      addNode(stageId, 'aaarr-metrics', 'stage', stageKey, stage.stage_goal, { stage: stageKey, goal: stage.stage_goal });
+      addEdge('aaarr-metrics', stageId, 'contains', 9);
+    });
 
     if (orchestrated.leanViability) {
       addEdge('aaarr-metrics', 'lean-viability', 'references', 7);
@@ -353,18 +371,16 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
     Object.keys(aaarr.stages || {}).forEach(stageKey => {
       const stage = (aaarr.stages as any)[stageKey];
       stage.metrics?.forEach((metric: any, index: number) => {
-        const metricId = `aaarr-metrics.${stageKey}.${index}`;
+        const metricId = metric.id || `aaarr-metrics.${stageKey}.${index}`;
         addNode(metricId, 'aaarr-metrics', 'metric', metric.name, metric.description, metric);
-        addEdge('aaarr-metrics', metricId, 'contains', 9);
+        addEdge(`aaarr-metrics.${stageKey}`, metricId, 'contains', 9);
 
         // Connect imported_from references
         if (metric.target?.imported_from) {
-          const importedId = `lean-viability.${metric.target.imported_from.replace(/\./g, '.')}`;
-          addEdge(metricId, importedId, 'imported_from', 8, { imported_from: metric.target.imported_from });
+          addEdge(metricId, metric.target.imported_from, 'imported_from', 8, { imported_from: metric.target.imported_from });
         }
         if (metric.current?.imported_from) {
-          const importedId = `lean-viability.${metric.current.imported_from.replace(/\./g, '.')}`;
-          addEdge(metricId, importedId, 'imported_from', 8, { imported_from: metric.current.imported_from });
+          addEdge(metricId, metric.current.imported_from, 'imported_from', 8, { imported_from: metric.current.imported_from });
         }
       });
     });
@@ -392,14 +408,48 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
 
       // Connect addresses
       goal.addresses?.forEach(address => {
-        const targetId = `architectural-scope.goal.${address.split('.').pop()}`;
-        addEdge(goalId, targetId, 'addresses', 9, { addressed_goal: address });
+        const targetId = archScopeGoalMap[address];
+        if (targetId) {
+          addEdge(goalId, targetId, 'addresses', 9, { addressed_goal: address });
+        }
       });
 
       // Connect aaarr_impact
       goal.aaarr_impact?.forEach(impact => {
         const stageNodeId = `aaarr-metrics.${impact}`;
         addEdge(goalId, stageNodeId, 'impacts', 7, { aaarr_stage: impact });
+      });
+
+      // Connect tactics
+      goal.tactics?.forEach(tacticId => {
+        const tacticNodeId = policyTacticMap[tacticId];
+        if (tacticNodeId) {
+          addEdge(goalId, tacticNodeId, 'drives', 8, { tactic: tacticId });
+        }
+      });
+
+      // Connect policies
+      goal.policies?.forEach(policyId => {
+        const policyNodeId = policyPolicyMap[policyId];
+        if (policyNodeId) {
+          addEdge(goalId, policyNodeId, 'requires', 8, { policy: policyId });
+        }
+      });
+
+      // Connect KPIs
+      goal.kpis?.forEach(kpiId => {
+        const kpiNodeId = policyKpiMap[kpiId];
+        if (kpiNodeId) {
+          addEdge(goalId, kpiNodeId, 'measures', 7, { kpi: kpiId });
+        }
+      });
+
+      // Connect risks
+      goal.risks?.forEach(riskId => {
+        const riskNodeId = policyRiskMap[riskId];
+        if (riskNodeId) {
+          addEdge(goalId, riskNodeId, 'mitigates', 6, { risk: riskId });
+        }
       });
     });
 
@@ -408,6 +458,11 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
       const tacticId = `policy-charter.tactic.${index}`;
       addNode(tacticId, 'policy-charter', 'tactic', tactic.title, tactic.description, tactic);
       addEdge('policy-charter', tacticId, 'contains', 9);
+
+      // Map tactic ID to node ID
+      if (tactic.id) {
+        policyTacticMap[tactic.id] = tacticId;
+      }
     });
 
     // Add policies
@@ -416,10 +471,17 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
       addNode(policyId, 'policy-charter', 'policy', policy.title, policy.rule, policy);
       addEdge('policy-charter', policyId, 'contains', 9);
 
+      // Map policy ID to node ID
+      if (policy.id) {
+        policyPolicyMap[policy.id] = policyId;
+      }
+
       // Connect driven_by_tactic
       if (policy.driven_by_tactic) {
-        const tacticId = `policy-charter.tactic.${policy.driven_by_tactic.split('.').pop()}`;
-        addEdge(policyId, tacticId, 'driven_by', 8, { driven_by_tactic: policy.driven_by_tactic });
+        const tacticId = policyTacticMap[policy.driven_by_tactic];
+        if (tacticId) {
+          addEdge(policyId, tacticId, 'driven_by', 8, { driven_by_tactic: policy.driven_by_tactic });
+        }
       }
     });
 
@@ -429,10 +491,27 @@ export function buildTraceabilityGraph(orchestrated: OrchestratedBusiness): Trac
       addNode(kpiId, 'policy-charter', 'kpi', kpi.name, `Target: ${kpi.target}, Current: ${kpi.current}`, kpi);
       addEdge('policy-charter', kpiId, 'contains', 8);
 
+      // Map KPI ID to node ID
+      if (kpi.id) {
+        policyKpiMap[kpi.id] = kpiId;
+      }
+
       // Connect justification
       if (kpi.justification) {
-        const metricId = `aaarr-metrics.${kpi.justification.split('.').slice(1).join('.')}`;
-        addEdge(kpiId, metricId, 'justified_by', 7, { justification: kpi.justification });
+        // justification is like "aaarr.activation.first-response"
+        addEdge(kpiId, kpi.justification, 'justified_by', 7, { justification: kpi.justification });
+      }
+    });
+
+    // Add risks
+    pc.risks?.forEach((risk, index) => {
+      const riskId = `policy-charter.risk.${index}`;
+      addNode(riskId, 'policy-charter', 'risk', risk.description, `Probability: ${risk.probability}, Impact: ${risk.impact}`, risk);
+      addEdge('policy-charter', riskId, 'contains', 7);
+
+      // Map risk ID to node ID
+      if (risk.id) {
+        policyRiskMap[risk.id] = riskId;
       }
     });
   }

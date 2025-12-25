@@ -118,7 +118,7 @@ kpis:
     current:
       rate: 4.2
     measurement_frequency: "weekly"
-    justification: "aaarr.retention.nps-score"
+    justification: "aaarr.referral.net-promoter-score"
   - id: "pc.kpi.accuracy-rate"
     name: "AI Response Accuracy"
     target:
@@ -136,4 +136,4 @@ kpis:
       amount: 18
       currency: "USD"
     measurement_frequency: "monthly"
-    justification: "aaarr.revenue.average-revenue-per-user"
+    justification: "aaarr.revenue.monthly-recurring-revenue"
