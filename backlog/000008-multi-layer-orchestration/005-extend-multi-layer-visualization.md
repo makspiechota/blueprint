@@ -5,7 +5,7 @@
 6. As a developer, I want to see a traceability graph so that I understand how my work connects to business goals
 
 ## Description
-Extend the existing tabbed visualizer to support all 7+ layers and add an interactive traceability graph view, creating a unified HTML dashboard for the complete business architecture.
+Extend the existing tabbed visualizer to support all 6 layers and add an interactive traceability graph view, creating a unified HTML dashboard for the complete business architecture.
 
 ## Files to Modify/Create
 - `src/visualizer/index.ts` - Update visualizeBusiness() to support all layers
@@ -21,7 +21,7 @@ Extend the existing tabbed visualizer to support all 7+ layers and add an intera
 
 ## Implementation Notes
 - Extend existing tabbed visualizer pattern
-- Add tabs for: North Star, Lean Canvas, Lean Viability, AAARR, Arch Scope, Policy Charter, Backlog
+- Add tabs for: North Star, Lean Canvas, Lean Viability, AAARR, Arch Scope, Policy Charter
 - Create interactive traceability graph using D3.js
 - Support click navigation between tabs and graph
 - Print-friendly design (all tabs print)

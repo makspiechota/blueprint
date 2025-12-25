@@ -4,7 +4,7 @@
 All user stories - provides working example of full orchestration
 
 ## Description
-Create a complete example business.yaml with all 7+ layers, demonstrating the full multi-layer orchestration capability with proper cross-references and realistic data.
+Create a complete example business.yaml with all 6 layers, demonstrating the full multi-layer orchestration capability with proper cross-references and realistic data.
 
 ## Files to Modify/Create
 - `examples/business-complete.yaml` - New comprehensive example

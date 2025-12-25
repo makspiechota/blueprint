@@ -4,7 +4,7 @@
 1. As a business leader, I want a tabbed view of all layers so that I can see the complete picture
 
 ## Description
-Update the business.schema.json to version 2.0, adding support for all 7+ layer references (lean_viability, aaarr, policy_charter, backlog) while maintaining backward compatibility with v1.0 files.
+Update the business.schema.json to version 2.0, adding support for all 6 layer references (lean_viability, aaarr, policy_charter) while maintaining backward compatibility with v1.0 files.
 
 ## Files to Modify/Create
 - `schemas/business.schema.json` - Update to v2.0 with new optional layer references
