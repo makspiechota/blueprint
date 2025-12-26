@@ -1,0 +1,11 @@
+type: business
+version: "2.0"
+last_updated: "2025-12-25"
+title: "BLUEPRINT"
+
+north_star_ref: "sample-north-star.yaml"
+lean_canvas_ref: "lean-canvas.yaml"
+architectural_scope_ref: "sample-architectural-scope.yaml"
+lean_viability_ref: "lean-viability.yaml"
+aaarr_ref: "aaarr-metrics.yaml"
+policy_charter_ref: "policy-charter.yaml"
