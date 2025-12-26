@@ -5,6 +5,9 @@ export function generateTabbedHTML(
   // Extract all styles from layer HTML files
   const allStyles = layers.map(layer => extractStyles(layer.content)).join('\n');
 
+  // Check if any layer uses Mermaid diagrams
+  const needsMermaid = layers.some(layer => layer.content.includes('class="mermaid"'));
+
   // Define CSS variables for consistent styling
   const cssVariables = `
     :root {
@@ -226,6 +229,30 @@ export function generateTabbedHTML(
     /* Layer-specific styles */
     ${allStyles}
   </style>
+  ${needsMermaid ? `
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FF6B35',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#FF6B35',
+        lineColor: '#999',
+        secondaryColor: '#4ECDC4',
+        tertiaryColor: '#45B7D1'
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 50,
+        rankSpacing: 80,
+        htmlLabels: true
+      }
+    });
+  </script>
+  ` : ''}
 </head>
 <body>
   <div class="tabs">
@@ -254,8 +281,17 @@ export function generateTabbedHTML(
         btn.classList.remove('active');
       });
 
-      document.getElementById('tab-' + index).classList.add('active');
+      const tabContent = document.getElementById('tab-' + index);
+      tabContent.classList.add('active');
       document.querySelectorAll('.tab-button')[index].classList.add('active');
+
+      // Render any unprocessed Mermaid diagrams in this tab
+      if (typeof mermaid !== 'undefined') {
+        const mermaidElements = tabContent.querySelectorAll('.mermaid:not([data-processed])');
+        if (mermaidElements.length > 0) {
+          mermaid.run({ nodes: mermaidElements });
+        }
+      }
 
       // Scroll to top when switching tabs
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -276,6 +312,17 @@ export function generateTabbedHTML(
 
     // Initialize expandable content
     document.addEventListener('DOMContentLoaded', function() {
+      // Render Mermaid diagrams in the initially active tab
+      if (typeof mermaid !== 'undefined') {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab) {
+          const mermaidElements = activeTab.querySelectorAll('.mermaid');
+          if (mermaidElements.length > 0) {
+            mermaid.run({ nodes: mermaidElements });
+          }
+        }
+      }
+
       // Add expand/collapse functionality to long content
       const expandableContents = document.querySelectorAll('.expandable-content');
       expandableContents.forEach(content => {

@@ -25,7 +25,9 @@ export function generatePolicyCharterHTML(policyCharter: PolicyCharter, multiLay
      ${multiLayer ? `
     <div class="policy-tree">
       <h2>Policy Charter Strategy</h2>
-      <div id="policy-tree" class="tree-container"></div>
+      <pre class="mermaid">
+${generateMermaidDiagram(policyCharter)}
+      </pre>
     </div>
     ` : `
     <div class="tabs">
@@ -98,136 +100,6 @@ export function generatePolicyCharterHTML(policyCharter: PolicyCharter, multiLay
     }
     </script>
 
-    ${multiLayer ? `
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
-    <script>
-      // Policy tree data
-      const treeData = ${JSON.stringify(buildPolicyTree(policyCharter))};
-
-      // Set up SVG dimensions (wider for descriptions)
-      const margin = {top: 40, right: 200, bottom: 40, left: 120};
-      const width = 1400 - margin.left - margin.right;
-      const height = 900 - margin.top - margin.bottom;
-
-      // Set up SVG
-      const svg = d3.select('#policy-tree')
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-      // Create tree layout with better spacing
-      const treeLayout = d3.tree()
-        .size([height, width - 100])  // Leave some margin
-        .nodeSize([70, 150]);  // Reasonable node spacing
-
-      // Create root node
-      const root = d3.hierarchy(treeData);
-      treeLayout(root);
-
-      // Center the tree by adjusting x positions
-      const minX = d3.min(root.descendants(), d => d.x) || 0;
-      const maxX = d3.max(root.descendants(), d => d.x) || 0;
-      const treeWidth = maxX - minX;
-      const centerOffset = (width - treeWidth) / 2 - minX;
-
-      // Adjust all node positions to center the tree
-      root.each(d => {
-        d.x += centerOffset;
-      });
-
-      // Add links (arrows)
-      svg.selectAll('.link')
-        .data(root.links())
-        .enter()
-        .append('path')
-        .attr('class', 'link')
-        .attr('d', d3.linkVertical()
-          .x(d => d.x)
-          .y(d => d.y));
-
-      // Add nodes
-      const nodes = svg.selectAll('.node')
-        .data(root.descendants())
-        .enter()
-        .append('g')
-        .attr('class', d => \`node \${d.data.type}\`)
-        .attr('transform', d => \`translate(\${d.x},\${d.y})\`);
-
-      // Add circles for nodes
-      nodes.append('circle')
-        .attr('r', 25)
-        .attr('fill', d => {
-          const colors = {
-            'goal': '#FF6B35',
-            'tactic': '#4ECDC4',
-            'policy': '#45B7D1',
-            'risk': '#E74C3C'
-          };
-          return colors[d.data.type] || '#CCCCCC';
-        });
-
-      // Add icons to circles
-      nodes.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dy', '0.35em')
-        .attr('fill', 'white')
-        .attr('font-size', '18px')
-        .text(d => {
-          const icons = {
-            'goal': '🎯',
-            'tactic': '📝',
-            'policy': '☂️',
-            'risk': '⛈️'
-          };
-          return icons[d.data.type] || '●';
-        });
-
-      // Add labels
-      nodes.append('text')
-        .attr('dy', '2.5em')
-        .attr('text-anchor', 'middle')
-        .attr('fill', '#333')
-        .attr('font-size', '12px')
-        .style('font-weight', 'bold')
-        .text(d => d.data.title);
-
-      // Create tooltip div
-      const tooltip = d3.select('#policy-tree')
-        .append('div')
-        .attr('class', 'policy-tooltip')
-        .style('position', 'absolute')
-        .style('visibility', 'hidden')
-        .style('background', 'rgba(0, 0, 0, 0.8)')
-        .style('color', 'white')
-        .style('padding', '8px 12px')
-        .style('border-radius', '4px')
-        .style('font-size', '12px')
-        .style('max-width', '300px')
-        .style('z-index', '1000')
-        .style('pointer-events', 'none');
-
-      // Add mouse events for tooltips
-      nodes
-        .on('mouseover', function(event, d) {
-          const description = d.data.description || 'No description available';
-          tooltip
-            .style('visibility', 'visible')
-            .html('<strong>' + d.data.title + '</strong><br>' + description)
-            .style('left', (event.pageX + 10) + 'px')
-            .style('top', (event.pageY - 10) + 'px');
-        })
-        .on('mousemove', function(event) {
-          tooltip
-            .style('left', (event.pageX + 10) + 'px')
-            .style('top', (event.pageY - 10) + 'px');
-        })
-        .on('mouseout', function() {
-          tooltip.style('visibility', 'hidden');
-        });
-    </script>
-    ` : ''}
   </body>
   </html>`;
 }
@@ -579,66 +451,126 @@ function buildPolicyTree(policyCharter: PolicyCharter) {
   return root;
 }
 
+function generateMermaidDiagram(policyCharter: PolicyCharter): string {
+  const lines: string[] = ['flowchart TB'];
+  const nodeStyles: string[] = [];
+
+  const sanitize = (text: string): string => {
+    // Escape special characters for Mermaid
+    return text.replace(/"/g, "'").replace(/[[\](){}]/g, '').replace(/\n/g, ' ');
+  };
+
+  const truncate = (text: string, max: number): string => {
+    if (text.length <= max) return text;
+    return text.substring(0, max - 3) + '...';
+  };
+
+  // Root node
+  const rootId = 'root';
+  lines.push(`    ${rootId}["<b>Strategy</b>"]`);
+  nodeStyles.push(`style ${rootId} fill:#6B7280,stroke:#4B5563,color:#fff`);
+
+  // Process goals
+  policyCharter.goals?.forEach((goal, goalIdx) => {
+    const goalId = `goal${goalIdx}`;
+    const goalTitle = sanitize(goal.title);
+    const goalDesc = truncate(sanitize(goal.description), 50);
+
+    lines.push(`    ${goalId}["<b>${goalTitle}</b><br/><small>${goalDesc}</small>"]`);
+    lines.push(`    ${rootId} --> ${goalId}`);
+    nodeStyles.push(`style ${goalId} fill:#FF6B35,stroke:#E55A2B,color:#fff`);
+
+    // Process tactics for this goal
+    goal.tactics?.forEach((tacticId, tacticIdx) => {
+      const tactic = policyCharter.tactics?.find(t => t.id === tacticId);
+      if (tactic) {
+        const tNodeId = `tactic${goalIdx}_${tacticIdx}`;
+        const tacticTitle = sanitize(tactic.title);
+        const tacticDesc = truncate(sanitize(tactic.description), 50);
+
+        lines.push(`    ${tNodeId}["<b>${tacticTitle}</b><br/><small>${tacticDesc}</small>"]`);
+        lines.push(`    ${goalId} --> ${tNodeId}`);
+        nodeStyles.push(`style ${tNodeId} fill:#4ECDC4,stroke:#3DBDB5,color:#fff`);
+
+        // Process policies for this goal
+        goal.policies?.forEach((policyId, policyIdx) => {
+          const policy = policyCharter.policies?.find(p => p.id === policyId);
+          if (policy) {
+            const pNodeId = `policy${goalIdx}_${tacticIdx}_${policyIdx}`;
+            const policyTitle = sanitize(policy.title);
+            const policyRule = truncate(sanitize(policy.rule), 50);
+
+            lines.push(`    ${pNodeId}["<b>${policyTitle}</b><br/><small>${policyRule}</small>"]`);
+            lines.push(`    ${tNodeId} --> ${pNodeId}`);
+            nodeStyles.push(`style ${pNodeId} fill:#45B7D1,stroke:#35A7C1,color:#fff`);
+
+            // Process risks for this goal
+            goal.risks?.forEach((riskId, riskIdx) => {
+              const risk = policyCharter.risks?.find(r => r.id === riskId);
+              if (risk) {
+                const rNodeId = `risk${goalIdx}_${tacticIdx}_${policyIdx}_${riskIdx}`;
+                const riskDesc = truncate(sanitize(risk.description), 40);
+                const riskLevel = `P:${risk.probability} I:${risk.impact}`;
+
+                lines.push(`    ${rNodeId}["<b>${riskDesc}</b><br/><small>${riskLevel}</small>"]`);
+                lines.push(`    ${pNodeId} --> ${rNodeId}`);
+                nodeStyles.push(`style ${rNodeId} fill:#E74C3C,stroke:#D73C2C,color:#fff`);
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+
+  // Add all styles
+  lines.push('');
+  lines.push(...nodeStyles);
+
+  return lines.join('\n');
+}
+
 function getTreeStyles(): string {
   return `
     .policy-tree {
       margin: 30px 0;
+      padding: 0 20px;
     }
 
-    .tree-container {
-      width: 100%;
-      height: 800px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
       background: #fafafa;
-      overflow: auto;
-    }
-
-    .node {
-      cursor: pointer;
-    }
-
-    .node circle {
-      stroke: #fff;
-      stroke-width: 2px;
-    }
-
-    .node:hover circle {
-      stroke-width: 3px;
-    }
-
-    .node text {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      pointer-events: none;
-    }
-
-    .link {
-      fill: none;
-      stroke: #999;
-      stroke-width: 2px;
-      marker-end: url(#arrowhead);
-    }
-
-    .tree-container {
-      width: 100%;
-      height: 600px;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      overflow: auto;
+      overflow-x: auto;
+      font-family: inherit;
     }
 
-    .policy-tooltip {
-      white-space: normal;
-      word-wrap: break-word;
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
     }
 
-    .node text {
-      user-select: none;
+    /* Mermaid node text styling */
+    .mermaid .nodeLabel {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .mermaid .nodeLabel b {
+      font-weight: 600;
+    }
+
+    .mermaid .nodeLabel small {
+      font-size: 0.85em;
+      opacity: 0.9;
     }
 
     @media print {
-      .tree-container {
-        display: none;
+      .mermaid {
+        page-break-inside: avoid;
       }
     }
   `;
