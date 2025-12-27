@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChatButton from './ChatButton';
-import ChatModal from './ChatModal';
+import { useChat } from '../context/ChatContext';
 
 interface NorthStarData {
   title?: string;
@@ -15,12 +15,10 @@ interface NorthStarVisualizerProps {
 }
 
 const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
-  const [chatModalOpen, setChatModalOpen] = useState(false);
-  const [chatResource, setChatResource] = useState<{ type: string; data: any } | null>(null);
+  const { openChat } = useChat();
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
-    setChatResource({ type: resourceType, data: resourceData });
-    setChatModalOpen(true);
+    openChat(resourceType, resourceData);
   };
 
   return (
@@ -93,14 +91,6 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
         </div>
       </div>
 
-      {chatResource && (
-        <ChatModal
-          isOpen={chatModalOpen}
-          onClose={() => setChatModalOpen(false)}
-          resourceType={chatResource.type}
-          resourceData={chatResource.data}
-        />
-      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ import NotFound from "./pages/OtherPage/NotFound";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { BusinessDataProvider } from "./context/BusinessDataContext";
+import { ChatProvider } from "./context/ChatContext";
 import NorthStar from "./pages/BusinessLayers/NorthStar";
 import LeanCanvas from "./pages/BusinessLayers/LeanCanvas";
 import ArchitecturalScope from "./pages/BusinessLayers/ArchitecturalScope";
@@ -13,7 +14,8 @@ import PolicyCharter from "./pages/BusinessLayers/PolicyCharter";
 export default function App() {
   return (
     <BusinessDataProvider>
-      <Router>
+      <ChatProvider>
+        <Router>
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
@@ -31,6 +33,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      </ChatProvider>
     </BusinessDataProvider>
   );
 }
