@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function PolicyCharter() {
+  const { policyCharter } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function PolicyCharter() {
       />
       <div>
         <h1>Policy Charter</h1>
-        <p>Placeholder for Policy Charter visualization.</p>
+        <pre>{JSON.stringify(policyCharter, null, 2)}</pre>
       </div>
     </>
   );

@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function NorthStar() {
+  const { northStar } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function NorthStar() {
       />
       <div>
         <h1>North Star</h1>
-        <p>Placeholder for North Star visualization.</p>
+        <pre>{JSON.stringify(northStar, null, 2)}</pre>
       </div>
     </>
   );

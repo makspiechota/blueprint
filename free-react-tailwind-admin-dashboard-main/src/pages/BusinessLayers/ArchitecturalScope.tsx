@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function ArchitecturalScope() {
+  const { architecturalScope } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function ArchitecturalScope() {
       />
       <div>
         <h1>Architectural Scope</h1>
-        <p>Placeholder for Architectural Scope visualization.</p>
+        <pre>{JSON.stringify(architecturalScope, null, 2)}</pre>
       </div>
     </>
   );

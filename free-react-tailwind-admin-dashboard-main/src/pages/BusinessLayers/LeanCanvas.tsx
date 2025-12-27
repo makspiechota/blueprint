@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function LeanCanvas() {
+  const { leanCanvas } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function LeanCanvas() {
       />
       <div>
         <h1>Lean Canvas</h1>
-        <p>Placeholder for Lean Canvas visualization.</p>
+        <pre>{JSON.stringify(leanCanvas, null, 2)}</pre>
       </div>
     </>
   );

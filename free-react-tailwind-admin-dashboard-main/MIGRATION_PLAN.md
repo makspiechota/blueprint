@@ -20,8 +20,16 @@ A React-based dashboard built with Tailwind CSS, Vite, and TypeScript focused on
 
 [X] Update dashboard page: Modify src/pages/Dashboard/Home.tsx to load and display business blueprint data instead of example metrics.
 
-[ ] Add Policy Charter Visualizer: Create src/components/PolicyCharterVisualizer.tsx based on the JSX component from tailadmin-template, adapting it to TypeScript and React.
+[X] Implement business data integration: Add logic to load YAML files for all business layers (North Star, Lean Canvas, Architectural Scope, Lean Viability, AAARR, Policy Charter) into a centralized state or context. Implement hot-reloading so that when YAML files are modified, the application state updates without restarting the server.
 
-[ ] Implement business data integration: Add logic to load YAML files for all business layers (North Star, Lean Canvas, Architectural Scope, Lean Viability, AAARR, Policy Charter) into a centralized state or context. Implement hot-reloading so that when YAML files are modified, the application state updates without restarting the server.
+Implement Views:
+[] Implement North Star layer view
+[] Implement Lean Canvas layer view
+[] Implement Lean Viability layer view
+[] Implement Customer Factory layer view
+[] Architectural Scope
+[] Policy Charter
+
+[ ] Add Policy Charter Visualizer: Create src/components/PolicyCharterVisualizer.tsx based on the JSX component from tailadmin-template, adapting it to TypeScript and React.
 
 [ ] Update package.json: Remove unused dependencies like @fullcalendar/react, react-dropzone, react-helmet-async, etc., and add reactflow if not present.

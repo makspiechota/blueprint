@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router";
 import NotFound from "./pages/OtherPage/NotFound";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
+import { BusinessDataProvider } from "./context/BusinessDataContext";
 import NorthStar from "./pages/BusinessLayers/NorthStar";
 import LeanCanvas from "./pages/BusinessLayers/LeanCanvas";
 import ArchitecturalScope from "./pages/BusinessLayers/ArchitecturalScope";
@@ -11,7 +12,7 @@ import PolicyCharter from "./pages/BusinessLayers/PolicyCharter";
 
 export default function App() {
   return (
-    <>
+    <BusinessDataProvider>
       <Router>
         <ScrollToTop />
         <Routes>
@@ -30,6 +31,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </BusinessDataProvider>
   );
 }

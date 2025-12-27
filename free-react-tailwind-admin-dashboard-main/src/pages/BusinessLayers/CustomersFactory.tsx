@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function CustomersFactory() {
+  const { aaarrMetrics } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function CustomersFactory() {
       />
       <div>
         <h1>Customers Factory</h1>
-        <p>Placeholder for Customers Factory visualization.</p>
+        <pre>{JSON.stringify(aaarrMetrics, null, 2)}</pre>
       </div>
     </>
   );

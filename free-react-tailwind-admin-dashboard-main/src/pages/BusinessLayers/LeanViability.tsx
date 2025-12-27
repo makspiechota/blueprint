@@ -1,6 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
+import { useBusinessData } from "../../context/BusinessDataContext";
 
 export default function LeanViability() {
+  const { leanViability } = useBusinessData();
+
   return (
     <>
       <PageMeta
@@ -9,7 +12,7 @@ export default function LeanViability() {
       />
       <div>
         <h1>Lean Viability</h1>
-        <p>Placeholder for Lean Viability visualization.</p>
+        <pre>{JSON.stringify(leanViability, null, 2)}</pre>
       </div>
     </>
   );
