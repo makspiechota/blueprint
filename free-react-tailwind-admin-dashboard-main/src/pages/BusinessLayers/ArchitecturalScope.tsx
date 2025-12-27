@@ -1,5 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
+import ArchitecturalScopeVisualizer from "../../components/ArchitecturalScopeVisualizer";
 
 export default function ArchitecturalScope() {
   const { architecturalScope } = useBusinessData();
@@ -10,10 +11,7 @@ export default function ArchitecturalScope() {
         title="Architectural Scope | Business Blueprint Dashboard"
         description="Architectural Scope business layer visualization"
       />
-      <div>
-        <h1>Architectural Scope</h1>
-        <pre>{JSON.stringify(architecturalScope, null, 2)}</pre>
-      </div>
+      <ArchitecturalScopeVisualizer data={architecturalScope || {}} />
     </>
   );
 }
