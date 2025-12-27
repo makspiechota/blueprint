@@ -105,7 +105,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         data: {
           label: (
             <div className="node-content">
-              <div className="node-type">🎯 Goal</div>
+              <div className="node-type"><span>🎯</span> Goal</div>
               <div className="node-title">{goal.title}</div>
               <div className="node-description">{goal.description}</div>
             </div>
@@ -143,7 +143,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           data: {
             label: (
               <div className="node-content">
-                <div className="node-type">📝 Tactic</div>
+                <div className="node-type"><span>📝</span> Tactic</div>
                 <div className="node-title">{tactic.title}</div>
                 <div className="node-description">{tactic.description}</div>
               </div>
@@ -181,7 +181,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             data: {
               label: (
                 <div className="node-content">
-                  <div className="node-type">☂️ Policy</div>
+                  <div className="node-type"><span>☂️</span> Policy</div>
                   <div className="node-title">{policy.title}</div>
                   <div className="node-description">{policy.rule}</div>
                 </div>
@@ -208,7 +208,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           data: {
             label: (
               <div className="node-content">
-                <div className="node-type">⛈️ Risk</div>
+                <div className="node-type"><span>⛈️</span> Risk</div>
                 <div className="node-title">{risk.description}</div>
                 <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
               </div>
