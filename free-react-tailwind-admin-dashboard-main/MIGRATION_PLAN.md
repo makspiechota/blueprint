@@ -25,7 +25,7 @@ A React-based dashboard built with Tailwind CSS, Vite, and TypeScript focused on
 Implement Views:
 [X] Implement North Star layer view
 [X] Implement Lean Canvas layer view
-[] Implement Lean Viability layer view
+[X] Implement Lean Viability layer view
 [] Implement Customer Factory layer view
 [] Architectural Scope
 [] Policy Charter
