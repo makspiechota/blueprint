@@ -26,7 +26,7 @@ Implement Views:
 [X] Implement North Star layer view
 [X] Implement Lean Canvas layer view
 [X] Implement Lean Viability layer view
-[] Implement Customer Factory layer view
+[X] Implement Customer Factory layer view
 [] Architectural Scope
 [] Policy Charter
 

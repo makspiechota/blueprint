@@ -1,5 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
+import CustomersFactoryVisualizer from "../../components/CustomersFactoryVisualizer";
 
 export default function CustomersFactory() {
   const { aaarrMetrics } = useBusinessData();
@@ -10,10 +11,7 @@ export default function CustomersFactory() {
         title="Customers Factory | Business Blueprint Dashboard"
         description="Customers Factory business layer visualization"
       />
-      <div>
-        <h1>Customers Factory</h1>
-        <pre>{JSON.stringify(aaarrMetrics, null, 2)}</pre>
-      </div>
+      <CustomersFactoryVisualizer data={aaarrMetrics || {}} />
     </>
   );
 }
