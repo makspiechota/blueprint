@@ -105,7 +105,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         data: {
           label: (
             <div className="node-content">
-              <div className="node-type">Goal</div>
+              <div className="node-type">🎯 Goal</div>
               <div className="node-title">{goal.title}</div>
               <div className="node-description">{goal.description}</div>
             </div>
@@ -143,7 +143,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           data: {
             label: (
               <div className="node-content">
-                <div className="node-type">Tactic</div>
+                <div className="node-type">📝 Tactic</div>
                 <div className="node-title">{tactic.title}</div>
                 <div className="node-description">{tactic.description}</div>
               </div>
@@ -181,7 +181,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             data: {
               label: (
                 <div className="node-content">
-                  <div className="node-type">Policy</div>
+                  <div className="node-type">☂️ Policy</div>
                   <div className="node-title">{policy.title}</div>
                   <div className="node-description">{policy.rule}</div>
                 </div>
@@ -208,7 +208,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           data: {
             label: (
               <div className="node-content">
-                <div className="node-type">Risk</div>
+                <div className="node-type">⛈️ Risk</div>
                 <div className="node-title">{risk.description}</div>
                 <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
               </div>
@@ -319,19 +319,19 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Ronald Ross Framework Legend</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900 border border-blue-400 rounded"></div>
+            <span>🎯</span>
             <span><strong>Goals</strong> - Strategic objectives</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-100 dark:bg-green-900 border border-green-400 rounded"></div>
+            <span>📝</span>
             <span><strong>Tactics</strong> - Implementation approaches</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-purple-100 dark:bg-purple-900 border border-purple-400 rounded"></div>
+            <span>☂️</span>
             <span><strong>Policies</strong> - Operational rules</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-100 dark:bg-red-900 border border-red-400 rounded"></div>
+            <span>⛈️</span>
             <span><strong>Risks</strong> - Mitigation targets</span>
           </div>
         </div>
@@ -345,7 +345,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         {/* Goals Panel */}
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+            <span>🎯</span>
             Strategic Goals
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -368,7 +368,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         {/* Tactics Panel */}
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+            <span>📝</span>
             Implementation Tactics
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -391,7 +391,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         {/* Policies Panel */}
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
+            <span>☂️</span>
             Operational Policies
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -415,7 +415,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         {/* Risks Panel */}
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+            <span>⛈️</span>
             Risk Mitigation
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
