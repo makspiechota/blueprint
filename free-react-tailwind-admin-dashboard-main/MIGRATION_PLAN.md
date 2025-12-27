@@ -23,8 +23,8 @@ A React-based dashboard built with Tailwind CSS, Vite, and TypeScript focused on
 [X] Implement business data integration: Add logic to load YAML files for all business layers (North Star, Lean Canvas, Architectural Scope, Lean Viability, AAARR, Policy Charter) into a centralized state or context. Implement hot-reloading so that when YAML files are modified, the application state updates without restarting the server.
 
 Implement Views:
-[] Implement North Star layer view
-[] Implement Lean Canvas layer view
+[X] Implement North Star layer view
+[X] Implement Lean Canvas layer view
 [] Implement Lean Viability layer view
 [] Implement Customer Factory layer view
 [] Architectural Scope

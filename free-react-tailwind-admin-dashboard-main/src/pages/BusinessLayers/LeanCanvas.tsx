@@ -1,5 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
+import LeanCanvasVisualizer from "../../components/LeanCanvasVisualizer";
 
 export default function LeanCanvas() {
   const { leanCanvas } = useBusinessData();
@@ -10,10 +11,7 @@ export default function LeanCanvas() {
         title="Lean Canvas | Business Blueprint Dashboard"
         description="Lean Canvas business layer visualization"
       />
-      <div>
-        <h1>Lean Canvas</h1>
-        <pre>{JSON.stringify(leanCanvas, null, 2)}</pre>
-      </div>
+      <LeanCanvasVisualizer canvas={leanCanvas || {}} />
     </>
   );
 }
