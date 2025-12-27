@@ -23,6 +23,6 @@ None
 - Style with Tailwind classes matching existing UI
 
 ## Acceptance Criteria
-- [ ] ChatButton component renders correctly
-- [ ] Click handler opens chat modal (to be implemented)
-- [ ] Consistent styling with existing UI
+- [x] ChatButton component renders correctly
+- [x] Click handler opens chat modal (to be implemented)
+- [x] Consistent styling with existing UI

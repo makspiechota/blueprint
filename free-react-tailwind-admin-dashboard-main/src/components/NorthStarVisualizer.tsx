@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ChatButton from './ChatButton';
+import ChatModal from './ChatModal';
 
 interface NorthStarData {
   title?: string;
@@ -13,6 +15,14 @@ interface NorthStarVisualizerProps {
 }
 
 const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatResource, setChatResource] = useState<{ type: string; data: any } | null>(null);
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    setChatResource({ type: resourceType, data: resourceData });
+    setChatModalOpen(true);
+  };
+
   return (
     <div className="north-star-visualizer">
       <div className="mb-6">
@@ -25,21 +35,36 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+          <ChatButton
+            resourceType="north-star-vision"
+            resourceData={{ title: 'Vision', content: data.vision }}
+            onClick={handleChatClick}
+          />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Vision</h3>
           <p className="text-gray-600 dark:text-gray-300">
             {data.vision || 'Loading...'}
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+          <ChatButton
+            resourceType="north-star-problem"
+            resourceData={{ title: 'Problem', content: data.problem }}
+            onClick={handleChatClick}
+          />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Problem</h3>
           <p className="text-gray-600 dark:text-gray-300">
             {data.problem || 'Loading...'}
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+          <ChatButton
+            resourceType="north-star-solution"
+            resourceData={{ title: 'Solution', content: data.solution }}
+            onClick={handleChatClick}
+          />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Solution</h3>
           <p className="text-gray-600 dark:text-gray-300">
             {data.solution || 'Loading...'}
@@ -51,7 +76,12 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Strategic Goals</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.strategic_goals?.map((goal, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+              <ChatButton
+                resourceType="north-star-goal"
+                resourceData={{ title: goal.title, content: goal.description }}
+                onClick={handleChatClick}
+              />
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{goal.title}</h4>
               <p className="text-gray-600 dark:text-gray-300">{goal.description}</p>
             </div>
@@ -62,6 +92,15 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
           )}
         </div>
       </div>
+
+      {chatResource && (
+        <ChatModal
+          isOpen={chatModalOpen}
+          onClose={() => setChatModalOpen(false)}
+          resourceType={chatResource.type}
+          resourceData={chatResource.data}
+        />
+      )}
     </div>
   );
 };
