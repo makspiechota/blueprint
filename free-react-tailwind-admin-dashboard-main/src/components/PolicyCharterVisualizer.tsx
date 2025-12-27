@@ -30,6 +30,8 @@ interface PolicyCharterData {
     id: string;
     title?: string;
     rule?: string;
+    enforcement?: string;
+    driven_by_tactic?: string;
   }>;
   risks?: Array<{
     id: string;
@@ -280,78 +282,210 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
   );
 
   return (
-    <div className="policy-charter-visualizer">
-      <style>{`
-        .policy-charter-visualizer {
-          width: 100%;
-          height: 600px;
-        }
-        .policy-charter-visualizer .react-flow {
-          background: #f8fafc;
-          border-radius: 8px;
-        }
-        .policy-charter-visualizer .node-content {
-          padding: 8px;
-          max-width: 230px;
-          text-align: left;
-        }
-        .policy-charter-visualizer .node-type {
-          font-size: 10px;
-          font-weight: bold;
-          text-transform: uppercase;
-          color: #666;
-          margin-bottom: 4px;
-        }
-        .policy-charter-visualizer .node-title {
-          font-size: 12px;
-          font-weight: bold;
-          margin-bottom: 4px;
-          line-height: 1.3;
-          color: #1a1a1a;
-        }
-        .policy-charter-visualizer .node-description {
-          font-size: 10px;
-          color: #666;
-          line-height: 1.2;
-        }
-        .policy-charter-visualizer .react-flow__node {
-          cursor: grab;
-        }
-        .policy-charter-visualizer .react-flow__node:active {
-          cursor: grabbing;
-        }
-        .policy-charter-visualizer .react-flow__controls {
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .policy-charter-visualizer .react-flow__minimap {
-          background: #fff;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-      `}</style>
+    <>
+      <div className="policy-charter-visualizer">
+        <style>{`
+          .policy-charter-visualizer {
+            width: 100%;
+            height: 600px;
+          }
+          .policy-charter-visualizer .react-flow {
+            background: #f8fafc;
+            border-radius: 8px;
+          }
+          .policy-charter-visualizer .node-content {
+            padding: 8px;
+            max-width: 230px;
+            text-align: left;
+          }
+          .policy-charter-visualizer .node-type {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 4px;
+          }
+          .policy-charter-visualizer .node-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            color: #1a1a1a;
+          }
+          .policy-charter-visualizer .node-description {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.2;
+          }
+          .policy-charter-visualizer .react-flow__node {
+            cursor: grab;
+          }
+          .policy-charter-visualizer .react-flow__node:active {
+            cursor: grabbing;
+          }
+          .policy-charter-visualizer .react-flow__controls {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+          .policy-charter-visualizer .react-flow__minimap {
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+        `}</style>
 
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        attributionPosition="bottom-left"
-      >
-        <Background color="#e2e8f0" gap={16} />
-        <Controls />
-        <MiniMap
-          nodeColor={(node) => {
-            if (node.id.includes('goal')) return '#3B82F6';
-            if (node.id.includes('tactic')) return '#10B981';
-            if (node.id.includes('policy')) return '#8B5CF6';
-            if (node.id.includes('risk')) return '#EF4444';
-            return '#6B7280';
-          }}
-        />
-      </ReactFlow>
-    </div>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          attributionPosition="bottom-left"
+        >
+          <Background color="#e2e8f0" gap={16} />
+          <Controls />
+          <MiniMap
+            nodeColor={(node) => {
+              if (node.id.includes('goal')) return '#3B82F6';
+              if (node.id.includes('tactic')) return '#10B981';
+              if (node.id.includes('policy')) return '#8B5CF6';
+              if (node.id.includes('risk')) return '#EF4444';
+              return '#6B7280';
+            }}
+          />
+        </ReactFlow>
+
+        {/* Legend */}
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Ronald Ross Framework Legend</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900 border border-blue-400 rounded"></div>
+              <span><strong>Goals</strong> - Strategic objectives</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-100 dark:bg-green-900 border border-green-400 rounded"></div>
+              <span><strong>Tactics</strong> - Implementation approaches</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-100 dark:bg-purple-900 border border-purple-400 rounded"></div>
+              <span><strong>Policies</strong> - Operational rules</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-red-100 dark:bg-red-900 border border-red-400 rounded"></div>
+              <span><strong>Risks</strong> - Mitigation targets</span>
+            </div>
+          </div>
+          <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+            <strong>Flow:</strong> Goals drive Tactics → Tactics implement Policies → Policies mitigate Risks
+          </div>
+        </div>
+      </div>
+
+      {/* Policy Details Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* Goals Panel */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+            Strategic Goals
+          </h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {charter.goals?.map((goal, index) => (
+              <div key={index} className="p-3 border border-blue-200 dark:border-blue-700 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">{goal.title}</h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">{goal.description}</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {goal.tactics?.map((tactic, idx) => (
+                    <span key={idx} className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                      {tactic.replace('pc.tactic.', '')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tactics Panel */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+            Implementation Tactics
+          </h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {charter.tactics?.map((tactic, index) => (
+              <div key={index} className="p-3 border border-green-200 dark:border-green-700 rounded-lg bg-green-50 dark:bg-green-900/20">
+                <h4 className="font-medium text-green-900 dark:text-green-100 mb-1">{tactic.title}</h4>
+                <p className="text-sm text-green-700 dark:text-green-300">{tactic.description}</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {tactic.drives_policies?.map((policy, idx) => (
+                    <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                      {policy.replace('pc.policy.', '')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Policies Panel */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
+            Operational Policies
+          </h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {charter.policies?.map((policy, index) => (
+              <div key={index} className="p-3 border border-purple-200 dark:border-purple-700 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                <h4 className="font-medium text-purple-900 dark:text-purple-100 mb-1">{policy.title}</h4>
+                <p className="text-sm text-purple-700 dark:text-purple-300 mb-2">{policy.rule}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                    {policy.enforcement || 'Manual'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    From: {policy.driven_by_tactic?.replace('pc.tactic.', '') || 'N/A'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Risks Panel */}
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+            Risk Mitigation
+          </h3>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {charter.risks?.map((risk, index) => (
+              <div key={index} className="p-3 border border-red-200 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900/20">
+                <h4 className="font-medium text-red-900 dark:text-red-100 mb-1">
+                  Risk: <span>{risk.description}</span>
+                </h4>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-red-700 dark:text-red-300">Probability: {risk.probability}</span>
+                  <span className="text-xs text-red-700 dark:text-red-300">Impact: {risk.impact}</span>
+                </div>
+                <div className="text-sm text-red-700 dark:text-red-300">
+                  <strong>Mitigation:</strong>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {risk.mitigation?.map((mitigation, idx) => (
+                      <span key={idx} className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                        {mitigation.replace('pc.tactic.', '').replace('pc.policy.', '')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

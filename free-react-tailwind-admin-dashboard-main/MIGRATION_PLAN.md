@@ -32,4 +32,4 @@ Implement Views:
 
 [ ] Add Policy Charter Visualizer: Create src/components/PolicyCharterVisualizer.tsx based on the JSX component from tailadmin-template, adapting it to TypeScript and React.
 
-[ ] Update package.json: Remove unused dependencies like @fullcalendar/react, react-dropzone, react-helmet-async, etc., and add reactflow if not present.
+[X] Update package.json: Remove unused dependencies like @fullcalendar/react, react-dropzone, react-helmet-async, etc., and add reactflow if not present.
