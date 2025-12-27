@@ -46,7 +46,7 @@ interface LeanCanvasVisualizerProps {
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="w-full p-6">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{canvas.title}</h1>
         <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -54,8 +54,8 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
-        <div className="col-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-5 gap-4 grid-rows-3">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Problem</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.problem?.top_3_problems && (
@@ -69,7 +69,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="col-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Solution</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.solution?.top_3_features && (
@@ -80,7 +80,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unique Value Proposition</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.unique_value_proposition?.single_clear_message && (
@@ -99,7 +99,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Customer Segments</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.customer_segments?.target_customers && (
@@ -122,7 +122,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Channels</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.channels?.path_to_customers && (
@@ -133,7 +133,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="col-span-2 row-span-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Cost Structure</div>
           <div className="text-gray-600 dark:text-gray-300 text-sm">
             {canvas.cost_structure?.customer_acquisition_cost && (
@@ -151,7 +151,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Revenue Streams</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.revenue_streams?.revenue_model && (
