@@ -1,5 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
+import PolicyCharterVisualizer from "../../components/PolicyCharterVisualizer";
 
 export default function PolicyCharter() {
   const { policyCharter } = useBusinessData();
@@ -10,10 +11,7 @@ export default function PolicyCharter() {
         title="Policy Charter | Business Blueprint Dashboard"
         description="Policy Charter business layer visualization"
       />
-      <div>
-        <h1>Policy Charter</h1>
-        <pre>{JSON.stringify(policyCharter, null, 2)}</pre>
-      </div>
+      <PolicyCharterVisualizer charter={policyCharter || {}} />
     </>
   );
 }

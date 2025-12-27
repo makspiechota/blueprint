@@ -28,7 +28,7 @@ Implement Views:
 [X] Implement Lean Viability layer view
 [X] Implement Customer Factory layer view
 [X] Architectural Scope
-[] Policy Charter
+[X] Policy Charter
 
 [ ] Add Policy Charter Visualizer: Create src/components/PolicyCharterVisualizer.tsx based on the JSX component from tailadmin-template, adapting it to TypeScript and React.
 
