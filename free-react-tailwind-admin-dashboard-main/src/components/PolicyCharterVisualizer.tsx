@@ -282,54 +282,12 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
   );
 
   return (
-    <>
+    <div className="space-y-6">
       <div className="policy-charter-visualizer">
         <style>{`
           .policy-charter-visualizer {
             width: 100%;
             height: 600px;
-          }
-          .policy-charter-visualizer .react-flow {
-            background: #f8fafc;
-            border-radius: 8px;
-          }
-          .policy-charter-visualizer .node-content {
-            padding: 8px;
-            max-width: 230px;
-            text-align: left;
-          }
-          .policy-charter-visualizer .node-type {
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #666;
-            margin-bottom: 4px;
-          }
-          .policy-charter-visualizer .node-title {
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 4px;
-            line-height: 1.3;
-            color: #1a1a1a;
-          }
-          .policy-charter-visualizer .node-description {
-            font-size: 10px;
-            color: #666;
-            line-height: 1.2;
-          }
-          .policy-charter-visualizer .react-flow__node {
-            cursor: grab;
-          }
-          .policy-charter-visualizer .react-flow__node:active {
-            cursor: grabbing;
-          }
-          .policy-charter-visualizer .react-flow__controls {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          }
-          .policy-charter-visualizer .react-flow__minimap {
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           }
         `}</style>
 
@@ -354,36 +312,36 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             }}
           />
         </ReactFlow>
+      </div>
 
-        {/* Legend */}
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Ronald Ross Framework Legend</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900 border border-blue-400 rounded"></div>
-              <span><strong>Goals</strong> - Strategic objectives</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-100 dark:bg-green-900 border border-green-400 rounded"></div>
-              <span><strong>Tactics</strong> - Implementation approaches</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-100 dark:bg-purple-900 border border-purple-400 rounded"></div>
-              <span><strong>Policies</strong> - Operational rules</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-100 dark:bg-red-900 border border-red-400 rounded"></div>
-              <span><strong>Risks</strong> - Mitigation targets</span>
-            </div>
+      {/* Legend */}
+      <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Ronald Ross Framework Legend</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900 border border-blue-400 rounded"></div>
+            <span><strong>Goals</strong> - Strategic objectives</span>
           </div>
-          <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
-            <strong>Flow:</strong> Goals drive Tactics → Tactics implement Policies → Policies mitigate Risks
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-100 dark:bg-green-900 border border-green-400 rounded"></div>
+            <span><strong>Tactics</strong> - Implementation approaches</span>
           </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-purple-100 dark:bg-purple-900 border border-purple-400 rounded"></div>
+            <span><strong>Policies</strong> - Operational rules</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-100 dark:bg-red-900 border border-red-400 rounded"></div>
+            <span><strong>Risks</strong> - Mitigation targets</span>
+          </div>
+        </div>
+        <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+          <strong>Flow:</strong> Goals drive Tactics → Tactics implement Policies → Policies mitigate Risks
         </div>
       </div>
 
       {/* Policy Details Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Goals Panel */}
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -485,7 +443,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
