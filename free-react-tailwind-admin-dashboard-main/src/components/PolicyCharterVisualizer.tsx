@@ -54,7 +54,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
   const { openChat } = useChat();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const nodeWidth = 250;
-  const levelSpacing = 280;
+  const levelSpacing = 320;
   const horizontalSpacing = 100;
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
@@ -64,6 +64,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
   const initialNodes: Node[] = useMemo(() => {
     const nodes: Node[] = [];
     const addedPolicyIds = new Set();
+  const addedRiskIds = new Set();
 
     const goals = charter.goals || [];
     const tactics = charter.tactics || [];
@@ -78,6 +79,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
       treeStructure[goal.id] = {
         tactics: tactics.filter(tactic => goal.tactics?.includes(tactic.id)) || [],
         policies: [],
+        risks: [],
         width: 0
       };
     });
@@ -91,16 +93,22 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
       }
     });
 
+    // Add risks to tree
+    goals.forEach(goal => {
+      const branch = treeStructure[goal.id];
+      branch.risks = risks.filter(r => r.mitigation.some(m => branch.policies.some(p => p.id === m)));
+    });
+
     // Calculate widths for each goal branch
     goals.forEach(goal => {
       const branch = treeStructure[goal.id];
       const tacticsCount = Math.max(branch.tactics.length, 1);
       const policiesCount = Math.max(branch.policies.length, 1);
-      const risksCount = risks.length;
+      const risksCount = Math.max(branch.risks.length, 1);
       branch.width = Math.max(
         tacticsCount * (nodeWidth + horizontalSpacing),
         policiesCount * (nodeWidth + horizontalSpacing),
-        risksCount > 0 ? risksCount * (nodeWidth + horizontalSpacing) : 0
+        risksCount * (nodeWidth + horizontalSpacing)
       );
     });
 
@@ -128,7 +136,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         style: { background: '#DBEAFE', border: '2px solid #3B82F6', borderRadius: '8px', width: nodeWidth },
       });
 
-      currentX += branchWidth + 150;
+      currentX += branchWidth + 300;
     });
 
     // Position tactics (Level 1)
@@ -211,15 +219,53 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           addedPolicyIds.add(policy.id);
         });
       }
+
+      // Position risks for this goal
+      const risksCount = branch.risks.length;
+      if (risksCount > 0) {
+        branch.risks.forEach((risk, riskIndex) => {
+          let riskX;
+          if (risksCount === 1) {
+            riskX = goalCenterX - nodeWidth / 2;
+          } else {
+            const totalWidth = (risksCount - 1) * (nodeWidth + horizontalSpacing);
+            const startX = goalCenterX - totalWidth / 2;
+            riskX = startX + riskIndex * (nodeWidth + horizontalSpacing);
+          }
+
+          nodes.push({
+            id: risk.id,
+            type: 'default',
+            position: { x: riskX, y: 50 + levelSpacing * 3 },
+            data: {
+              label: (
+                <div className="node-content">
+                  <div className="node-type"><span>⛈️</span> Risk</div>
+                  <div className="node-title">{risk.description}</div>
+                  <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
+                </div>
+              ),
+              description: risk.description || 'Untitled Risk',
+              probability: risk.probability || 'low',
+              impact: risk.impact || 'low',
+            },
+            style: { background: '#FEE2E2', border: '2px solid #EF4444', borderRadius: '8px', width: nodeWidth },
+          });
+          addedRiskIds.add(risk.id);
+        });
+      }
     });
 
-    // Position risks at the bottom (Level 3)
-    if (risks.length > 0) {
-      const totalWidth = (risks.length - 1) * (nodeWidth + horizontalSpacing);
-      const startX = (currentX - 150 - totalWidth) / 2;
+    // Position any remaining risks not under goals
+    const remainingRisks = risks.filter(r => !addedRiskIds.has(r.id));
+    if (remainingRisks.length > 0) {
+      const centerX = currentX / 2;
+      const riskSpacing = 300;
+      const totalWidth = (remainingRisks.length - 1) * riskSpacing;
+      const startX = centerX - totalWidth / 2;
 
-      risks.forEach((risk, index) => {
-        const riskX = startX + index * (nodeWidth + horizontalSpacing);
+      remainingRisks.forEach((risk, index) => {
+        const riskX = startX + index * riskSpacing;
 
         nodes.push({
           id: risk.id,
