@@ -59,7 +59,6 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
       if (result.success) {
         setEditingSection(null);
         setEditedContent('');
-        alert('Changes saved successfully!');
       } else {
         alert('Failed to save changes: ' + result.message);
       }
@@ -87,42 +86,45 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <div className="flex items-center justify-between mb-2">
-             <ChatButton
-               resourceType="north-star-vision"
-               resourceData={{ title: 'Vision', content: data.vision }}
-               onClick={handleChatClick}
-             />
-              <EditButton onClick={() => handleEditClick('vision', data.vision)} />
-           </div>
-           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-             Vision
-             {editingSection === 'vision' && (
-               <div className="flex items-center gap-2 mt-2">
-                 <button
-                   onClick={handleSaveEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                   </svg>
-                   {isSaving ? 'Saving...' : 'Save'}
-                 </button>
-                 <button
-                   onClick={handleCancelEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                   </svg>
-                   Cancel
-                 </button>
-               </div>
-             )}
-           </h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Vision
+              </h3>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('vision', data.vision)} />
+                <ChatButton
+                  resourceType="north-star-vision"
+                  resourceData={{ title: 'Vision', content: data.vision }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'vision' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
            {editingSection === 'vision' ? (
              <textarea
                value={editedContent}
@@ -137,42 +139,45 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
            )}
          </div>
 
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <div className="flex items-center justify-between mb-2">
-             <ChatButton
-               resourceType="north-star-problem"
-               resourceData={{ title: 'Problem', content: data.problem }}
-               onClick={handleChatClick}
-             />
-             <EditButton onClick={() => handleEditClick('problem', data.problem)} />
-           </div>
-           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-             Problem
-             {editingSection === 'problem' && (
-               <div className="flex items-center gap-2 mt-2">
-                 <button
-                   onClick={handleSaveEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                   </svg>
-                   {isSaving ? 'Saving...' : 'Save'}
-                 </button>
-                 <button
-                   onClick={handleCancelEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                   </svg>
-                   Cancel
-                 </button>
-               </div>
-             )}
-           </h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Problem
+              </h3>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('problem', data.problem)} />
+                <ChatButton
+                  resourceType="north-star-problem"
+                  resourceData={{ title: 'Problem', content: data.problem }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'problem' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
            {editingSection === 'problem' ? (
              <textarea
                value={editedContent}
@@ -187,42 +192,45 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
            )}
          </div>
 
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <div className="flex items-center justify-between mb-2">
-             <ChatButton
-               resourceType="north-star-solution"
-               resourceData={{ title: 'Solution', content: data.solution }}
-               onClick={handleChatClick}
-             />
-             <EditButton onClick={() => handleEditClick('solution', data.solution)} />
-           </div>
-           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-             Solution
-             {editingSection === 'solution' && (
-               <div className="flex items-center gap-2 mt-2">
-                 <button
-                   onClick={handleSaveEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                   </svg>
-                   {isSaving ? 'Saving...' : 'Save'}
-                 </button>
-                 <button
-                   onClick={handleCancelEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                   </svg>
-                   Cancel
-                 </button>
-               </div>
-             )}
-           </h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Solution
+              </h3>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('solution', data.solution)} />
+                <ChatButton
+                  resourceType="north-star-solution"
+                  resourceData={{ title: 'Solution', content: data.solution }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'solution' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
            {editingSection === 'solution' ? (
              <textarea
                value={editedContent}
@@ -244,42 +252,45 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
            {data.strategic_goals?.map((goal, index) => {
              const goalKey = `strategic_goals-${index}`;
              return (
-               <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-                 <div className="flex items-center justify-between mb-2">
-                   <ChatButton
-                     resourceType="north-star-goal"
-                     resourceData={{ title: goal.title, content: goal.description }}
-                     onClick={handleChatClick}
-                   />
-                   <EditButton onClick={() => handleEditClick('strategic_goals', goal, index)} />
-                 </div>
-                 <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-                   {goal.title}
-                   {editingSection === goalKey && (
-                     <div className="flex items-center gap-2 mt-2">
-                       <button
-                         onClick={handleSaveEdit}
-                         disabled={isSaving}
-                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                       >
-                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                         </svg>
-                         {isSaving ? 'Saving...' : 'Save'}
-                       </button>
-                       <button
-                         onClick={handleCancelEdit}
-                         disabled={isSaving}
-                         className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                       >
-                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                         </svg>
-                         Cancel
-                       </button>
+                 <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+                   <div className="flex items-center justify-between mb-3">
+                     <h4 className="font-semibold text-gray-900 dark:text-white">
+                       {goal.title}
+                     </h4>
+                     <div className="flex items-center gap-2">
+                       <EditButton onClick={() => handleEditClick('strategic_goals', goal, index)} />
+                       <ChatButton
+                         resourceType="north-star-goal"
+                         resourceData={{ title: goal.title, content: goal.description }}
+                         onClick={handleChatClick}
+                         className="!relative !top-0 !right-0"
+                       />
+                       {editingSection === goalKey && (
+                         <>
+                           <button
+                             onClick={handleSaveEdit}
+                             disabled={isSaving}
+                             className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                           >
+                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                             </svg>
+                             {isSaving ? 'Saving...' : 'Save'}
+                           </button>
+                           <button
+                             onClick={handleCancelEdit}
+                             disabled={isSaving}
+                             className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                           >
+                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                             </svg>
+                             Cancel
+                           </button>
+                         </>
+                       )}
                      </div>
-                   )}
-                 </h4>
+                   </div>
                  {editingSection === goalKey ? (
                    <textarea
                      value={editedContent}

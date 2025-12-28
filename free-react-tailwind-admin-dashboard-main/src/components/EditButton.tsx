@@ -19,7 +19,7 @@ const EditButton: React.FC<EditButtonProps> = ({
   return (
     <button
       onClick={handleClick}
-      className={`p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors ${className}`}
+      className={`p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm transition-colors duration-200 ${className}`}
       title="Edit manually"
     >
       <PencilIcon />

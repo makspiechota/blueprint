@@ -88,7 +88,6 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
         setEditingSection(null);
         setEditedContent('');
         // Optionally reload the page or update parent state here
-        alert('Changes saved successfully!');
       } else {
         console.error('Failed to save file:', result.message);
         alert('Failed to save changes: ' + result.message);
@@ -116,52 +115,53 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
       </div>
 
       <div className="grid grid-cols-5 gap-4 grid-rows-3">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <div className="flex items-center justify-between mb-2">
+         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Problem
+              </div>
               <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('problem', canvas.problem)} />
                 <ChatButton
                   resourceType="lean-canvas-problem"
                   resourceData={{ title: 'Problem', content: canvas.problem }}
                   onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
                 />
-                <EditButton onClick={() => handleEditClick('problem', canvas.problem)} />
+                {editingSection === 'problem' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
               </div>
-           </div>
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-             Problem
-              {editingSection === 'full' && (
-               <div className="flex items-center gap-2 mt-2">
-                 <button
-                   onClick={handleSaveEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                   </svg>
-                   {isSaving ? 'Saving...' : 'Save'}
-                 </button>
-                 <button
-                   onClick={handleCancelEdit}
-                   disabled={isSaving}
-                   className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                 >
-                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                   </svg>
-                   Cancel
-                 </button>
-               </div>
-             )}
-           </div>
-            {editingSection === 'full' ? (
-             <textarea
-               value={editedContent}
-               onChange={(e) => setEditedContent(e.target.value)}
-               className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-               disabled={isSaving}
-             />
-           ) : (
+            </div>
+            {editingSection === 'problem' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
              <div className="text-gray-600 dark:text-gray-300">
                {canvas.problem?.top_3_problems && (
                  <ul className="list-disc list-inside mb-3">
@@ -175,41 +175,44 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
            )}
          </div>
 
-         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-            <div className="flex items-center justify-between mb-2">
-              <ChatButton
-                resourceType="lean-canvas-solution"
-                resourceData={{ title: 'Solution', content: canvas.solution }}
-                onClick={handleChatClick}
-              />
-              <EditButton onClick={() => handleEditClick('solution', canvas.solution)} />
-            </div>
-            <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-              Solution
-              {editingSection === 'solution' && (
-                <div className="flex items-center gap-2 mt-2">
-                  <button
-                    onClick={handleSaveEdit}
-                    disabled={isSaving}
-                    className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    disabled={isSaving}
-                    className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Cancel
-                  </button>
-                </div>
-              )}
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Solution
+              </div>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('solution', canvas.solution)} />
+                <ChatButton
+                  resourceType="lean-canvas-solution"
+                  resourceData={{ title: 'Solution', content: canvas.solution }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'solution' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             {editingSection === 'solution' ? (
               <textarea
@@ -229,123 +232,410 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
             )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-value-proposition"
-             resourceData={{ title: 'Unique Value Proposition', content: canvas.unique_value_proposition }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unique Value Proposition</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.unique_value_proposition?.single_clear_message && (
-              <p className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</p>
-            )}
-            {canvas.unique_value_proposition?.high_level_concept && (
-              <p>{canvas.unique_value_proposition.high_level_concept}</p>
-            )}
-          </div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Unique Value Proposition
+              </div>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('unique_value_proposition', canvas.unique_value_proposition)} />
+                <ChatButton
+                  resourceType="lean-canvas-value-proposition"
+                  resourceData={{ title: 'Unique Value Proposition', content: canvas.unique_value_proposition }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'unique_value_proposition' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+           {editingSection === 'unique_value_proposition' ? (
+             <textarea
+               value={editedContent}
+               onChange={(e) => setEditedContent(e.target.value)}
+               className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+               disabled={isSaving}
+             />
+           ) : (
+             <div className="text-gray-600 dark:text-gray-300">
+               {canvas.unique_value_proposition?.single_clear_message && (
+                 <p className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</p>
+               )}
+               {canvas.unique_value_proposition?.high_level_concept && (
+                 <p>{canvas.unique_value_proposition.high_level_concept}</p>
+               )}
+             </div>
+           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-unfair-advantage"
-             resourceData={{ title: 'Unfair Advantage', content: canvas.unfair_advantage }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unfair Advantage</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            <p>{canvas.unfair_advantage?.cant_be_copied}</p>
-          </div>
-        </div>
+         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Unfair Advantage
+              </div>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('unfair_advantage', canvas.unfair_advantage)} />
+                <ChatButton
+                  resourceType="lean-canvas-unfair-advantage"
+                  resourceData={{ title: 'Unfair Advantage', content: canvas.unfair_advantage }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'unfair_advantage' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+           {editingSection === 'unfair_advantage' ? (
+             <textarea
+               value={editedContent}
+               onChange={(e) => setEditedContent(e.target.value)}
+               className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+               disabled={isSaving}
+             />
+           ) : (
+             <div className="text-gray-600 dark:text-gray-300">
+               <p>{canvas.unfair_advantage?.cant_be_copied}</p>
+             </div>
+           )}
+         </div>
 
-        <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-customer-segments"
-             resourceData={{ title: 'Customer Segments', content: canvas.customer_segments }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Customer Segments</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.customer_segments?.target_customers && (
-              <p><strong>Target: </strong>{canvas.customer_segments.target_customers}</p>
-            )}
-            {canvas.customer_segments?.early_adopters && (
-              <p><strong>Early adopters: </strong>{canvas.customer_segments.early_adopters}</p>
-            )}
-          </div>
-        </div>
+         <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Customer Segments
+              </div>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('customer_segments', canvas.customer_segments)} />
+                <ChatButton
+                  resourceType="lean-canvas-customer-segments"
+                  resourceData={{ title: 'Customer Segments', content: canvas.customer_segments }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'customer_segments' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+           {editingSection === 'customer_segments' ? (
+             <textarea
+               value={editedContent}
+               onChange={(e) => setEditedContent(e.target.value)}
+               className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+               disabled={isSaving}
+             />
+           ) : (
+             <div className="text-gray-600 dark:text-gray-300">
+               {canvas.customer_segments?.target_customers && (
+                 <p><strong>Target: </strong>{canvas.customer_segments.target_customers}</p>
+               )}
+               {canvas.customer_segments?.early_adopters && (
+                 <p><strong>Early adopters: </strong>{canvas.customer_segments.early_adopters}</p>
+               )}
+             </div>
+           )}
+         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-key-metrics"
-             resourceData={{ title: 'Key Metrics', content: canvas.key_metrics }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Key Metrics</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.key_metrics?.activities_to_measure && (
-              <ul className="list-disc list-inside">
-                {canvas.key_metrics.activities_to_measure.map((item, idx) => <li key={idx}>{item}</li>)}
-              </ul>
+         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Key Metrics
+              </div>
+               <div className="flex items-center gap-2">
+                 <EditButton onClick={() => handleEditClick('key_metrics', canvas.key_metrics)} />
+                 <ChatButton
+                   resourceType="lean-canvas-key-metrics"
+                   resourceData={{ title: 'Key Metrics', content: canvas.key_metrics }}
+                   onClick={handleChatClick}
+                   className="!relative !top-0 !right-0"
+                 />
+                 {editingSection === 'key_metrics' && (
+                   <>
+                     <button
+                       onClick={handleSaveEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                       Cancel
+                     </button>
+                   </>
+                 )}
+               </div>
+             </div>
+            {editingSection === 'key_metrics' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                {canvas.key_metrics?.activities_to_measure && (
+                  <ul className="list-disc list-inside">
+                    {canvas.key_metrics.activities_to_measure.map((item, idx) => <li key={idx}>{item}</li>)}
+                  </ul>
+                )}
+              </div>
             )}
-          </div>
-        </div>
+         </div>
 
-        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-channels"
-             resourceData={{ title: 'Channels', content: canvas.channels }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Channels</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.channels?.path_to_customers && (
-              <ul className="list-disc list-inside">
-                {canvas.channels.path_to_customers.map((item, idx) => <li key={idx}>{item}</li>)}
-              </ul>
+         <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Channels
+              </div>
+               <div className="flex items-center gap-2">
+                 <EditButton onClick={() => handleEditClick('channels', canvas.channels)} />
+                 <ChatButton
+                   resourceType="lean-canvas-channels"
+                   resourceData={{ title: 'Channels', content: canvas.channels }}
+                   onClick={handleChatClick}
+                   className="!relative !top-0 !right-0"
+                 />
+                 {editingSection === 'channels' && (
+                   <>
+                     <button
+                       onClick={handleSaveEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                       Cancel
+                     </button>
+                   </>
+                 )}
+               </div>
+             </div>
+            {editingSection === 'channels' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                {canvas.channels?.path_to_customers && (
+                  <ul className="list-disc list-inside">
+                    {canvas.channels.path_to_customers.map((item, idx) => <li key={idx}>{item}</li>)}
+                  </ul>
+                )}
+              </div>
             )}
-          </div>
-        </div>
+         </div>
 
-        <div className="col-span-2 row-span-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-cost-structure"
-             resourceData={{ title: 'Cost Structure', content: canvas.cost_structure }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Cost Structure</div>
-          <div className="text-gray-600 dark:text-gray-300 text-sm">
-            {canvas.cost_structure?.customer_acquisition_cost && (
-              <p><strong>Customer acquisition: </strong>{canvas.cost_structure.customer_acquisition_cost}</p>
+         <div className="col-span-2 row-span-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Cost Structure
+              </div>
+               <div className="flex items-center gap-2">
+                 <EditButton onClick={() => handleEditClick('cost_structure', canvas.cost_structure)} />
+                 <ChatButton
+                   resourceType="lean-canvas-cost-structure"
+                   resourceData={{ title: 'Cost Structure', content: canvas.cost_structure }}
+                   onClick={handleChatClick}
+                   className="!relative !top-0 !right-0"
+                 />
+                 {editingSection === 'cost_structure' && (
+                   <>
+                     <button
+                       onClick={handleSaveEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                       Cancel
+                     </button>
+                   </>
+                 )}
+               </div>
+             </div>
+            {editingSection === 'cost_structure' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300 text-sm">
+                {canvas.cost_structure?.customer_acquisition_cost && (
+                  <p><strong>Customer acquisition: </strong>{canvas.cost_structure.customer_acquisition_cost}</p>
+                )}
+                {canvas.cost_structure?.distribution_costs && (
+                  <p><strong>Distribution: </strong>{canvas.cost_structure.distribution_costs}</p>
+                )}
+                {canvas.cost_structure?.hosting_costs && (
+                  <p><strong>Hosting: </strong>{canvas.cost_structure.hosting_costs}</p>
+                )}
+                {canvas.cost_structure?.people_costs && (
+                  <p><strong>People: </strong>{canvas.cost_structure.people_costs}</p>
+                )}
+              </div>
             )}
-            {canvas.cost_structure?.distribution_costs && (
-              <p><strong>Distribution: </strong>{canvas.cost_structure.distribution_costs}</p>
-            )}
-            {canvas.cost_structure?.hosting_costs && (
-              <p><strong>Hosting: </strong>{canvas.cost_structure.hosting_costs}</p>
-            )}
-            {canvas.cost_structure?.people_costs && (
-              <p><strong>People: </strong>{canvas.cost_structure.people_costs}</p>
-            )}
-          </div>
-        </div>
+         </div>
 
-        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-revenue-streams"
-             resourceData={{ title: 'Revenue Streams', content: canvas.revenue_streams }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Revenue Streams</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.revenue_streams?.revenue_model && (
-              <p><strong>Model: </strong>{canvas.revenue_streams.revenue_model}</p>
+         <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-semibold text-lg text-gray-900 dark:text-white">
+                Revenue Streams
+              </div>
+               <div className="flex items-center gap-2">
+                 <EditButton onClick={() => handleEditClick('revenue_streams', canvas.revenue_streams)} />
+                 <ChatButton
+                   resourceType="lean-canvas-revenue-streams"
+                   resourceData={{ title: 'Revenue Streams', content: canvas.revenue_streams }}
+                   onClick={handleChatClick}
+                   className="!relative !top-0 !right-0"
+                 />
+                 {editingSection === 'revenue_streams' && (
+                   <>
+                     <button
+                       onClick={handleSaveEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                       Cancel
+                     </button>
+                   </>
+                 )}
+               </div>
+             </div>
+            {editingSection === 'revenue_streams' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                {canvas.revenue_streams?.revenue_model && (
+                  <p><strong>Model: </strong>{canvas.revenue_streams.revenue_model}</p>
+                )}
+                {canvas.revenue_streams?.lifetime_value && (
+                  <p><strong>Lifetime value: </strong>{canvas.revenue_streams.lifetime_value}</p>
+                )}
+              </div>
             )}
-            {canvas.revenue_streams?.lifetime_value && (
-              <p><strong>Lifetime value: </strong>{canvas.revenue_streams.lifetime_value}</p>
-            )}
-          </div>
-        </div>
+         </div>
       </div>
     </div>
   );

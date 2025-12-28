@@ -74,7 +74,6 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
       if (result.success) {
         setEditingSection(null);
         setEditedContent('');
-        alert('Changes saved successfully!');
       } else {
         alert('Failed to save changes: ' + result.message);
       }
@@ -142,76 +141,153 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
 
       {/* WHY - Mission & Goals (Featured at top) */}
       {data.why && (
-         <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8 relative">
-           <div className="flex items-center justify-between mb-4">
-             <ChatButton
-               resourceType="architectural-scope-why"
-               resourceData={{ title: 'WHY - Business Mission & Goals', content: data.why }}
-               onClick={handleChatClick}
-             />
-             <EditButton onClick={() => handleEditClick('why', data.why)} className="text-white hover:bg-white hover:bg-opacity-20" />
-           </div>
-          <div className="flex items-center gap-4 mb-6">
-            <span className="text-5xl">🎯</span>
-            <div>
-              <h2 className="text-3xl font-bold">WHY</h2>
-              <p className="text-purple-100">Business Mission & Goals</p>
-            </div>
-          </div>
-
-          {data.why.mission && (
-            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-6 mb-6 border border-white border-opacity-20">
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">Mission Statement</h3>
-              <p className="text-lg leading-relaxed text-gray-800">
-                {data.why.mission.action} {data.why.mission.service} for {data.why.mission.beneficiary}
-              </p>
-            </div>
-          )}
-
-          {data.why.goals && (
-            <>
-              <h3 className="text-2xl font-semibold mb-6 text-white drop-shadow-lg">Business Goals</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {data.why.goals.map((goal, index) => (
-                  <div key={index} className="bg-white bg-opacity-15 backdrop-blur-sm rounded-lg p-6 border border-white border-opacity-10">
-                    <h4 className="font-semibold mb-3 text-lg text-gray-900">{goal.title}</h4>
-                    <p className="text-gray-700 leading-relaxed">{goal.description}</p>
-                  </div>
-                ))}
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8 relative">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">🎯</span>
+                <div>
+                  <h2 className="text-3xl font-bold">WHY</h2>
+                  <p className="text-purple-100">Business Mission & Goals</p>
+                </div>
               </div>
-            </>
-          )}
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => handleEditClick('why', data.why)} className="text-white hover:bg-white hover:bg-opacity-20" />
+                <ChatButton
+                  resourceType="architectural-scope-why"
+                  resourceData={{ title: 'WHY - Business Mission & Goals', content: data.why }}
+                  onClick={handleChatClick}
+                  className="!relative !top-0 !right-0"
+                />
+                {editingSection === 'why' && (
+                  <>
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+           {editingSection === 'why' ? (
+             <textarea
+               value={editedContent}
+               onChange={(e) => setEditedContent(e.target.value)}
+               className="w-full h-64 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+               disabled={isSaving}
+             />
+           ) : (
+             <>
+               {data.why.mission && (
+                 <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-6 mb-6 border border-white border-opacity-20">
+                   <h3 className="text-xl font-semibold mb-3 text-gray-900">Mission Statement</h3>
+                   <p className="text-lg leading-relaxed text-gray-800">
+                     {data.why.mission.action} {data.why.mission.service} for {data.why.mission.beneficiary}
+                   </p>
+                 </div>
+               )}
+
+               {data.why.goals && (
+                 <>
+                   <h3 className="text-2xl font-semibold mb-6 text-white drop-shadow-lg">Business Goals</h3>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     {data.why.goals.map((goal, index) => (
+                       <div key={index} className="bg-white bg-opacity-15 backdrop-blur-sm rounded-lg p-6 border border-white border-opacity-10">
+                         <h4 className="font-semibold mb-3 text-lg text-gray-900">{goal.title}</h4>
+                         <p className="text-gray-700 leading-relaxed">{goal.description}</p>
+                       </div>
+                     ))}
+                   </div>
+                 </>
+               )}
+             </>
+           )}
         </div>
       )}
 
       {/* The other 5W sections in a grid below */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sections.map((section) => (
-           <div key={section.key} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
-             <ChatButton
-               resourceType={`architectural-scope-${section.key}`}
-               resourceData={{ title: `${section.title} - ${section.subtitle}`, content: section.items }}
-               onClick={handleChatClick}
-             />
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">{section.icon}</span>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{section.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{section.subtitle}</p>
+         {sections.map((section) => (
+            <div key={section.key} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{section.icon}</span>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{section.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{section.subtitle}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <EditButton onClick={() => handleEditClick(section.key, section.items)} />
+                  <ChatButton
+                    resourceType={`architectural-scope-${section.key}`}
+                    resourceData={{ title: `${section.title} - ${section.subtitle}`, content: section.items }}
+                    onClick={handleChatClick}
+                    className="!relative !top-0 !right-0"
+                  />
+                  {editingSection === section.key && (
+                    <>
+                      <button
+                        onClick={handleSaveEdit}
+                        disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {isSaving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="space-y-4">
-              {section.items?.map((item, index) => (
-                <div key={index} className={`border-l-4 border-${section.color}-500 pl-4`}>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-1">{item.title}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
-                </div>
-              )) || (
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  No items defined for this section.
-                </div>
-              )}
-            </div>
+            {editingSection === section.key ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-48 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="space-y-4">
+                {section.items?.map((item, index) => (
+                  <div key={index} className={`border-l-4 border-${section.color}-500 pl-4`}>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">{item.title}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                  </div>
+                )) || (
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    No items defined for this section.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
