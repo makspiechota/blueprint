@@ -182,8 +182,9 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
                  </ul>
                )}
                 {canvas.problem?.existing_alternatives && (
-                  // @ts-ignore
-                  <ReactMarkdown components={markdownComponents}>{canvas.problem.existing_alternatives}</ReactMarkdown>
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown components={markdownComponents}>{canvas.problem.existing_alternatives}</ReactMarkdown>
+                  </div>
                 )}
              </div>
            )}
@@ -295,13 +296,14 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
            ) : (
              <div className="text-gray-600 dark:text-gray-300">
                 {canvas.unique_value_proposition?.single_clear_message && (
-                  <div className="font-semibold mb-2">
+                  <div className="font-semibold mb-2 prose prose-sm max-w-none">
                     <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.single_clear_message}</ReactMarkdown>
                   </div>
                 )}
                 {canvas.unique_value_proposition?.high_level_concept && (
-                  // @ts-ignore
-                  <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.high_level_concept}</ReactMarkdown>
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.high_level_concept}</ReactMarkdown>
+                  </div>
                 )}
              </div>
            )}
