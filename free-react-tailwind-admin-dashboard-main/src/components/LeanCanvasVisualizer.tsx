@@ -115,8 +115,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unfair Advantage</div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-unfair-advantage"
+             resourceData={{ title: 'Unfair Advantage', content: canvas.unfair_advantage }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unfair Advantage</div>
           <div className="text-gray-600 dark:text-gray-300">
             <p>{canvas.unfair_advantage?.cant_be_copied}</p>
           </div>
