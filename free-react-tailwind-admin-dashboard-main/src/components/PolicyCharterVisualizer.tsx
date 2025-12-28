@@ -620,6 +620,17 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 }}
                 className="w-full p-2 border rounded"
               />
+              <button 
+                disabled={edges.some(e => e.source === selectedNode.id)}
+                onClick={() => {
+                  setNodes(nds => nds.filter(n => n.id !== selectedNode.id));
+                  setEdges(eds => eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id));
+                  setSelectedNode(null);
+                }} 
+                className="w-full px-4 py-2 bg-red-500 text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                Delete Node
+              </button>
               <button onClick={() => setSelectedNode(null)} className="w-full px-4 py-2 bg-gray-500 text-white rounded">Close</button>
             </div>
           </div>
