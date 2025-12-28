@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -14,6 +14,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import ChatButton from './ChatButton';
 import { useChat } from '../context/ChatContext';
+
+
 
 interface PolicyCharterData {
   goals?: Array<{
@@ -50,6 +52,7 @@ interface PolicyCharterVisualizerProps {
 
 const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ charter }) => {
   const { openChat } = useChat();
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
@@ -118,6 +121,8 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
               <div className="node-description">{goal.description}</div>
             </div>
           ),
+          title: goal.title || 'Untitled Goal',
+          description: goal.description || '',
         },
         style: { background: '#DBEAFE', border: '2px solid #3B82F6', borderRadius: '8px', width: nodeWidth },
       });
@@ -156,6 +161,8 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 <div className="node-description">{tactic.description}</div>
               </div>
             ),
+            title: tactic.title || 'Untitled Tactic',
+            description: tactic.description || '',
           },
           style: { background: '#D1FAE5', border: '2px solid #10B981', borderRadius: '8px', width: nodeWidth },
         });
@@ -194,6 +201,9 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                   <div className="node-description">{policy.rule}</div>
                 </div>
               ),
+              title: policy.title || 'Untitled Policy',
+              rule: policy.rule || '',
+              description: policy.rule || '',
             },
             style: { background: '#E9D5FF', border: '2px solid #8B5CF6', borderRadius: '8px', width: nodeWidth },
           });
@@ -221,6 +231,9 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
               </div>
             ),
+            description: risk.description || 'Untitled Risk',
+            probability: risk.probability || 'low',
+            impact: risk.impact || 'low',
           },
           style: { background: '#FEE2E2', border: '2px solid #EF4444', borderRadius: '8px', width: nodeWidth },
         });
@@ -292,6 +305,79 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
     [setEdges]
   );
 
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => setSelectedNode(node), []);
+
+  const buildDataFromNodesAndEdges = (nodes: Node[], edges: Edge[]) => {
+    const goals: any[] = [];
+    const tactics: any[] = [];
+    const policies: any[] = [];
+    const risks: any[] = [];
+
+    nodes.forEach(node => {
+      if (node.id.includes('goal')) {
+        goals.push({
+          id: node.id,
+          title: node.data.title || 'Untitled',
+          description: node.data.description || '',
+        });
+      } else if (node.id.includes('tactic')) {
+        tactics.push({
+          id: node.id,
+          title: node.data.title || 'Untitled',
+          description: node.data.description || '',
+          drives_policies: [],
+        });
+      } else if (node.id.includes('policy')) {
+        policies.push({
+          id: node.id,
+          title: node.data.title || 'Untitled',
+          rule: node.data.rule || '',
+          enforcement: 'manual',
+          driven_by_tactic: '',
+        });
+      } else if (node.id.includes('risk')) {
+        risks.push({
+          id: node.id,
+          description: node.data.description || 'Untitled',
+          probability: node.data.probability || 'low',
+          impact: node.data.impact || 'low',
+          mitigation: [],
+        });
+      }
+    });
+
+    edges.forEach(edge => {
+      const source = nodes.find(n => n.id === edge.source);
+      const target = nodes.find(n => n.id === edge.target);
+      if (source && target) {
+        if (source.id.includes('goal') && target.id.includes('tactic')) {
+          const goal = goals.find(g => g.id === source.id);
+          if (goal) goal.tactics = goal.tactics || [];
+          if (goal && !goal.tactics.includes(target.id)) goal.tactics.push(target.id);
+        } else if (source.id.includes('tactic') && target.id.includes('policy')) {
+          const tactic = tactics.find(t => t.id === source.id);
+          if (tactic && !tactic.drives_policies.includes(target.id)) tactic.drives_policies.push(target.id);
+          const policy = policies.find(p => p.id === target.id);
+          if (policy) policy.driven_by_tactic = source.id;
+        } else if (source.id.includes('policy') && target.id.includes('risk')) {
+          const risk = risks.find(r => r.id === target.id);
+          if (risk && !risk.mitigation.includes(source.id)) risk.mitigation.push(source.id);
+        }
+      }
+    });
+
+    return {
+      type: 'policy-charter',
+      version: '1.0',
+      last_updated: new Date().toISOString().split('T')[0],
+      title: 'Policy Charter',
+      goals,
+      tactics,
+      policies,
+      risks,
+    };
+  };
+
   return (
     <div className="space-y-6">
       <div className="policy-charter-visualizer relative">
@@ -307,7 +393,47 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           }
         `}</style>
 
+        <div className="mb-4">
+          <button onClick={() => {
+            // Build data and save
+            const data = buildDataFromNodesAndEdges(nodes, edges);
+            fetch('/api/yaml/policy-charter.yaml', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ data }),
+            }).then(() => alert('Saved!')).catch(() => alert('Save failed'));
+          }} className="px-4 py-2 bg-blue-500 text-white rounded">Save Changes</button>
+        </div>
+
+        {selectedNode && (
+          <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <h3 className="font-semibold mb-2">Edit {selectedNode.type?.replace('Node', '')}</h3>
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Title"
+                value={selectedNode.data.title || selectedNode.data.description || ''}
+                onChange={(e) => {
+                  setNodes(nds => nds.map(n => n.id === selectedNode.id ? { ...n, data: { ...n.data, [n.type === 'riskNode' ? 'description' : 'title']: e.target.value } } : n));
+                  setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, [prev.type === 'riskNode' ? 'description' : 'title']: e.target.value } } : null);
+                }}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                placeholder="Description"
+                value={selectedNode.data.description || selectedNode.data.rule || ''}
+                onChange={(e) => {
+                  setNodes(nds => nds.map(n => n.id === selectedNode.id ? { ...n, data: { ...n.data, [n.type === 'policyNode' ? 'rule' : 'description']: e.target.value } } : n));
+                  setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, [prev.type === 'policyNode' ? 'rule' : 'description']: e.target.value } } : null);
+                }}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+        )}
+
         <ReactFlow
+          onNodeClick={onNodeClick}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
