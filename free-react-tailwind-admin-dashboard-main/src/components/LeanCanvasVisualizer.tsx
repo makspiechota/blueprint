@@ -295,8 +295,9 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
            ) : (
              <div className="text-gray-600 dark:text-gray-300">
                 {canvas.unique_value_proposition?.single_clear_message && (
-                  // @ts-ignore
-                  <ReactMarkdown components={markdownComponents} className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</ReactMarkdown>
+                  <div className="font-semibold mb-2">
+                    <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.single_clear_message}</ReactMarkdown>
+                  </div>
                 )}
                 {canvas.unique_value_proposition?.high_level_concept && (
                   // @ts-ignore
