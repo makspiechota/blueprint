@@ -8,6 +8,21 @@ const Misc: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [content, setContent] = useState<string>('');
   const [editMode, setEditMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Detect dark mode from .dark class on html/body
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+
+    // Watch for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Hardcoded list of misc files
   const miscFiles = ['project-notes.md', 'development-guidelines.md'];
@@ -51,9 +66,11 @@ This document contains miscellaneous notes for the project.
   }, [searchParams]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full flex flex-col">
       <h1 className="text-2xl font-bold mb-6 dark:text-white">Misc Documents</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      {!selectedFile ? (
+        // File list view
         <div>
           <h2 className="text-lg font-semibold mb-4 dark:text-white">Files</h2>
           <ul className="space-y-2">
@@ -61,11 +78,7 @@ This document contains miscellaneous notes for the project.
               <li key={file}>
                 <button
                   onClick={() => handleFileClick(file)}
-                  className={`w-full text-left p-3 rounded-lg border ${
-                    selectedFile === file
-                      ? 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-white'
-                      : 'bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'
-                  }`}
+                  className="w-full text-left p-3 rounded-lg border bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   {file}
                 </button>
@@ -73,38 +86,50 @@ This document contains miscellaneous notes for the project.
             ))}
           </ul>
         </div>
-        <div>
+      ) : (
+        // Editor/Viewer view - full width
+        <div className="flex-1 flex flex-col min-h-0">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold dark:text-white">Content</h2>
-            {selectedFile && (
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setEditMode(!editMode)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setEditMode(false);
+                }}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
               >
-                {editMode ? 'View' : 'Edit'}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-            )}
+              <h2 className="text-lg font-semibold dark:text-white">{selectedFile}</h2>
+            </div>
+            <button
+              onClick={() => setEditMode(!editMode)}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              {editMode ? 'View' : 'Edit'}
+            </button>
           </div>
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 min-h-[400px]">
-            {selectedFile ? (
-              editMode ? (
-                // @ts-expect-error
+          <div className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 overflow-auto">
+            {editMode ? (
+              <div data-color-mode={isDarkMode ? 'dark' : 'light'} className="h-full">
                 <MDEditor
                   value={content}
                   onChange={(val) => setContent(val || '')}
                   preview="edit"
+                  height={500}
+                  className="!bg-transparent"
                 />
-              ) : (
-                <div className="prose prose-sm max-w-none">
-                  <ReactMarkdown>{content}</ReactMarkdown>
-                </div>
-              )
+              </div>
             ) : (
-              <p className="text-gray-500">Select a file to view</p>
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown>{content}</ReactMarkdown>
+              </div>
             )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

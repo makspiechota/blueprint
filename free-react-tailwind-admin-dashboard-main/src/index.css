@@ -778,6 +778,41 @@ span.flatpickr-weekday,
   @apply opacity-100;
 }
 
+/* MDEditor dark mode integration */
+.dark .w-md-editor {
+  --color-canvas-default: theme(colors.gray.800) !important;
+  --color-canvas-subtle: theme(colors.gray.700) !important;
+  --color-border-default: theme(colors.gray.600) !important;
+  --color-fg-default: theme(colors.gray.200) !important;
+  background-color: theme(colors.gray.800) !important;
+}
+
+.dark .w-md-editor-toolbar {
+  background-color: theme(colors.gray.700) !important;
+  border-color: theme(colors.gray.600) !important;
+}
+
+.dark .w-md-editor-toolbar li > button {
+  color: theme(colors.gray.300) !important;
+}
+
+.dark .w-md-editor-toolbar li > button:hover {
+  background-color: theme(colors.gray.600) !important;
+}
+
+.dark .w-md-editor-text-input,
+.dark .w-md-editor-text-pre {
+  color: theme(colors.gray.200) !important;
+}
+
+.dark .w-md-editor-preview {
+  background-color: theme(colors.gray.800) !important;
+}
+
+.w-md-editor {
+  border-radius: 0.5rem !important;
+}
+
 /* Dark mode prose styles */
 .dark .prose {
   --tw-prose-body: theme(colors.gray.300);
