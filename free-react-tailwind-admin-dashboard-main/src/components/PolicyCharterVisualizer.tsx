@@ -406,7 +406,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         </div>
 
         {selectedNode && (
-          <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded shadow">
+          <div className="p-4 bg-white dark:bg-gray-800 rounded shadow" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10, width: '300px' }}>
             <h3 className="font-semibold mb-2">Edit {selectedNode.type?.replace('Node', '')}</h3>
             <div className="space-y-2">
               <input
@@ -428,6 +428,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 }}
                 className="w-full p-2 border rounded"
               />
+              <button onClick={() => setSelectedNode(null)} className="w-full px-4 py-2 bg-gray-500 text-white rounded">Close</button>
             </div>
           </div>
         )}
