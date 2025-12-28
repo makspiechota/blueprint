@@ -390,7 +390,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           .policy-charter-visualizer {
             width: 100%;
             height: 600px;
-            margin-bottom: 20px;
+            margin-bottom: 60px;
           }
         `}</style>
 
