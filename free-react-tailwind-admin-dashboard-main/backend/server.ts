@@ -16,9 +16,15 @@ app.use(express.json());
 // Path to YAML files
 const yamlDir = path.join(process.cwd(), 'src', 'data');
 
-// Ensure YAML directory exists
+// Path to misc markdown files
+const miscDir = path.join(process.cwd(), 'src', 'data', 'misc');
+
+// Ensure directories exist
 if (!fs.existsSync(yamlDir)) {
   fs.mkdirSync(yamlDir, { recursive: true });
+}
+if (!fs.existsSync(miscDir)) {
+  fs.mkdirSync(miscDir, { recursive: true });
 }
 
 // CRUD Routes for YAML files
@@ -139,6 +145,127 @@ app.get('/api/yaml', (req, res) => {
   } catch (error) {
     console.error('Error listing YAML files:', error);
     res.status(500).json({ error: 'Failed to list files' });
+  }
+});
+
+// ==================
+// Misc Markdown Files API
+// ==================
+
+// GET /api/misc - List all misc markdown files
+app.get('/api/misc', (req, res) => {
+  try {
+    const files = fs.readdirSync(miscDir)
+      .filter(file => file.endsWith('.md'))
+      .map(file => ({
+        name: file,
+        path: `/api/misc/${encodeURIComponent(file)}`
+      }));
+
+    res.json({ files });
+  } catch (error) {
+    console.error('Error listing misc files:', error);
+    res.status(500).json({ error: 'Failed to list files' });
+  }
+});
+
+// GET /api/misc/:filename - Read a misc markdown file
+app.get('/api/misc/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const filePath = path.join(miscDir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(miscDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    res.json({ filename, content });
+  } catch (error) {
+    console.error('Error reading misc file:', error);
+    res.status(500).json({ error: 'Failed to read file' });
+  }
+});
+
+// PUT /api/misc/:filename - Update a misc markdown file
+app.put('/api/misc/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const { content } = req.body;
+
+    if (content === undefined) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const filePath = path.join(miscDir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(miscDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    res.json({ success: true, message: 'File updated successfully' });
+  } catch (error) {
+    console.error('Error writing misc file:', error);
+    res.status(500).json({ error: 'Failed to write file' });
+  }
+});
+
+// POST /api/misc/:filename - Create a new misc markdown file
+app.post('/api/misc/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const { content } = req.body;
+
+    if (!filename.endsWith('.md')) {
+      return res.status(400).json({ error: 'Filename must end with .md' });
+    }
+
+    const filePath = path.join(miscDir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(miscDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (fs.existsSync(filePath)) {
+      return res.status(409).json({ error: 'File already exists' });
+    }
+
+    fs.writeFileSync(filePath, content || '', 'utf8');
+    res.json({ success: true, message: 'File created successfully' });
+  } catch (error) {
+    console.error('Error creating misc file:', error);
+    res.status(500).json({ error: 'Failed to create file' });
+  }
+});
+
+// DELETE /api/misc/:filename - Delete a misc markdown file
+app.delete('/api/misc/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const filePath = path.join(miscDir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(miscDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    fs.unlinkSync(filePath);
+    res.json({ success: true, message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting misc file:', error);
+    res.status(500).json({ error: 'Failed to delete file' });
   }
 });
 
