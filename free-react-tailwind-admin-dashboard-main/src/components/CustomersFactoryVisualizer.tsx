@@ -66,11 +66,11 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
   };
 
   const stages = [
-    { key: 'acquisition', label: 'Acquisition', color: 'blue' },
-    { key: 'activation', label: 'Activation', color: 'green' },
-    { key: 'retention', label: 'Retention', color: 'yellow' },
-    { key: 'referral', label: 'Referral', color: 'purple' },
-    { key: 'revenue', label: 'Revenue', color: 'indigo' },
+    { key: 'acquisition', label: 'Acquisition', color: 'blue', bgClass: 'bg-blue-100 dark:bg-blue-900/30', borderClass: 'border-blue-300 dark:border-blue-700', bulletClass: 'bg-blue-500', textClass: 'text-blue-900 dark:text-blue-100' },
+    { key: 'activation', label: 'Activation', color: 'green', bgClass: 'bg-green-100 dark:bg-green-900/30', borderClass: 'border-green-300 dark:border-green-700', bulletClass: 'bg-green-500', textClass: 'text-green-900 dark:text-green-100' },
+    { key: 'retention', label: 'Retention', color: 'yellow', bgClass: 'bg-yellow-100 dark:bg-yellow-900/30', borderClass: 'border-yellow-300 dark:border-yellow-700', bulletClass: 'bg-yellow-500', textClass: 'text-yellow-900 dark:text-yellow-100' },
+    { key: 'referral', label: 'Referral', color: 'purple', bgClass: 'bg-purple-100 dark:bg-purple-900/30', borderClass: 'border-purple-300 dark:border-purple-700', bulletClass: 'bg-purple-500', textClass: 'text-purple-900 dark:text-purple-100' },
+    { key: 'revenue', label: 'Revenue', color: 'indigo', bgClass: 'bg-indigo-100 dark:bg-indigo-900/30', borderClass: 'border-indigo-300 dark:border-indigo-700', bulletClass: 'bg-indigo-500', textClass: 'text-indigo-900 dark:text-indigo-100' },
   ];
 
   const renderMetricValue = (value: any) => {
@@ -104,20 +104,20 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                resourceData={{ title: `${stage.label} Stage`, content: data.stages?.[stage.key as keyof typeof data.stages] }}
                onClick={handleChatClick}
              />
-             <button
-               onClick={() => setSelectedStage(stage.key)}
-               className={`w-full p-4 rounded-lg border text-left hover:shadow-md transition-all ${
-              selectedStage === stage.key
-                ? `bg-${stage.color}-100 dark:bg-${stage.color}-900/30 border-${stage.color}-300 dark:border-${stage.color}-700`
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div className={`w-3 h-3 bg-${stage.color}-500 rounded-full`}></div>
-              <span className={`font-semibold text-${stage.color}-900 dark:text-${stage.color}-100`}>
-                {stage.label}
-              </span>
-            </div>
+              <button
+                onClick={() => setSelectedStage(stage.key)}
+                className={`w-full p-4 rounded-lg border text-left hover:shadow-md transition-all ${
+               selectedStage === stage.key
+                 ? `${stage.bgClass} ${stage.borderClass}`
+                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+             }`}
+           >
+             <div className="flex items-center gap-2 mb-2">
+               <div className={`w-3 h-3 ${stage.bulletClass} rounded-full`}></div>
+               <span className={`font-semibold ${stage.textClass}`}>
+                 {stage.label}
+               </span>
+             </div>
              <p className="text-xs text-gray-600 dark:text-gray-400">
                {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
              </p>
@@ -130,9 +130,9 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
       {currentStage && (
         <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
           <h2 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <div className={`w-4 h-4 bg-${stages.find(s => s.key === selectedStage)?.color}-500 rounded-full`}></div>
-            {stages.find(s => s.key === selectedStage)?.label} Metrics
-          </h2>
+             <div className={`w-4 h-4 ${stages.find(s => s.key === selectedStage)?.bulletClass} rounded-full`}></div>
+             {stages.find(s => s.key === selectedStage)?.label} Metrics
+           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {currentStage.metrics?.map((metric, index) => (
                <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 relative">
