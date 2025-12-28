@@ -40,6 +40,16 @@ interface LeanViability {
     churn_rate?: {
       monthly_rate?: number;
     };
+    conversion_rates?: {
+      prospect_acquisition_rate?: number; // prospects → users
+      activation_rate?: number; // users → activated users
+      acquisition_rate?: number; // activated users → customers
+    };
+    funnel_targets?: {
+      users_target?: number; // users needed
+      users_activation_target?: number; // activated users needed
+      users_acquisition_target?: number; // prospects needed
+    };
   };
 }
 
@@ -70,9 +80,12 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
       setEditedContent((sectionData || 10000000).toString());
     } else if (sectionKey === 'arpu') {
       setEditedContent((sectionData || 12000).toString());
-    } else if (sectionKey === 'customer_lifetime') {
-      console.log('Customer lifetime sectionData:', sectionData);
-      setEditedContent((sectionData?.years || 3).toString());
+    } else if (sectionKey === 'prospect_acquisition_rate') {
+      setEditedContent((sectionData || 0.05).toString());
+    } else if (sectionKey === 'activation_rate') {
+      setEditedContent((sectionData || 0.1).toString());
+    } else if (sectionKey === 'acquisition_rate') {
+      setEditedContent((sectionData || 0.05).toString());
     } else {
       setEditedContent(yaml.dump(sectionData || {}));
     }
@@ -103,6 +116,21 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
           ...updatedData.calculations.customer_lifetime_value,
           years: lifetimeYears
         };
+      } else if (editingSection === 'activation_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.activation_rate = rate;
+      } else if (editingSection === 'prospect_acquisition_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.prospect_acquisition_rate = rate;
+      } else if (editingSection === 'acquisition_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.acquisition_rate = rate;
       } else {
         const parsedSection = yaml.load(editedContent);
         (updatedData as any)[editingSection] = parsedSection;
@@ -379,10 +407,211 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
                 </div>
 
                </div>
-        </div>
-      </div>
+         </div>
+       </div>
 
-      {/* Financial Projections Placeholder */}
+       {/* User Acquisition Funnel */}
+       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+         <div className="flex items-center justify-between mb-6">
+           <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+             <span className="text-cyan-600 dark:text-cyan-400">🎯</span>
+             User Acquisition Funnel
+           </h3>
+           <div className="flex items-center gap-2">
+             <ChatButton
+               resourceType="lean-viability-funnel"
+               resourceData={{ title: 'User Acquisition Funnel', content: localData.calculations }}
+               onClick={handleChatClick}
+               className="!relative !top-0 !right-0"
+             />
+           </div>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           {/* Conversion Rates */}
+           <div className="space-y-4">
+             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Conversion Rates</h4>
+             <div className="space-y-3">
+               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                 <span className="text-gray-700 dark:text-gray-300">Prospect Acquisition Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'prospect_acquisition_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                         </svg>
+                         {isSaving ? 'Saving...' : 'Save'}
+                       </button>
+                       <button
+                         onClick={handleCancelEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                         </svg>
+                         Cancel
+                       </button>
+                     </>
+                   ) : (
+                     <>
+                       <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.prospect_acquisition_rate || 0.05) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('prospect_acquisition_rate', localData.calculations?.conversion_rates?.prospect_acquisition_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Prospects → Users</div>
+
+               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                 <span className="text-gray-700 dark:text-gray-300">User Activation Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'activation_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancel
+                      </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.activation_rate || 0.1) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('activation_rate', localData.calculations?.conversion_rates?.activation_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+               <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Users → Activated Users</div>
+
+               <div className="flex justify-between items-center py-2">
+                 <span className="text-gray-700 dark:text-gray-300">Sale/Conversion Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'acquisition_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancel
+                      </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.acquisition_rate || 0.05) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('acquisition_rate', localData.calculations?.conversion_rates?.acquisition_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+               <div className="text-xs text-gray-500 dark:text-gray-400">Activated Users → Customers</div>
+             </div>
+           </div>
+
+           {/* Funnel Targets */}
+           <div className="space-y-4">
+             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Monthly Targets</h4>
+             <div className="space-y-4">
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Prospects Needed</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_acquisition_target || 2800} prospects</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Raw leads required</div>
+               </div>
+
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Users Target</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_target || 1400} users</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Users after acquisition</div>
+               </div>
+
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Activated Users Target</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_activation_target || 140} activated</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Activated users needed</div>
+               </div>
+
+               <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Customer Target</span>
+                   <span className="font-bold text-green-600 dark:text-green-400">{localData.calculations?.monthly_acquisition_target?.rate || 7} customers</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Paying customers needed</div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       {/* Financial Projections Placeholder */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
           <span className="text-indigo-600 dark:text-indigo-400">📈</span>

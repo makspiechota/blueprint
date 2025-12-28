@@ -51,6 +51,16 @@ export interface LeanViability {
       period?: string;
       formula?: string;
     };
+    conversion_rates?: {
+      prospect_acquisition_rate?: number; // prospects → users
+      activation_rate?: number; // users → activated users
+      acquisition_rate?: number; // activated users → customers
+    };
+    funnel_targets?: {
+      users_target?: number; // users needed
+      users_activation_target?: number; // activated users needed
+      users_acquisition_target?: number; // prospects needed
+    };
   };
 }
 
@@ -108,6 +118,38 @@ export const calculateLeanViabilityMetrics = (inputData: LeanViability): LeanVia
       rate: monthlyTarget,
       period: "month",
       formula: "Required customers × Monthly churn rate"
+    };
+  }
+
+  // Calculate User Acquisition Funnel: Prospects → Users → Activated Users → Customers
+  const monthlyAcquisitionTarget = updatedData.calculations.monthly_acquisition_target?.rate;
+  const customerConversionRate = updatedData.calculations.conversion_rates?.acquisition_rate || 0.05; // activated users → customers (5% default)
+  const activationRate = updatedData.calculations.conversion_rates?.activation_rate || 0.1; // users → activated users (10% default)
+  const prospectAcquisitionRate = updatedData.calculations.conversion_rates?.prospect_acquisition_rate || 0.05; // prospects → users (5% default)
+
+  if (monthlyAcquisitionTarget) {
+    // Work backwards through the funnel:
+
+    // 1. Activated Users Target = Monthly Acquisition Target ÷ Customer Conversion Rate
+    // (activated users needed to get the required customers)
+    const activatedUsersTarget = Math.ceil(monthlyAcquisitionTarget / customerConversionRate);
+    updatedData.calculations.funnel_targets = {
+      ...updatedData.calculations.funnel_targets,
+      users_activation_target: activatedUsersTarget
+    };
+
+    // 2. Users Target = Activated Users Target ÷ Activation Rate
+    const usersTarget = Math.ceil(activatedUsersTarget / activationRate);
+    updatedData.calculations.funnel_targets = {
+      ...updatedData.calculations.funnel_targets,
+      users_target: usersTarget
+    };
+
+    // 3. Prospects Target = Users Target ÷ Prospect Acquisition Rate
+    const prospectsTarget = Math.ceil(usersTarget / prospectAcquisitionRate);
+    updatedData.calculations.funnel_targets = {
+      ...updatedData.calculations.funnel_targets,
+      users_acquisition_target: prospectsTarget
     };
   }
 

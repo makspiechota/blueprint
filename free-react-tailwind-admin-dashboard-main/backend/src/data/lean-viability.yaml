@@ -42,6 +42,13 @@ calculations:
     rate: 166
     period: month
     formula: Monthly acquisition target / Conversion rate
+  conversion_rates:
+    prospect_acquisition_rate: 0.1
+    acquisition_rate: 0.1
+  funnel_targets:
+    users_activation_target: 3480
+    users_target: 34800
+    users_acquisition_target: 348000
 targets:
   acquisition:
     monthly_signups:
