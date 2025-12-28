@@ -63,6 +63,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
     const levelSpacing = 280;
     const nodeWidth = 250;
     const horizontalSpacing = 100;
+    const addedPolicyIds = new Set();
 
     const goals = charter.goals || [];
     const tactics = charter.tactics || [];
@@ -207,6 +208,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             },
             style: { background: '#E9D5FF', border: '2px solid #8B5CF6', borderRadius: '8px', width: nodeWidth },
           });
+          addedPolicyIds.add(policy.id);
         });
       }
     });
@@ -239,6 +241,86 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         });
       });
     }
+
+    // Add unlinked tactics
+    const linkedTacticIds = new Set();
+    charter.goals?.forEach(goal => goal.tactics?.forEach(t => linkedTacticIds.add(t)));
+    const unlinkedTactics = charter.tactics?.filter(t => !linkedTacticIds.has(t.id)) || [];
+    let xOffset = 0;
+    unlinkedTactics.forEach(tactic => {
+      nodes.push({
+        id: tactic.id,
+        type: 'default',
+        position: { x: xOffset, y: levelSpacing },
+        data: {
+          label: (
+            <div className="node-content">
+              <div className="node-type"><span>📝</span> Tactic</div>
+              <div className="node-title">{tactic.title}</div>
+              <div className="node-description">{tactic.description}</div>
+            </div>
+          ),
+          title: tactic.title || 'Untitled',
+          description: tactic.description || '',
+        },
+        style: { background: '#D1FAE5', border: '2px solid #10B981', borderRadius: '8px', width: nodeWidth },
+      });
+      xOffset += nodeWidth + horizontalSpacing;
+    });
+
+    // Add unlinked policies
+    const unlinkedPolicies = charter.policies?.filter(p => !addedPolicyIds.has(p.id)) || [];
+    xOffset = 0;
+    unlinkedPolicies.forEach(policy => {
+      nodes.push({
+        id: policy.id,
+        type: 'default',
+        position: { x: xOffset, y: levelSpacing * 2 },
+        data: {
+          label: (
+            <div className="node-content">
+              <div className="node-type"><span>☂️</span> Policy</div>
+              <div className="node-title">{policy.title}</div>
+              <div className="node-description">{policy.rule}</div>
+            </div>
+          ),
+          title: policy.title || 'Untitled',
+          rule: policy.rule || '',
+          description: policy.rule || '',
+        },
+        style: { background: '#E9D5FF', border: '2px solid #8B5CF6', borderRadius: '8px', width: nodeWidth },
+      });
+      xOffset += nodeWidth + horizontalSpacing;
+    });
+
+    // Add unlinked risks
+    const linkedRiskIds = new Set();
+    charter.policies?.forEach(policy => charter.risks?.forEach(risk => {
+      if (risk.mitigation?.includes(policy.id)) linkedRiskIds.add(risk.id);
+    }));
+    const unlinkedRisks = charter.risks?.filter(r => !linkedRiskIds.has(r.id)) || [];
+    xOffset = 0;
+    unlinkedRisks.forEach(risk => {
+      nodes.push({
+        id: risk.id,
+        type: 'default',
+        position: { x: xOffset, y: levelSpacing * 3 },
+        data: {
+          label: (
+            <div className="node-content">
+              <div className="node-type"><span>⛈️</span> Risk</div>
+              <div className="node-title">{risk.description}</div>
+              <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
+            </div>
+          ),
+          description: risk.description || 'Untitled',
+          probability: risk.probability || 'low',
+          impact: risk.impact || 'low',
+        },
+        style: { background: '#FEE2E2', border: '2px solid #EF4444', borderRadius: '8px', width: nodeWidth },
+      });
+      xOffset += nodeWidth + horizontalSpacing;
+    });
 
     return nodes;
   }, [charter]);
@@ -274,6 +356,23 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
       });
     });
 
+    // Also connect based on policy.driven_by_tactic
+    charter.policies?.forEach((policy) => {
+      if (policy.driven_by_tactic) {
+        const edgeId = `${policy.driven_by_tactic}-${policy.id}`;
+        if (!edges.some(e => e.id === edgeId)) {
+          edges.push({
+            id: edgeId,
+            source: policy.driven_by_tactic,
+            target: policy.id,
+            type: 'smoothstep',
+            style: { stroke: '#10B981', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#10B981' },
+          });
+        }
+      }
+    });
+
     // Connect policies to risks (mitigation relationships)
     charter.policies?.forEach((policy) => {
       charter.risks?.forEach((risk) => {
@@ -285,6 +384,23 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             type: 'smoothstep',
             style: { stroke: '#EF4444', strokeWidth: 2, strokeDasharray: '5,5' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#EF4444' },
+            label: 'mitigates',
+          });
+        }
+      });
+    });
+
+    // Connect tactics to risks (mitigation relationships)
+    charter.tactics?.forEach((tactic) => {
+      charter.risks?.forEach((risk) => {
+        if (risk.mitigation?.includes(tactic.id)) {
+          edges.push({
+            id: `${tactic.id}-${risk.id}`,
+            source: tactic.id,
+            target: risk.id,
+            type: 'smoothstep',
+            style: { stroke: '#10B981', strokeWidth: 2, strokeDasharray: '5,5' },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#10B981' },
             label: 'mitigates',
           });
         }
@@ -335,15 +451,16 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           enforcement: 'manual',
           driven_by_tactic: '',
         });
-      } else if (node.id.includes('risk')) {
-        risks.push({
-          id: node.id,
-          description: node.data.description || 'Untitled',
-          probability: node.data.probability || 'low',
-          impact: node.data.impact || 'low',
-          mitigation: [],
-        });
-      }
+    } else if (node.id.includes('risk')) {
+      const mitigation = edges.filter(e => e.target === node.id && (e.source.includes('policy') || e.source.includes('tactic'))).map(e => e.source);
+      risks.push({
+        id: node.id,
+        description: node.data.description || 'Untitled',
+        probability: node.data.probability || 'low',
+        impact: node.data.impact || 'low',
+        mitigation,
+      });
+    }
     });
 
     edges.forEach(edge => {
