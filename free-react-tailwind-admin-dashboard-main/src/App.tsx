@@ -10,6 +10,7 @@ import ArchitecturalScope from "./pages/BusinessLayers/ArchitecturalScope";
 import LeanViability from "./pages/BusinessLayers/LeanViability";
 import CustomersFactory from "./pages/BusinessLayers/CustomersFactory";
 import PolicyCharter from "./pages/BusinessLayers/PolicyCharter";
+import Misc from "./pages/BusinessLayers/Misc";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/lean-viability" element={<LeanViability />} />
             <Route path="/customer-factory" element={<CustomersFactory />} />
             <Route path="/policy-charter" element={<PolicyCharter />} />
+            <Route path="/misc" element={<Misc />} />
           </Route>
 
           {/* Fallback Route */}

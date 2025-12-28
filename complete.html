@@ -1,0 +1,2530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete AI Support Assistant Business Example - Business Layers</title>
+  <style>
+    
+    :root {
+      --primary-color: #3182ce;
+      --secondary-color: #4a5568;
+      --text-color: #1a202c;
+      --background-color: #f5f5f5;
+      --border-color: #e2e8f0;
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      background: var(--background-color);
+      color: var(--text-color);
+    }
+
+    .tabs {
+      background: white;
+      border-bottom: 2px solid var(--border-color);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tab-buttons::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-button {
+      padding: 1rem 1.5rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1rem;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab-button:hover {
+      background: var(--background-color);
+    }
+
+    .tab-button.active {
+      border-bottom-color: var(--primary-color);
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .tab-content {
+      display: none;
+      min-height: 80vh;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Pagination for large datasets */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 2rem 0;
+      padding: 1rem;
+    }
+
+    .pagination button {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .pagination button:hover {
+      background: var(--background-color);
+    }
+
+    .pagination button.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Filter and search */
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-group label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .search-input {
+      flex: 1;
+      max-width: 300px;
+    }
+
+    /* Show more/less functionality */
+    .expandable-content {
+      max-height: 300px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .expandable-content.expanded {
+      max-height: none;
+    }
+
+    .expand-toggle {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.5rem 1rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .expand-toggle:hover {
+      background: #2c5aa0;
+    }
+
+    @media print {
+      .tabs,
+      .pagination,
+      .filters,
+      .expand-toggle { display: none !important; }
+      .tab-content {
+        display: block !important;
+        page-break-after: always;
+        break-inside: avoid;
+      }
+      .expandable-content {
+        max-height: none !important;
+      }
+      body {
+        background: white !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .tab-buttons {
+        padding: 0 1rem;
+      }
+      .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+      .filters {
+        flex-direction: column;
+      }
+      .search-input {
+        max-width: none;
+      }
+    }
+
+    /* Layer-specific styles */
+    
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #1a1a1a; }
+    .metadata { color: #666; font-size: 0.9rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eee; }
+    .section { margin: 2rem 0; }
+    .section-title { font-size: 1.5rem; color: #2c5282; margin-bottom: 0.75rem; font-weight: 600; }
+    .section-content { background: #f9fafb; padding: 1.5rem; border-left: 4px solid #4299e1; white-space: pre-wrap; }
+    .goals { display: grid; gap: 1rem; margin-top: 1rem; }
+    .goal { background: #fff; border: 1px solid #e2e8f0; padding: 1.25rem; border-radius: 6px; transition: transform 0.2s; }
+    .goal:hover { transform: translateX(4px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .goal-title { font-size: 1.1rem; font-weight: 600; color: #1a202c; margin-bottom: 0.5rem; }
+    .goal-description { color: #4a5568; }
+  
+
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .metadata { color: #666; font-size: 0.9rem; }
+
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .box {
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 150px;
+    }
+
+    .box-title {
+      font-weight: bold;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+
+    .box-content { font-size: 0.9rem; line-height: 1.5; color: #444; }
+    .box-content ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+    .box-content li { margin-bottom: 0.5rem; }
+    .box-content p { margin-bottom: 0.75rem; }
+    .box-content p:last-child { margin-bottom: 0; }
+
+    /* Grid positioning */
+    .problem { grid-column: 1; grid-row: 1; }
+    .solution { grid-column: 2; grid-row: 1; }
+    .uvp { grid-column: 3; grid-row: 1; }
+    .unfair { grid-column: 4; grid-row: 1; }
+    .customer { grid-column: 5; grid-row: 1 / 3; }
+
+    .metrics { grid-column: 1; grid-row: 2; }
+    .channels { grid-column: 2 / 5; grid-row: 2; }
+
+    .costs { grid-column: 1 / 3; grid-row: 3; }
+    .revenue { grid-column: 3 / 6; grid-row: 3; }
+
+    @media print {
+      .box { break-inside: avoid; }
+    }
+
+    @media (max-width: 768px) {
+      .canvas-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      .problem, .solution, .uvp, .unfair, .customer,
+      .metrics, .channels, .costs, .revenue {
+        grid-column: 1 !important;
+        grid-row: auto !important;
+      }
+    }
+  
+
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .metadata { color: #666; font-size: 0.9rem; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #333;
+    }
+
+    .metric {
+      margin-bottom: 1rem;
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .calculation {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-left: 4px solid #007bff;
+      border-radius: 4px;
+    }
+
+    .calc-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .calc-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 0.5rem;
+    }
+
+    .formula {
+      font-family: 'Courier New', monospace;
+      background: #fff;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+      border: 1px solid #e0e0e0;
+    }
+
+    .calc-formula-ref {
+      font-size: 0.85rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    .target-item {
+      padding: 1rem;
+      background: #f0f8ff;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .target-stage {
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 0.25rem;
+    }
+
+    .target-metric {
+      font-size: 0.95rem;
+    }
+
+    @media print {
+      .section { break-inside: avoid; }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .full-width {
+        grid-column: 1;
+      }
+    }
+  
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 20px;
+    }
+    h1 { font-size: 2rem; color: #2c3e50; margin-bottom: 10px; }
+    .meta { color: #7f8c8d; font-size: 0.9rem; }
+    .customer-factory {
+      display: flex;
+      align-items: stretch;
+      gap: 20px;
+      margin: 30px 0;
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+    .stage {
+      flex: 1;
+      min-width: 250px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: #fafafa;
+      transition: all 0.3s;
+    }
+    .stage.has-gaps {
+      border-color: #e74c3c;
+      background: #fff5f5;
+    }
+    .stage.on-track {
+      border-color: #27ae60;
+      background: #f0fff4;
+    }
+    .stage-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .stage-header h2 {
+      font-size: 1.3rem;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .stage-goal {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+    .connector {
+      display: flex;
+      align-items: center;
+      font-size: 2rem;
+      color: #95a5a6;
+      font-weight: bold;
+    }
+    .metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .metric {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px;
+    }
+    .metric.gap-exists {
+      border-left: 4px solid #e74c3c;
+    }
+    .metric.on-track {
+      border-left: 4px solid #27ae60;
+    }
+    .metric-name {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .metric-description {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-bottom: 10px;
+    }
+    .metric-values {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .value-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    .label {
+      color: #7f8c8d;
+      font-weight: 500;
+    }
+    .value {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    .gap-row {
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .gap-value.negative {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .gap-value.positive {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #95a5a6;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .customer-factory {
+        flex-direction: column;
+      }
+      .connector {
+        transform: rotate(90deg);
+        margin: 10px 0;
+      }
+    }
+    @media print {
+      .container { box-shadow: none; }
+      .tabs { display: none; }
+      .tab-content { display: block !important; }
+    }
+
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .tab-button {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #7f8c8d;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-button:hover {
+      color: #2c3e50;
+      background: #f5f5f5;
+    }
+    .tab-button.active {
+      color: #3498db;
+      border-bottom-color: #3498db;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .clickable {
+      cursor: pointer;
+      color: #3498db;
+      text-decoration: underline;
+      transition: all 0.2s;
+    }
+    .clickable:hover {
+      color: #2980b9;
+    }
+    .import-icon {
+      font-size: 0.8em;
+      opacity: 0.7;
+    }
+    .import-note {
+      font-size: 0.75rem;
+      color: #95a5a6;
+      font-style: italic;
+      margin-top: 3px;
+    }
+    .viability-context {
+      padding: 20px;
+    }
+    .viability-subtitle {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+    .viability-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    .viability-section h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    .viability-field {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+      transition: all 0.3s;
+    }
+    .viability-field:last-child {
+      border-bottom: none;
+    }
+    .field-label {
+      font-weight: 500;
+      color: #7f8c8d;
+    }
+    .field-value {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .field-note {
+      grid-column: 1 / -1;
+      font-size: 0.85rem;
+      color: #95a5a6;
+      font-style: italic;
+      margin-top: 5px;
+    }
+    .highlight {
+      background: #fff3cd !important;
+      animation: highlight-fade 2s ease-out;
+    }
+    @keyframes highlight-fade {
+      0% { background: #fff3cd; }
+      100% { background: #f9f9f9; }
+    }
+    
+  
+  
+
+    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #1a1a1a; }
+    .metadata { color: #666; font-size: 0.9rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eee; }
+
+    .scope-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .scope-list { background: #f9fafb; padding: 1.5rem; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .scope-list-title { font-size: 1.25rem; font-weight: 600; color: #2c5282; margin-bottom: 1rem; text-transform: capitalize; }
+    .scope-items { display: flex; flex-direction: column; gap: 0.75rem; }
+    .scope-item { background: white; padding: 1rem; border-left: 3px solid #4299e1; border-radius: 4px; }
+    .scope-item-title { font-weight: 600; color: #1a202c; margin-bottom: 0.25rem; }
+    .scope-item-description { color: #4a5568; font-size: 0.95rem; }
+
+    .why-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; color: white; }
+    .why-card-header { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .mission { background: rgba(255,255,255,0.15); padding: 1.5rem; border-radius: 6px; backdrop-filter: blur(10px); }
+    .mission-label { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.9; }
+    .mission-components { display: grid; gap: 1rem; }
+    .mission-component { display: flex; gap: 0.75rem; align-items: baseline; }
+    .component-label { font-size: 0.9rem; font-weight: 600; opacity: 0.85; min-width: 90px; }
+    .component-value { font-size: 1.1rem; font-weight: 500; }
+    .goals-section { margin-top: 1.5rem; }
+    .goals-label { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.9; }
+    .goals-list { display: grid; gap: 0.75rem; }
+     .goal-item { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); }
+     .goal-item .goal-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+     .goal-item .goal-description { font-size: 0.9rem; opacity: 0.9; }
+     .cross-layer-link { color: #4299e1; text-decoration: none; font-weight: 500; }
+     .cross-layer-link:hover { text-decoration: underline; }
+   
+
+    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    header { padding: 3rem; border-bottom: 2px solid #e2e8f0; }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #1a1a1a; }
+    .meta { color: #666; font-size: 0.9rem; }
+    .meta span { margin-right: 2rem; }
+
+    .tabs { display: flex; border-bottom: 2px solid #e2e8f0; background: #f9fafb; }
+    .tab { padding: 1rem 2rem; cursor: pointer; border: none; background: none; font-size: 1rem; font-weight: 500; color: #4a5568; transition: all 0.2s; }
+    .tab:hover { background: #edf2f7; }
+    .tab.active { color: #2c5282; border-bottom: 3px solid #4299e1; background: white; }
+
+    .tab-content { display: none; padding: 3rem; }
+    .tab-content.active { display: block; }
+    .tab-content h2 { font-size: 2rem; margin-bottom: 2rem; color: #1a1a1a; }
+
+    .goals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
+    .goal-card { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 6px; transition: transform 0.2s; }
+    .goal-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .goal-card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #1a202c; }
+    .goal-description { color: #4a5568; margin-bottom: 1rem; }
+    .goal-meta { display: grid; gap: 0.5rem; }
+    .meta-item { font-size: 0.9rem; }
+    .tag { background: #e2e8f0; color: #4a5568; padding: 0.25rem 0.5rem; border-radius: 3px; margin-right: 0.25rem; font-size: 0.8rem; }
+    .stage-tag { background: #4299e1; color: white; padding: 0.25rem 0.5rem; border-radius: 3px; margin-right: 0.25rem; font-size: 0.8rem; }
+
+    .tactics-tree { display: grid; gap: 1.5rem; }
+    .tactic-node { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 6px; }
+    .tactic-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+    .tactic-header h3 { font-size: 1.25rem; color: #1a202c; }
+    .tactic-id { font-size: 0.8rem; color: #666; font-family: monospace; }
+    .tactic-description { color: #4a5568; margin-bottom: 1rem; }
+    .tactic-policies { font-size: 0.9rem; }
+
+    .policies-matrix { display: grid; gap: 1.5rem; }
+    .policy-card { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 6px; }
+    .policy-card.enforcement-mandatory { border-left: 4px solid #e53e3e; }
+    .policy-card.enforcement-guideline { border-left: 4px solid #3182ce; }
+    .policy-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .policy-header h3 { font-size: 1.25rem; color: #1a202c; }
+    .enforcement-badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+    .enforcement-badge.mandatory { background: #fed7d7; color: #c53030; }
+    .enforcement-badge.guideline { background: #bee3f8; color: #2c5282; }
+    .policy-rule, .policy-tactic { margin-bottom: 0.75rem; font-size: 0.9rem; }
+    .bracket-toggle { background: #e2e8f0; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+    .bracket-content { margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 4px; }
+    .bracket-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+    .bracket-item:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .risks-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
+    .risk-card { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 6px; }
+    .risk-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .risk-header h3 { font-size: 1.1rem; color: #1a202c; }
+    .risk-levels { display: flex; gap: 0.5rem; }
+    .risk-probability, .risk-impact { padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .probability-low { background: #c6f6d5; color: #276749; }
+    .probability-medium { background: #fef5e7; color: #744210; }
+    .probability-high { background: #fed7d7; color: #c53030; }
+    .impact-low { background: #c6f6d5; color: #276749; }
+    .impact-medium { background: #fef5e7; color: #744210; }
+    .impact-high { background: #fed7d7; color: #c53030; }
+    .risk-mitigation { font-size: 0.9rem; }
+
+    .kpis-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+    .kpi-card { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 6px; }
+    .kpi-header h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #1a202c; }
+    .kpi-description { color: #4a5568; margin-bottom: 1rem; }
+    .kpi-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
+    .kpi-frequency { grid-column: span 2; }
+    .kpi-justification { font-size: 0.9rem; }
+
+    .policy-link, .tactic-link, .mitigation-link { background: #e2e8f0; color: #4a5568; padding: 0.25rem 0.5rem; border-radius: 3px; margin-right: 0.25rem; font-size: 0.8rem; }
+    .missing-policy, .missing-tactic, .missing-mitigation { background: #fed7d7; color: #c53030; padding: 0.25rem 0.5rem; border-radius: 3px; margin-right: 0.25rem; font-size: 0.8rem; }
+
+    footer { padding: 2rem 3rem; border-top: 1px solid #e2e8f0; color: #666; font-size: 0.9rem; text-align: center; }
+
+    @media (max-width: 768px) {
+      .container { margin: 0; border-radius: 0; }
+      .tabs { flex-direction: column; }
+      .tab { padding: 0.75rem 1rem; }
+      .goals-grid, .risks-matrix, .kpis-dashboard { grid-template-columns: 1fr; }
+      .policy-header { flex-direction: column; gap: 0.5rem; }
+      .risk-header { flex-direction: column; gap: 0.5rem; }
+      .kpi-metrics { grid-template-columns: 1fr; }
+    }
+  
+      
+    .policy-tree {
+      margin: 30px 0;
+      padding: 0 20px;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: inherit;
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Mermaid node text styling */
+    .mermaid .nodeLabel {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .mermaid .nodeLabel b {
+      font-weight: 600;
+    }
+
+    .mermaid .nodeLabel small {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+
+    @media print {
+      .mermaid {
+        page-break-inside: avoid;
+      }
+    }
+  
+    
+
+      .traceability-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .graph-header h2 {
+        margin: 0;
+        color: #1a202c;
+        font-size: 1.5rem;
+      }
+
+      .graph-stats {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .stat {
+        background: #f7fafc;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+      }
+
+      .traceability-graph {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fafafa;
+        margin-bottom: 2rem;
+      }
+
+      .graph-legend {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .graph-legend h3 {
+        margin: 0 0 1rem 0;
+        color: #1a202c;
+        font-size: 1.1rem;
+      }
+
+      .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px #e2e8f0;
+      }
+
+      .legend-item span {
+        font-size: 0.9rem;
+        color: #4a5568;
+      }
+
+      /* Node styles for D3 */
+      .node {
+        cursor: pointer;
+        stroke: #fff;
+        stroke-width: 2px;
+      }
+
+      .node:hover {
+        stroke-width: 3px;
+      }
+
+      .node text {
+        font-size: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+
+      .link {
+        stroke: #999;
+        stroke-opacity: 0.6;
+        fill: none;
+        marker-end: url(#arrowhead);
+      }
+
+      .link.highlighted {
+        stroke: #3182ce;
+        stroke-opacity: 1;
+        stroke-width: 3px;
+      }
+
+      /* Print styles */
+      @media print {
+        .traceability-graph {
+          display: none;
+        }
+        .graph-legend {
+          break-inside: avoid;
+        }
+      }
+    
+  </style>
+  
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FF6B35',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#FF6B35',
+        lineColor: '#999',
+        secondaryColor: '#4ECDC4',
+        tertiaryColor: '#45B7D1'
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 50,
+        rankSpacing: 80,
+        htmlLabels: true
+      }
+    });
+  </script>
+  
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab-buttons">
+      
+        <button class="tab-button active"
+                onclick="showTab(0)">
+          North Star
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(1)">
+          Lean Canvas
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(2)">
+          Lean Viability
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(3)">
+          AAARR Metrics
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(4)">
+          Architectural Scope
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(5)">
+          Policy Charter
+        </button>
+      
+        <button class="tab-button "
+                onclick="showTab(6)">
+          Traceability Graph
+        </button>
+      
+    </div>
+  </div>
+
+  
+    <div class="tab-content active" id="tab-0">
+      
+  <div class="container">
+    <h1>AI Support Assistant</h1>
+    <div class="metadata">
+      Version 2.0 • Last updated: 2025-12-25
+    </div>
+
+    <div class="section">
+      <div class="section-title">Vision</div>
+      <div class="section-content">Revolutionize customer support by making expert-level assistance instantly accessible to every business</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Problem</div>
+      <div class="section-content">Small and medium businesses struggle with inconsistent, slow, and expensive customer support that damages customer relationships and limits growth</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Solution</div>
+      <div class="section-content">Build an AI-powered support assistant that learns from expert interactions and provides 24/7 intelligent responses across all channels</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Strategic Goals</div>
+      <div class="goals">
+        
+          <div class="goal">
+            <div class="goal-title">Achieve Product-Market Fit</div>
+            <div class="goal-description">Validate that businesses are willing to pay for AI support that matches human expert quality</div>
+          </div>
+        
+          <div class="goal">
+            <div class="goal-title">Scale to 1000 Active Customers</div>
+            <div class="goal-description">Grow the user base to demonstrate market demand and network effects</div>
+          </div>
+        
+          <div class="goal">
+            <div class="goal-title">Establish Thought Leadership</div>
+            <div class="goal-description">Become recognized as the leading AI solution for customer support automation</div>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+    </div>
+  
+    <div class="tab-content " id="tab-1">
+      
+  <div class="container">
+    <div class="header">
+      <h1>AI Support Assistant Business Model</h1>
+      <div class="metadata">
+        Version 1.0 • Last updated: 2025-12-25
+      </div>
+    </div>
+
+    <div class="canvas-grid">
+      <div class="box problem">
+      <div class="box-title">Problem</div>
+      <div class="box-content">
+        <ul><li>Support tickets take 24-48 hours to resolve, frustrating customers</li><li>Hiring skilled support agents is expensive and difficult</li><li>Inconsistent responses across different support channels</li></ul>
+<p>Generic chatbots, outsourced support teams, basic ticketing systems</p>
+      </div>
+    </div>
+      <div class="box solution">
+      <div class="box-title">Solution</div>
+      <div class="box-content">
+        <ul><li>Context-aware responses using company knowledge base</li><li>Seamless handoff to human agents when needed</li><li>Multi-channel support (email, chat, voice)</li></ul>
+      </div>
+    </div>
+      <div class="box uvp">
+      <div class="box-title">Unique Value Proposition</div>
+      <div class="box-content">
+        <p>Get expert-level customer support that never sleeps</p>
+<p>AI assistant trained on your expert team&#039;s responses</p>
+      </div>
+    </div>
+      <div class="box unfair">
+      <div class="box-title">Unfair Advantage</div>
+      <div class="box-content">
+        <p>Proprietary training data from Fortune 500 support interactions</p>
+      </div>
+    </div>
+      <div class="box customer">
+      <div class="box-title">Customer Segments</div>
+      <div class="box-content">
+        <p>Small to medium businesses (50-500 employees) in B2B SaaS, e-commerce, and professional services</p>
+<p>Tech-savvy SaaS companies already using basic automation</p>
+      </div>
+    </div>
+      <div class="box metrics">
+      <div class="box-title">Key Metrics</div>
+      <div class="box-content">
+        <ul><li>Response accuracy rate (&gt;95%)</li><li>Customer satisfaction score</li><li>Resolution time reduction</li></ul>
+      </div>
+    </div>
+      <div class="box channels">
+      <div class="box-title">Channels</div>
+      <div class="box-content">
+        <ul><li>Content marketing on support automation</li><li>Partnerships with CRM and helpdesk platforms</li><li>Direct sales to enterprise customers</li></ul>
+      </div>
+    </div>
+      <div class="box costs">
+      <div class="box-title">Cost Structure</div>
+      <div class="box-content">
+        <p>$500 per customer through content marketing</p>
+<p>$100 per customer for cloud infrastructure</p>
+<p>$200 per customer for AI processing</p>
+<p>$300 per customer for ongoing model training</p>
+      </div>
+    </div>
+      <div class="box revenue">
+      <div class="box-title">Revenue Streams</div>
+      <div class="box-content">
+        <p>SaaS subscription based on support volume</p>
+<p>$50,000+ for mid-sized businesses</p>
+      </div>
+    </div>
+    </div>
+  </div>
+
+    </div>
+  
+    <div class="tab-content " id="tab-2">
+      
+  <div class="container">
+    <div class="header">
+      <h1>AI Support Assistant Viability Analysis</h1>
+      <div class="metadata">
+        Version 1.0 • Last updated: 2025-12-25
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="section">
+      <div class="section-title">Success Criteria</div>
+      <div class="metric">
+        <div class="metric-label">Target Revenue</div>
+        <div class="metric-value">$10,000,000</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Time Horizon</div>
+        <div class="metric-value">3 years</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Target Year</div>
+        <div class="metric-value">Year 3</div>
+      </div>
+    </div>
+      <div class="section">
+      <div class="section-title">Assumptions</div>
+      <div class="metric">
+        <div class="metric-label">Annual Revenue per Customer</div>
+        <div class="metric-value">$12,000</div>
+      </div>
+      <div class="metric"><div class="metric-label">Basis</div><p>Average contract value for SMB customers</p></div>
+    </div>
+      <div class="section full-width">
+      <div class="section-title">Work-Backwards Calculations</div>
+
+      <div class="calculation">
+        <div class="calc-name">Required Customers</div>
+        <div class="calc-value">833</div>
+        <div class="formula">Annual revenue target / Annual revenue per customer</div>
+      </div>
+
+      
+      <div class="calculation">
+        <div class="calc-name">Customer Lifetime Value</div>
+        <div class="calc-value">3 years</div>
+        <div class="formula">Annual revenue per customer * Customer lifetime</div>
+      </div>
+      
+
+      
+      <div class="calculation">
+        <div class="calc-name">Monthly Churn Rate</div>
+        <div class="calc-value">5.00%</div>
+        <div class="formula">Industry average for SaaS support tools</div>
+      </div>
+      
+
+      <div class="calculation">
+        <div class="calc-name">Customer Acquisition Rate</div>
+        <div class="calc-value">25/month</div>
+        <div class="formula">Required customers / (Time horizon in months)</div>
+      </div>
+
+      <div class="calculation">
+        <div class="calc-name">Monthly Acquisition Target</div>
+        <div class="calc-value">25/month</div>
+        <div class="formula">Customer acquisition rate adjusted for churn</div>
+      </div>
+
+      
+      <div class="calculation">
+        <div class="calc-name">Conversion Rate</div>
+        <div class="calc-value">15.00%</div>
+        <div class="formula">Website visitors to paying customers</div>
+      </div>
+      
+
+      
+      <div class="calculation">
+        <div class="calc-name">Monthly Visitors Needed</div>
+        <div class="calc-value">166/month</div>
+        <div class="formula">Monthly acquisition target / Conversion rate</div>
+      </div>
+      
+    </div>
+      <div class="section full-width">
+      <div class="section-title">Generated Targets (for AAARR Import)</div>
+      
+      <div class="target-item">
+        <div class="target-stage">Acquisition</div>
+        <div class="target-metric">Monthly signups: 25/month</div>
+      </div>
+    
+
+      <div class="target-item">
+        <div class="target-stage">Revenue</div>
+        <div class="target-metric">ARPU: $1,000/month</div>
+      </div>
+    
+    </div>
+    </div>
+  </div>
+
+    </div>
+  
+    <div class="tab-content " id="tab-3">
+      
+  <div class="container">
+    <header>
+      <h1>AI Support Assistant AAARR Metrics</h1>
+      <div class="meta">
+        <span>Version: 1.0</span>
+        <span>Last Updated: 2025-12-25</span>
+      </div>
+    </header>
+
+    
+    <div class="customer-factory">
+      
+      <div class="stage has-gaps">
+        <div class="stage-header">
+          <h2>Acquisition</h2>
+          <p class="stage-goal">Attract businesses to try our AI support solution</p>
+        </div>
+        <div class="metrics">
+          
+    <div class="metric gap-exists">
+      <div class="metric-name">Website Visitors</div>
+      <div class="metric-description">Unique visitors to marketing pages</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value clickable" onclick="navigateToViability('lean-viability-calculations-monthly_visitors')">
+              200/month
+               <span class="import-icon">↗</span>
+            </span>
+          </div>
+          <div class="import-note">From: lean-viability.calculations.monthly_visitors</div>
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">150/month</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">+50</span>
+          </div>
+        
+      </div>
+    </div>
+  
+    <div class="metric gap-exists">
+      <div class="metric-name">Visitor to Trial Conversion</div>
+      <div class="metric-description">Percentage of visitors who start free trial</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              15%
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">12%</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">+3.0%</span>
+          </div>
+        
+      </div>
+    </div>
+  
+        </div>
+      </div>
+      <div class="connector">→</div>
+    
+      <div class="stage has-gaps">
+        <div class="stage-header">
+          <h2>Activation</h2>
+          <p class="stage-goal">Get customers successfully using AI support</p>
+        </div>
+        <div class="metrics">
+          
+    <div class="metric gap-exists">
+      <div class="metric-name">First AI Response Rate</div>
+      <div class="metric-description">Customers who receive their first AI response within 1 hour</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              95%
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">88%</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">+7.0%</span>
+          </div>
+        
+      </div>
+    </div>
+  
+    <div class="metric gap-exists">
+      <div class="metric-name">Core Feature Usage</div>
+      <div class="metric-description">Customers using AI responses for &gt;50% of support volume</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              70%
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">45%</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">+25.0%</span>
+          </div>
+        
+      </div>
+    </div>
+  
+        </div>
+      </div>
+      <div class="connector">→</div>
+    
+      <div class="stage on-track">
+        <div class="stage-header">
+          <h2>Retention</h2>
+          <p class="stage-goal">Keep customers subscribed and expanding usage</p>
+        </div>
+        <div class="metrics">
+          
+    <div class="metric on-track">
+      <div class="metric-name">Monthly Churn Rate</div>
+      <div class="metric-description">Percentage of customers canceling subscription</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              5%
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">7%</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value positive">-2.0%</span>
+          </div>
+        
+      </div>
+    </div>
+  
+        </div>
+      </div>
+      <div class="connector">→</div>
+    
+      <div class="stage has-gaps">
+        <div class="stage-header">
+          <h2>Referral</h2>
+          <p class="stage-goal">Turn satisfied customers into advocates</p>
+        </div>
+        <div class="metrics">
+          
+    <div class="metric gap-exists">
+      <div class="metric-name">Net Promoter Score</div>
+      <div class="metric-description">Customer satisfaction and likelihood to recommend</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              N/A
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">N/A</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">0</span>
+          </div>
+        
+      </div>
+    </div>
+  
+        </div>
+      </div>
+      <div class="connector">→</div>
+    
+      <div class="stage has-gaps">
+        <div class="stage-header">
+          <h2>Revenue</h2>
+          <p class="stage-goal">Generate sustainable recurring revenue</p>
+        </div>
+        <div class="metrics">
+          
+    <div class="metric gap-exists">
+      <div class="metric-name">Monthly Recurring Revenue</div>
+      <div class="metric-description">Total MRR from all customers</div>
+
+      <div class="metric-values">
+        
+          <div class="value-row">
+            <span class="label">Target:</span>
+            <span class="value " >
+              USD 8,333
+              
+            </span>
+          </div>
+          
+        
+
+        
+          <div class="value-row">
+            <span class="label">Current:</span>
+            <span class="value">USD 5,000</span>
+          </div>
+        
+
+        
+          <div class="value-row gap-row">
+            <span class="label">Gap:</span>
+            <span class="gap-value negative">+$3,333</span>
+          </div>
+        
+      </div>
+    </div>
+  
+        </div>
+      </div>
+      
+    
+    </div>
+  
+
+    <footer>
+      <p>Generated by BLUEPRINT - Business Layer Architecture</p>
+    </footer>
+  </div>
+
+  
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    }
+
+    function navigateToViability(anchor) {
+      
+      // In multi-layer mode, navigate to the main "Lean Viability" tab
+      if (window.switchTab) {
+        window.switchTab(null, 'Lean Viability');
+        setTimeout(() => {
+          const element = document.getElementById(anchor);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.classList.add('highlight');
+            setTimeout(() => element.classList.remove('highlight'), 2000);
+          }
+        }, 100);
+      }
+      
+    }
+  </script>
+  
+
+    </div>
+  
+    <div class="tab-content " id="tab-4">
+      
+   <div class="container">
+     <h1>AI Support Assistant Solution Scope</h1>
+     <div class="metadata">
+       Version 1.0 • Last updated: 2025-12-25
+       <br>North Star Reference: <a href="#" onclick="window.switchTab(null, 'North Star'); return false;" class="cross-layer-link">north-star.yaml</a>
+     </div>
+
+    
+      <div class="why-card">
+        <div class="why-card-header">🎯 Business Motivation</div>
+        <div class="mission">
+          <div class="mission-label">BUSINESS MISSION</div>
+          <div class="mission-components">
+            <div class="mission-component">
+              <span class="component-label">Action:</span>
+              <span class="component-value">To provide</span>
+            </div>
+            <div class="mission-component">
+              <span class="component-label">Service:</span>
+              <span class="component-value">intelligent, scalable customer support</span>
+            </div>
+            <div class="mission-component">
+              <span class="component-label">Beneficiary:</span>
+              <span class="component-value">businesses of all sizes</span>
+            </div>
+          </div>
+        </div>
+        
+          <div class="goals-section">
+            <div class="goals-label">CAPABILITY GOALS</div>
+            <div class="goals-list">
+              
+                <div class="goal-item">
+                  <div class="goal-title">To reduce average response time</div>
+                  <div class="goal-description">Deliver instant AI responses instead of hours-long waits</div>
+                </div>
+              
+                <div class="goal-item">
+                  <div class="goal-title">To improve customer satisfaction</div>
+                  <div class="goal-description">Achieve consistently high CSAT scores through expert-quality responses</div>
+                </div>
+              
+                <div class="goal-item">
+                  <div class="goal-title">To lower support costs</div>
+                  <div class="goal-description">Reduce operational expenses while scaling support capacity</div>
+                </div>
+              
+                <div class="goal-item">
+                  <div class="goal-title">To increase support coverage</div>
+                  <div class="goal-description">Provide 24/7 availability without proportional cost increase</div>
+                </div>
+              
+                <div class="goal-item">
+                  <div class="goal-title">To enhance knowledge sharing</div>
+                  <div class="goal-description">Capture and distribute expert knowledge across all support interactions</div>
+                </div>
+              
+            </div>
+          </div>
+        
+      </div>
+    
+
+    <div class="scope-grid">
+      
+          <div class="scope-list">
+            <div class="scope-list-title">What</div>
+            <div class="scope-items">
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Support Tickets</div>
+                  <div class="scope-item-description">Structured records of customer inquiries, issues, and resolutions</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Knowledge Base Articles</div>
+                  <div class="scope-item-description">Repository of product documentation, FAQs, and troubleshooting guides</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Interaction History</div>
+                  <div class="scope-item-description">Chronological record of all customer communications and touchpoints</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">AI Response Models</div>
+                  <div class="scope-item-description">Machine learning models trained on expert responses and customer data</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Support Agent Performance Metrics</div>
+                  <div class="scope-item-description">Quantitative measures of support quality, speed, and customer satisfaction</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Multi-channel Communication APIs</div>
+                  <div class="scope-item-description">Interfaces for email, chat, voice, and social media integration</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">User Authentication and Permissions</div>
+                  <div class="scope-item-description">Access control system for customers, agents, and administrators</div>
+                </div>
+              
+            </div>
+          </div>
+        
+          <div class="scope-list">
+            <div class="scope-list-title">How</div>
+            <div class="scope-items">
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Natural Language Processing</div>
+                  <div class="scope-item-description">AI algorithms that understand and generate human-like text responses</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Machine Learning Training Pipeline</div>
+                  <div class="scope-item-description">Automated process to improve AI models using new interaction data</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Real-time Response Generation</div>
+                  <div class="scope-item-description">Instant AI-powered replies to customer inquiries</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Intelligent Handoff System</div>
+                  <div class="scope-item-description">Automatic escalation to human agents based on complexity and sentiment</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Multi-channel Message Routing</div>
+                  <div class="scope-item-description">Unified system to handle communications across different platforms</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Knowledge Base Integration</div>
+                  <div class="scope-item-description">AI system that references relevant documentation in responses</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Analytics and Reporting</div>
+                  <div class="scope-item-description">Dashboard showing support metrics, AI performance, and customer insights</div>
+                </div>
+              
+            </div>
+          </div>
+        
+          <div class="scope-list">
+            <div class="scope-list-title">Where</div>
+            <div class="scope-items">
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Cloud Infrastructure</div>
+                  <div class="scope-item-description">Global cloud platform for scalable AI processing and data storage</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Support Centers</div>
+                  <div class="scope-item-description">Physical locations where human agents provide backup support</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Remote Work Environments</div>
+                  <div class="scope-item-description">Distributed team access to administration and monitoring tools</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Premises</div>
+                  <div class="scope-item-description">Integration points within customer systems and workflows</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Third-party Platforms</div>
+                  <div class="scope-item-description">Integration with CRM, helpdesk, and communication tools</div>
+                </div>
+              
+            </div>
+          </div>
+        
+          <div class="scope-list">
+            <div class="scope-list-title">Who</div>
+            <div class="scope-items">
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Support Managers</div>
+                  <div class="scope-item-description">Oversee support operations and manage AI system configuration</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">AI Training Specialists</div>
+                  <div class="scope-item-description">Data scientists and engineers who improve AI model performance</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">DevOps Engineers</div>
+                  <div class="scope-item-description">Maintain cloud infrastructure and ensure system reliability</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Customer Success Managers</div>
+                  <div class="scope-item-description">Work with customers to optimize AI support implementation</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">End Customers</div>
+                  <div class="scope-item-description">Business users who interact with the AI support system</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Human Support Agents</div>
+                  <div class="scope-item-description">Provide backup support and handle complex cases</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">System Administrators</div>
+                  <div class="scope-item-description">Manage user permissions, security, and system configuration</div>
+                </div>
+              
+            </div>
+          </div>
+        
+          <div class="scope-list">
+            <div class="scope-list-title">When</div>
+            <div class="scope-items">
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">24/7 Support Availability</div>
+                  <div class="scope-item-description">Round-the-clock AI support for global customer base</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Business Hours Escalation</div>
+                  <div class="scope-item-description">Human agent availability during standard business hours</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Peak Usage Periods</div>
+                  <div class="scope-item-description">High-volume periods requiring additional AI processing capacity</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Maintenance Windows</div>
+                  <div class="scope-item-description">Scheduled downtime for system updates and improvements</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Performance Monitoring Cycles</div>
+                  <div class="scope-item-description">Regular assessment of AI accuracy and customer satisfaction</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Model Training Schedules</div>
+                  <div class="scope-item-description">Periodic retraining of AI models with new data</div>
+                </div>
+              
+                <div class="scope-item">
+                  <div class="scope-item-title">Quarterly Business Reviews</div>
+                  <div class="scope-item-description">Regular evaluation of support metrics and ROI</div>
+                </div>
+              
+            </div>
+          </div>
+        
+    </div>
+  </div>
+
+    </div>
+  
+    <div class="tab-content " id="tab-5">
+      
+  <div class="container">
+    <header>
+      <h1>AI Support Assistant Operational Policies</h1>
+      <div class="meta">
+        <span>Version: 1.0</span>
+        <span>Last Updated: 2025-12-25</span>
+      </div>
+    </header>
+
+     
+    <div class="policy-tree">
+      <h2>Policy Charter Strategy</h2>
+      <pre class="mermaid">
+flowchart TB
+    root["<b>Strategy</b>"]
+    goal0["<b>Reduce average response time</b><br/><small>Deliver instant AI responses instead of hours-l...</small>"]
+    root --> goal0
+    tactic0_0["<b>Implement AI-first support routing</b><br/><small>Route all initial customer inquiries to AI befo...</small>"]
+    goal0 --> tactic0_0
+    policy0_0_0["<b>AI Response Priority Policy</b><br/><small>All support inquiries must receive an AI-genera...</small>"]
+    tactic0_0 --> policy0_0_0
+    risk0_0_0_0["<b>AI provides incorrect or inappropriat...</b><br/><small>P:medium I:high</small>"]
+    policy0_0_0 --> risk0_0_0_0
+    policy0_0_1["<b>Intelligent Handoff Policy</b><br/><small>Escalate to human agents when AI confidence sco...</small>"]
+    tactic0_0 --> policy0_0_1
+    risk0_0_1_0["<b>AI provides incorrect or inappropriat...</b><br/><small>P:medium I:high</small>"]
+    policy0_0_1 --> risk0_0_1_0
+    tactic0_1["<b>Scale AI processing capacity</b><br/><small>Dynamically allocate computing resources based ...</small>"]
+    goal0 --> tactic0_1
+    policy0_1_0["<b>AI Response Priority Policy</b><br/><small>All support inquiries must receive an AI-genera...</small>"]
+    tactic0_1 --> policy0_1_0
+    risk0_1_0_0["<b>AI provides incorrect or inappropriat...</b><br/><small>P:medium I:high</small>"]
+    policy0_1_0 --> risk0_1_0_0
+    policy0_1_1["<b>Intelligent Handoff Policy</b><br/><small>Escalate to human agents when AI confidence sco...</small>"]
+    tactic0_1 --> policy0_1_1
+    risk0_1_1_0["<b>AI provides incorrect or inappropriat...</b><br/><small>P:medium I:high</small>"]
+    policy0_1_1 --> risk0_1_1_0
+    goal1["<b>Lower support operational costs</b><br/><small>Reduce expenses while scaling support capacity</small>"]
+    root --> goal1
+    tactic1_0["<b>Automate routine support tasks</b><br/><small>Use AI to handle common issues without human in...</small>"]
+    goal1 --> tactic1_0
+    policy1_0_0["<b>Cost Monitoring Policy</b><br/><small>Track support cost per ticket and maintain belo...</small>"]
+    tactic1_0 --> policy1_0_0
+    risk1_0_0_0["<b>AI processing costs grow faster than ...</b><br/><small>P:low I:high</small>"]
+    policy1_0_0 --> risk1_0_0_0
+    tactic1_1["<b>Optimize resource utilization</b><br/><small>Monitor and improve AI processing efficiency</small>"]
+    goal1 --> tactic1_1
+    policy1_1_0["<b>Cost Monitoring Policy</b><br/><small>Track support cost per ticket and maintain belo...</small>"]
+    tactic1_1 --> policy1_1_0
+    risk1_1_0_0["<b>AI processing costs grow faster than ...</b><br/><small>P:low I:high</small>"]
+    policy1_1_0 --> risk1_1_0_0
+    goal2["<b>Maintain expert-level response quality</b><br/><small>Ensure AI responses match or exceed human exper...</small>"]
+    root --> goal2
+    tactic2_0["<b>Implement quality assurance processes</b><br/><small>Regular validation of AI response accuracy and ...</small>"]
+    goal2 --> tactic2_0
+    policy2_0_0["<b>Response Quality Gates</b><br/><small>All AI responses must pass automated quality ch...</small>"]
+    tactic2_0 --> policy2_0_0
+    risk2_0_0_0["<b>AI responses become less accurate ove...</b><br/><small>P:medium I:medium</small>"]
+    policy2_0_0 --> risk2_0_0_0
+
+style root fill:#6B7280,stroke:#4B5563,color:#fff
+style goal0 fill:#FF6B35,stroke:#E55A2B,color:#fff
+style tactic0_0 fill:#4ECDC4,stroke:#3DBDB5,color:#fff
+style policy0_0_0 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk0_0_0_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style policy0_0_1 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk0_0_1_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style tactic0_1 fill:#4ECDC4,stroke:#3DBDB5,color:#fff
+style policy0_1_0 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk0_1_0_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style policy0_1_1 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk0_1_1_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style goal1 fill:#FF6B35,stroke:#E55A2B,color:#fff
+style tactic1_0 fill:#4ECDC4,stroke:#3DBDB5,color:#fff
+style policy1_0_0 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk1_0_0_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style tactic1_1 fill:#4ECDC4,stroke:#3DBDB5,color:#fff
+style policy1_1_0 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk1_1_0_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+style goal2 fill:#FF6B35,stroke:#E55A2B,color:#fff
+style tactic2_0 fill:#4ECDC4,stroke:#3DBDB5,color:#fff
+style policy2_0_0 fill:#45B7D1,stroke:#35A7C1,color:#fff
+style risk2_0_0_0 fill:#E74C3C,stroke:#D73C2C,color:#fff
+      </pre>
+    </div>
+    
+
+    <footer>
+      <p>Generated by BLUEPRINT - Business Layer Architecture</p>
+    </footer>
+  </div>
+
+  <script>
+    function switchTab(event, tabId) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Remove active from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected tab content
+      document.getElementById(tabId).classList.add('active');
+
+      // Mark selected tab as active
+      event.currentTarget.classList.add('active');
+    }
+
+    function toggleBracket(button) {
+      const content = button.nextElementSibling;
+      if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        button.textContent = 'Hide Brackets';
+      } else {
+        content.style.display = 'none';
+        button.textContent = 'Show Brackets';
+      }
+    }
+    </script>
+
+  
+    </div>
+  
+    <div class="tab-content " id="tab-6">
+      
+    <div class="traceability-container">
+      <div class="graph-header">
+        <h2>Business Architecture Traceability</h2>
+        <div class="graph-stats">
+          <span class="stat">Nodes: 119</span>
+          <span class="stat">Edges: 143</span>
+        </div>
+      </div>
+      <div id="traceability-graph" class="traceability-graph"></div>
+      <div class="graph-legend">
+        <h3>Legend</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF6B6B"></div>
+            <span>Business</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #4ECDC4"></div>
+            <span>North Star</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #45B7D1"></div>
+            <span>Lean Canvas</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #96CEB4"></div>
+            <span>Architectural Scope</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #FFEAA7"></div>
+            <span>Lean Viability</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #DDA0DD"></div>
+            <span>AAARR Metrics</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #98D8C8"></div>
+            <span>Policy Charter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .traceability-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .graph-header h2 {
+        margin: 0;
+        color: #1a202c;
+        font-size: 1.5rem;
+      }
+
+      .graph-stats {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .stat {
+        background: #f7fafc;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+      }
+
+      .traceability-graph {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fafafa;
+        margin-bottom: 2rem;
+      }
+
+      .graph-legend {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .graph-legend h3 {
+        margin: 0 0 1rem 0;
+        color: #1a202c;
+        font-size: 1.1rem;
+      }
+
+      .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px #e2e8f0;
+      }
+
+      .legend-item span {
+        font-size: 0.9rem;
+        color: #4a5568;
+      }
+
+      /* Node styles for D3 */
+      .node {
+        cursor: pointer;
+        stroke: #fff;
+        stroke-width: 2px;
+      }
+
+      .node:hover {
+        stroke-width: 3px;
+      }
+
+      .node text {
+        font-size: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+
+      .link {
+        stroke: #999;
+        stroke-opacity: 0.6;
+        fill: none;
+        marker-end: url(#arrowhead);
+      }
+
+      .link.highlighted {
+        stroke: #3182ce;
+        stroke-opacity: 1;
+        stroke-width: 3px;
+      }
+
+      /* Print styles */
+      @media print {
+        .traceability-graph {
+          display: none;
+        }
+        .graph-legend {
+          break-inside: avoid;
+        }
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+    <script>
+      console.log('Traceability graph script loading...');
+
+      // Node color function
+      function getNodeColor(layer) {
+        const colors = {
+          'business': '#FF6B6B', // Red
+          'north-star': '#4ECDC4', // Teal
+          'lean-canvas': '#45B7D1', // Blue
+          'architectural-scope': '#96CEB4', // Green
+          'lean-viability': '#FFEAA7', // Yellow
+          'aaarr-metrics': '#DDA0DD', // Plum
+          'policy-charter': '#98D8C8' // Mint
+        };
+        return colors[layer] || '#CCCCCC';
+      }
+
+      // Graph data
+      const graphData = {"nodes":[{"id":"business","layer":"business","type":"business","title":"Complete AI Support Assistant Business Example","description":"Main business orchestration","data":{"type":"business","version":"2.0","last_updated":"2025-12-25","title":"Complete AI Support Assistant Business Example","north_star_ref":"complete-business/north-star.yaml","lean_canvas_ref":"complete-business/lean-canvas.yaml","architectural_scope_ref":"complete-business/architectural-scope.yaml","lean_viability_ref":"complete-business/lean-viability.yaml","aaarr_ref":"complete-business/aaarr-metrics.yaml","policy_charter_ref":"complete-business/policy-charter.yaml"}},{"id":"north-star","layer":"north-star","type":"north-star","title":"AI Support Assistant","description":"Revolutionize customer support by making expert-level assistance instantly accessible to every business - Small and medium businesses struggle with inconsistent, slow, and expensive customer support that damages customer relationships and limits growth","data":{"type":"north-star","version":"2.0","last_updated":"2025-12-25","title":"AI Support Assistant","vision":"Revolutionize customer support by making expert-level assistance instantly accessible to every business","problem":"Small and medium businesses struggle with inconsistent, slow, and expensive customer support that damages customer relationships and limits growth","solution":"Build an AI-powered support assistant that learns from expert interactions and provides 24/7 intelligent responses across all channels","strategic_goals":[{"title":"Achieve Product-Market Fit","description":"Validate that businesses are willing to pay for AI support that matches human expert quality"},{"title":"Scale to 1000 Active Customers","description":"Grow the user base to demonstrate market demand and network effects"},{"title":"Establish Thought Leadership","description":"Become recognized as the leading AI solution for customer support automation"}]}},{"id":"north-star.goal.0","layer":"north-star","type":"strategic-goal","title":"Achieve Product-Market Fit","description":"Validate that businesses are willing to pay for AI support that matches human expert quality","data":{"title":"Achieve Product-Market Fit","description":"Validate that businesses are willing to pay for AI support that matches human expert quality"}},{"id":"north-star.goal.1","layer":"north-star","type":"strategic-goal","title":"Scale to 1000 Active Customers","description":"Grow the user base to demonstrate market demand and network effects","data":{"title":"Scale to 1000 Active Customers","description":"Grow the user base to demonstrate market demand and network effects"}},{"id":"north-star.goal.2","layer":"north-star","type":"strategic-goal","title":"Establish Thought Leadership","description":"Become recognized as the leading AI solution for customer support automation","data":{"title":"Establish Thought Leadership","description":"Become recognized as the leading AI solution for customer support automation"}},{"id":"lean-canvas","layer":"lean-canvas","type":"lean-canvas","title":"AI Support Assistant Business Model","description":"Lean business model canvas","data":{"type":"lean-canvas","version":"1.0","last_updated":"2025-12-25","title":"AI Support Assistant Business Model","north_star_ref":"north-star.yaml","problem":{"top_3_problems":["Support tickets take 24-48 hours to resolve, frustrating customers","Hiring skilled support agents is expensive and difficult","Inconsistent responses across different support channels"],"existing_alternatives":"Generic chatbots, outsourced support teams, basic ticketing systems"},"customer_segments":{"target_customers":"Small to medium businesses (50-500 employees) in B2B SaaS, e-commerce, and professional services","early_adopters":"Tech-savvy SaaS companies already using basic automation"},"unique_value_proposition":{"single_clear_message":"Get expert-level customer support that never sleeps","high_level_concept":"AI assistant trained on your expert team's responses"},"solution":{"top_3_features":["Context-aware responses using company knowledge base","Seamless handoff to human agents when needed","Multi-channel support (email, chat, voice)"]},"channels":{"path_to_customers":["Content marketing on support automation","Partnerships with CRM and helpdesk platforms","Direct sales to enterprise customers"]},"revenue_streams":{"revenue_model":"SaaS subscription based on support volume","lifetime_value":"$50,000+ for mid-sized businesses"},"cost_structure":{"customer_acquisition_cost":"$500 per customer through content marketing","distribution_costs":"$100 per customer for cloud infrastructure","hosting_costs":"$200 per customer for AI processing","people_costs":"$300 per customer for ongoing model training"},"key_metrics":{"activities_to_measure":["Response accuracy rate (>95%)","Customer satisfaction score","Resolution time reduction"]},"unfair_advantage":{"cant_be_copied":"Proprietary training data from Fortune 500 support interactions"}}},{"id":"lean-canvas.problem","layer":"lean-canvas","type":"problem","title":"Problem","description":"Generic chatbots, outsourced support teams, basic ticketing systems","data":{"top_3_problems":["Support tickets take 24-48 hours to resolve, frustrating customers","Hiring skilled support agents is expensive and difficult","Inconsistent responses across different support channels"],"existing_alternatives":"Generic chatbots, outsourced support teams, basic ticketing systems"}},{"id":"lean-canvas.problem.0","layer":"lean-canvas","type":"problem-item","title":"Support tickets take 24-48 hours to resolve, frustrating customers","description":"","data":{"problem":"Support tickets take 24-48 hours to resolve, frustrating customers"}},{"id":"lean-canvas.problem.1","layer":"lean-canvas","type":"problem-item","title":"Hiring skilled support agents is expensive and difficult","description":"","data":{"problem":"Hiring skilled support agents is expensive and difficult"}},{"id":"lean-canvas.problem.2","layer":"lean-canvas","type":"problem-item","title":"Inconsistent responses across different support channels","description":"","data":{"problem":"Inconsistent responses across different support channels"}},{"id":"lean-canvas.solution","layer":"lean-canvas","type":"solution","title":"Solution","description":"","data":{"top_3_features":["Context-aware responses using company knowledge base","Seamless handoff to human agents when needed","Multi-channel support (email, chat, voice)"]}},{"id":"lean-canvas.solution.0","layer":"lean-canvas","type":"solution-feature","title":"Context-aware responses using company knowledge base","description":"","data":{"feature":"Context-aware responses using company knowledge base"}},{"id":"lean-canvas.solution.1","layer":"lean-canvas","type":"solution-feature","title":"Seamless handoff to human agents when needed","description":"","data":{"feature":"Seamless handoff to human agents when needed"}},{"id":"lean-canvas.solution.2","layer":"lean-canvas","type":"solution-feature","title":"Multi-channel support (email, chat, voice)","description":"","data":{"feature":"Multi-channel support (email, chat, voice)"}},{"id":"lean-canvas.uvp","layer":"lean-canvas","type":"uvp","title":"Get expert-level customer support that never sleeps","description":"AI assistant trained on your expert team's responses","data":{"single_clear_message":"Get expert-level customer support that never sleeps","high_level_concept":"AI assistant trained on your expert team's responses"}},{"id":"lean-canvas.ua","layer":"lean-canvas","type":"unfair-advantage","title":"Proprietary training data from Fortune 500 support interactions","description":"","data":{"cant_be_copied":"Proprietary training data from Fortune 500 support interactions"}},{"id":"lean-canvas.channels","layer":"lean-canvas","type":"channels","title":"Channels","description":"","data":{"path_to_customers":["Content marketing on support automation","Partnerships with CRM and helpdesk platforms","Direct sales to enterprise customers"]}},{"id":"lean-canvas.channel.0","layer":"lean-canvas","type":"channel","title":"Content marketing on support automation","description":"","data":{"channel":"Content marketing on support automation"}},{"id":"lean-canvas.channel.1","layer":"lean-canvas","type":"channel","title":"Partnerships with CRM and helpdesk platforms","description":"","data":{"channel":"Partnerships with CRM and helpdesk platforms"}},{"id":"lean-canvas.channel.2","layer":"lean-canvas","type":"channel","title":"Direct sales to enterprise customers","description":"","data":{"channel":"Direct sales to enterprise customers"}},{"id":"lean-canvas.segments","layer":"lean-canvas","type":"customer-segments","title":"Customer Segments","description":"Small to medium businesses (50-500 employees) in B2B SaaS, e-commerce, and professional services - Tech-savvy SaaS companies already using basic automation","data":{"target_customers":"Small to medium businesses (50-500 employees) in B2B SaaS, e-commerce, and professional services","early_adopters":"Tech-savvy SaaS companies already using basic automation"}},{"id":"lean-canvas.costs","layer":"lean-canvas","type":"cost-structure","title":"Cost Structure","description":"","data":{"customer_acquisition_cost":"$500 per customer through content marketing","distribution_costs":"$100 per customer for cloud infrastructure","hosting_costs":"$200 per customer for AI processing","people_costs":"$300 per customer for ongoing model training"}},{"id":"lean-canvas.cost.cac","layer":"lean-canvas","type":"cost-item","title":"Customer Acquisition Cost","description":"$500 per customer through content marketing","data":{"cost":"$500 per customer through content marketing"}},{"id":"lean-canvas.cost.distribution","layer":"lean-canvas","type":"cost-item","title":"Distribution Costs","description":"$100 per customer for cloud infrastructure","data":{"cost":"$100 per customer for cloud infrastructure"}},{"id":"lean-canvas.cost.hosting","layer":"lean-canvas","type":"cost-item","title":"Hosting Costs","description":"$200 per customer for AI processing","data":{"cost":"$200 per customer for AI processing"}},{"id":"lean-canvas.cost.people","layer":"lean-canvas","type":"cost-item","title":"People Costs","description":"$300 per customer for ongoing model training","data":{"cost":"$300 per customer for ongoing model training"}},{"id":"lean-canvas.revenue","layer":"lean-canvas","type":"revenue-streams","title":"Revenue Streams","description":"SaaS subscription based on support volume - $50,000+ for mid-sized businesses","data":{"revenue_model":"SaaS subscription based on support volume","lifetime_value":"$50,000+ for mid-sized businesses"}},{"id":"lean-canvas.metrics","layer":"lean-canvas","type":"key-metrics","title":"Key Metrics","description":"","data":{"activities_to_measure":["Response accuracy rate (>95%)","Customer satisfaction score","Resolution time reduction"]}},{"id":"lean-canvas.metric.0","layer":"lean-canvas","type":"key-metric","title":"Response accuracy rate (>95%)","description":"","data":{"metric":"Response accuracy rate (>95%)"}},{"id":"lean-canvas.metric.1","layer":"lean-canvas","type":"key-metric","title":"Customer satisfaction score","description":"","data":{"metric":"Customer satisfaction score"}},{"id":"lean-canvas.metric.2","layer":"lean-canvas","type":"key-metric","title":"Resolution time reduction","description":"","data":{"metric":"Resolution time reduction"}},{"id":"architectural-scope","layer":"architectural-scope","type":"architectural-scope","title":"AI Support Assistant Solution Scope","description":"Architectural scope definition","data":{"type":"architectural-scope","version":"1.0","last_updated":"2025-12-25","title":"AI Support Assistant Solution Scope","north_star_ref":"north-star.yaml","what":[{"title":"Customer Support Tickets","description":"Structured records of customer inquiries, issues, and resolutions"},{"title":"Knowledge Base Articles","description":"Repository of product documentation, FAQs, and troubleshooting guides"},{"title":"Customer Interaction History","description":"Chronological record of all customer communications and touchpoints"},{"title":"AI Response Models","description":"Machine learning models trained on expert responses and customer data"},{"title":"Support Agent Performance Metrics","description":"Quantitative measures of support quality, speed, and customer satisfaction"},{"title":"Multi-channel Communication APIs","description":"Interfaces for email, chat, voice, and social media integration"},{"title":"User Authentication and Permissions","description":"Access control system for customers, agents, and administrators"}],"how":[{"title":"Natural Language Processing","description":"AI algorithms that understand and generate human-like text responses"},{"title":"Machine Learning Training Pipeline","description":"Automated process to improve AI models using new interaction data"},{"title":"Real-time Response Generation","description":"Instant AI-powered replies to customer inquiries"},{"title":"Intelligent Handoff System","description":"Automatic escalation to human agents based on complexity and sentiment"},{"title":"Multi-channel Message Routing","description":"Unified system to handle communications across different platforms"},{"title":"Knowledge Base Integration","description":"AI system that references relevant documentation in responses"},{"title":"Analytics and Reporting","description":"Dashboard showing support metrics, AI performance, and customer insights"}],"where":[{"title":"Cloud Infrastructure","description":"Global cloud platform for scalable AI processing and data storage"},{"title":"Customer Support Centers","description":"Physical locations where human agents provide backup support"},{"title":"Remote Work Environments","description":"Distributed team access to administration and monitoring tools"},{"title":"Customer Premises","description":"Integration points within customer systems and workflows"},{"title":"Third-party Platforms","description":"Integration with CRM, helpdesk, and communication tools"}],"who":[{"title":"Customer Support Managers","description":"Oversee support operations and manage AI system configuration"},{"title":"AI Training Specialists","description":"Data scientists and engineers who improve AI model performance"},{"title":"DevOps Engineers","description":"Maintain cloud infrastructure and ensure system reliability"},{"title":"Customer Success Managers","description":"Work with customers to optimize AI support implementation"},{"title":"End Customers","description":"Business users who interact with the AI support system"},{"title":"Human Support Agents","description":"Provide backup support and handle complex cases"},{"title":"System Administrators","description":"Manage user permissions, security, and system configuration"}],"when":[{"title":"24/7 Support Availability","description":"Round-the-clock AI support for global customer base"},{"title":"Business Hours Escalation","description":"Human agent availability during standard business hours"},{"title":"Peak Usage Periods","description":"High-volume periods requiring additional AI processing capacity"},{"title":"Maintenance Windows","description":"Scheduled downtime for system updates and improvements"},{"title":"Performance Monitoring Cycles","description":"Regular assessment of AI accuracy and customer satisfaction"},{"title":"Model Training Schedules","description":"Periodic retraining of AI models with new data"},{"title":"Quarterly Business Reviews","description":"Regular evaluation of support metrics and ROI"}],"why":{"mission":{"action":"To provide","service":"intelligent, scalable customer support","beneficiary":"businesses of all sizes"},"goals":[{"title":"To reduce average response time","description":"Deliver instant AI responses instead of hours-long waits"},{"title":"To improve customer satisfaction","description":"Achieve consistently high CSAT scores through expert-quality responses"},{"title":"To lower support costs","description":"Reduce operational expenses while scaling support capacity"},{"title":"To increase support coverage","description":"Provide 24/7 availability without proportional cost increase"},{"title":"To enhance knowledge sharing","description":"Capture and distribute expert knowledge across all support interactions"}]}}},{"id":"architectural-scope.mission","layer":"architectural-scope","type":"mission","title":"Mission: To provide intelligent, scalable customer support for businesses of all sizes","description":"","data":{"action":"To provide","service":"intelligent, scalable customer support","beneficiary":"businesses of all sizes"}},{"id":"architectural-scope.goal.0","layer":"architectural-scope","type":"scope-goal","title":"To reduce average response time","description":"Deliver instant AI responses instead of hours-long waits","data":{"title":"To reduce average response time","description":"Deliver instant AI responses instead of hours-long waits"}},{"id":"architectural-scope.goal.1","layer":"architectural-scope","type":"scope-goal","title":"To improve customer satisfaction","description":"Achieve consistently high CSAT scores through expert-quality responses","data":{"title":"To improve customer satisfaction","description":"Achieve consistently high CSAT scores through expert-quality responses"}},{"id":"architectural-scope.goal.2","layer":"architectural-scope","type":"scope-goal","title":"To lower support costs","description":"Reduce operational expenses while scaling support capacity","data":{"title":"To lower support costs","description":"Reduce operational expenses while scaling support capacity"}},{"id":"architectural-scope.goal.3","layer":"architectural-scope","type":"scope-goal","title":"To increase support coverage","description":"Provide 24/7 availability without proportional cost increase","data":{"title":"To increase support coverage","description":"Provide 24/7 availability without proportional cost increase"}},{"id":"architectural-scope.goal.4","layer":"architectural-scope","type":"scope-goal","title":"To enhance knowledge sharing","description":"Capture and distribute expert knowledge across all support interactions","data":{"title":"To enhance knowledge sharing","description":"Capture and distribute expert knowledge across all support interactions"}},{"id":"architectural-scope.what.0","layer":"architectural-scope","type":"what","title":"Customer Support Tickets","description":"Structured records of customer inquiries, issues, and resolutions","data":{"title":"Customer Support Tickets","description":"Structured records of customer inquiries, issues, and resolutions"}},{"id":"architectural-scope.what.1","layer":"architectural-scope","type":"what","title":"Knowledge Base Articles","description":"Repository of product documentation, FAQs, and troubleshooting guides","data":{"title":"Knowledge Base Articles","description":"Repository of product documentation, FAQs, and troubleshooting guides"}},{"id":"architectural-scope.what.2","layer":"architectural-scope","type":"what","title":"Customer Interaction History","description":"Chronological record of all customer communications and touchpoints","data":{"title":"Customer Interaction History","description":"Chronological record of all customer communications and touchpoints"}},{"id":"architectural-scope.what.3","layer":"architectural-scope","type":"what","title":"AI Response Models","description":"Machine learning models trained on expert responses and customer data","data":{"title":"AI Response Models","description":"Machine learning models trained on expert responses and customer data"}},{"id":"architectural-scope.what.4","layer":"architectural-scope","type":"what","title":"Support Agent Performance Metrics","description":"Quantitative measures of support quality, speed, and customer satisfaction","data":{"title":"Support Agent Performance Metrics","description":"Quantitative measures of support quality, speed, and customer satisfaction"}},{"id":"architectural-scope.what.5","layer":"architectural-scope","type":"what","title":"Multi-channel Communication APIs","description":"Interfaces for email, chat, voice, and social media integration","data":{"title":"Multi-channel Communication APIs","description":"Interfaces for email, chat, voice, and social media integration"}},{"id":"architectural-scope.what.6","layer":"architectural-scope","type":"what","title":"User Authentication and Permissions","description":"Access control system for customers, agents, and administrators","data":{"title":"User Authentication and Permissions","description":"Access control system for customers, agents, and administrators"}},{"id":"architectural-scope.how.0","layer":"architectural-scope","type":"how","title":"Natural Language Processing","description":"AI algorithms that understand and generate human-like text responses","data":{"title":"Natural Language Processing","description":"AI algorithms that understand and generate human-like text responses"}},{"id":"architectural-scope.how.1","layer":"architectural-scope","type":"how","title":"Machine Learning Training Pipeline","description":"Automated process to improve AI models using new interaction data","data":{"title":"Machine Learning Training Pipeline","description":"Automated process to improve AI models using new interaction data"}},{"id":"architectural-scope.how.2","layer":"architectural-scope","type":"how","title":"Real-time Response Generation","description":"Instant AI-powered replies to customer inquiries","data":{"title":"Real-time Response Generation","description":"Instant AI-powered replies to customer inquiries"}},{"id":"architectural-scope.how.3","layer":"architectural-scope","type":"how","title":"Intelligent Handoff System","description":"Automatic escalation to human agents based on complexity and sentiment","data":{"title":"Intelligent Handoff System","description":"Automatic escalation to human agents based on complexity and sentiment"}},{"id":"architectural-scope.how.4","layer":"architectural-scope","type":"how","title":"Multi-channel Message Routing","description":"Unified system to handle communications across different platforms","data":{"title":"Multi-channel Message Routing","description":"Unified system to handle communications across different platforms"}},{"id":"architectural-scope.how.5","layer":"architectural-scope","type":"how","title":"Knowledge Base Integration","description":"AI system that references relevant documentation in responses","data":{"title":"Knowledge Base Integration","description":"AI system that references relevant documentation in responses"}},{"id":"architectural-scope.how.6","layer":"architectural-scope","type":"how","title":"Analytics and Reporting","description":"Dashboard showing support metrics, AI performance, and customer insights","data":{"title":"Analytics and Reporting","description":"Dashboard showing support metrics, AI performance, and customer insights"}},{"id":"architectural-scope.where.0","layer":"architectural-scope","type":"where","title":"Cloud Infrastructure","description":"Global cloud platform for scalable AI processing and data storage","data":{"title":"Cloud Infrastructure","description":"Global cloud platform for scalable AI processing and data storage"}},{"id":"architectural-scope.where.1","layer":"architectural-scope","type":"where","title":"Customer Support Centers","description":"Physical locations where human agents provide backup support","data":{"title":"Customer Support Centers","description":"Physical locations where human agents provide backup support"}},{"id":"architectural-scope.where.2","layer":"architectural-scope","type":"where","title":"Remote Work Environments","description":"Distributed team access to administration and monitoring tools","data":{"title":"Remote Work Environments","description":"Distributed team access to administration and monitoring tools"}},{"id":"architectural-scope.where.3","layer":"architectural-scope","type":"where","title":"Customer Premises","description":"Integration points within customer systems and workflows","data":{"title":"Customer Premises","description":"Integration points within customer systems and workflows"}},{"id":"architectural-scope.where.4","layer":"architectural-scope","type":"where","title":"Third-party Platforms","description":"Integration with CRM, helpdesk, and communication tools","data":{"title":"Third-party Platforms","description":"Integration with CRM, helpdesk, and communication tools"}},{"id":"architectural-scope.who.0","layer":"architectural-scope","type":"who","title":"Customer Support Managers","description":"Oversee support operations and manage AI system configuration","data":{"title":"Customer Support Managers","description":"Oversee support operations and manage AI system configuration"}},{"id":"architectural-scope.who.1","layer":"architectural-scope","type":"who","title":"AI Training Specialists","description":"Data scientists and engineers who improve AI model performance","data":{"title":"AI Training Specialists","description":"Data scientists and engineers who improve AI model performance"}},{"id":"architectural-scope.who.2","layer":"architectural-scope","type":"who","title":"DevOps Engineers","description":"Maintain cloud infrastructure and ensure system reliability","data":{"title":"DevOps Engineers","description":"Maintain cloud infrastructure and ensure system reliability"}},{"id":"architectural-scope.who.3","layer":"architectural-scope","type":"who","title":"Customer Success Managers","description":"Work with customers to optimize AI support implementation","data":{"title":"Customer Success Managers","description":"Work with customers to optimize AI support implementation"}},{"id":"architectural-scope.who.4","layer":"architectural-scope","type":"who","title":"End Customers","description":"Business users who interact with the AI support system","data":{"title":"End Customers","description":"Business users who interact with the AI support system"}},{"id":"architectural-scope.who.5","layer":"architectural-scope","type":"who","title":"Human Support Agents","description":"Provide backup support and handle complex cases","data":{"title":"Human Support Agents","description":"Provide backup support and handle complex cases"}},{"id":"architectural-scope.who.6","layer":"architectural-scope","type":"who","title":"System Administrators","description":"Manage user permissions, security, and system configuration","data":{"title":"System Administrators","description":"Manage user permissions, security, and system configuration"}},{"id":"architectural-scope.when.0","layer":"architectural-scope","type":"when","title":"24/7 Support Availability","description":"Round-the-clock AI support for global customer base","data":{"title":"24/7 Support Availability","description":"Round-the-clock AI support for global customer base"}},{"id":"architectural-scope.when.1","layer":"architectural-scope","type":"when","title":"Business Hours Escalation","description":"Human agent availability during standard business hours","data":{"title":"Business Hours Escalation","description":"Human agent availability during standard business hours"}},{"id":"architectural-scope.when.2","layer":"architectural-scope","type":"when","title":"Peak Usage Periods","description":"High-volume periods requiring additional AI processing capacity","data":{"title":"Peak Usage Periods","description":"High-volume periods requiring additional AI processing capacity"}},{"id":"architectural-scope.when.3","layer":"architectural-scope","type":"when","title":"Maintenance Windows","description":"Scheduled downtime for system updates and improvements","data":{"title":"Maintenance Windows","description":"Scheduled downtime for system updates and improvements"}},{"id":"architectural-scope.when.4","layer":"architectural-scope","type":"when","title":"Performance Monitoring Cycles","description":"Regular assessment of AI accuracy and customer satisfaction","data":{"title":"Performance Monitoring Cycles","description":"Regular assessment of AI accuracy and customer satisfaction"}},{"id":"architectural-scope.when.5","layer":"architectural-scope","type":"when","title":"Model Training Schedules","description":"Periodic retraining of AI models with new data","data":{"title":"Model Training Schedules","description":"Periodic retraining of AI models with new data"}},{"id":"architectural-scope.when.6","layer":"architectural-scope","type":"when","title":"Quarterly Business Reviews","description":"Regular evaluation of support metrics and ROI","data":{"title":"Quarterly Business Reviews","description":"Regular evaluation of support metrics and ROI"}},{"id":"lean-viability","layer":"lean-viability","type":"lean-viability","title":"AI Support Assistant Viability Analysis","description":"Lean viability calculations","data":{"type":"lean-viability","version":"1.0","last_updated":"2025-12-25","title":"AI Support Assistant Viability Analysis","lean_canvas_ref":"lean-canvas.yaml","time_horizon":{"duration":3,"unit":"years"},"success_criteria":{"annual_revenue":{"amount":10000000,"currency":"USD"},"target_year":3},"calculations":{"annual_revenue_per_customer":{"amount":12000,"currency":"USD","basis":"Average contract value for SMB customers"},"required_customers":{"count":833,"formula":"Annual revenue target / Annual revenue per customer"},"customer_acquisition_rate":{"rate":25,"period":"month","formula":"Required customers / (Time horizon in months)"},"monthly_acquisition_target":{"rate":25,"period":"month","formula":"Customer acquisition rate adjusted for churn"},"customer_lifetime_value":{"years":3,"formula":"Annual revenue per customer * Customer lifetime"},"churn_rate":{"monthly_rate":0.05,"formula":"Industry average for SaaS support tools"},"conversion_rate":{"rate":0.15,"basis":"Website visitors to paying customers"},"monthly_visitors":{"rate":166,"period":"month","formula":"Monthly acquisition target / Conversion rate"}},"targets":{"acquisition":{"monthly_signups":{"rate":25,"period":"month"}},"activation":{"weekly_active_users":{"rate":20,"period":"month"}},"retention":{"monthly_churn_rate":{"percentage":5}},"referral":{"viral_coefficient":0.1},"revenue":{"arpu":{"amount":1000,"currency":"USD","period":"month"}}}}},{"id":"lean-viability.calculations.annual_revenue_per_customer","layer":"lean-viability","type":"calculation","title":"annual_revenue_per_customer","description":"Calculated value: [object Object]","data":{"key":"annual_revenue_per_customer","value":{"amount":12000,"currency":"USD","basis":"Average contract value for SMB customers"}}},{"id":"lean-viability.calculations.required_customers","layer":"lean-viability","type":"calculation","title":"required_customers","description":"Calculated value: [object Object]","data":{"key":"required_customers","value":{"count":833,"formula":"Annual revenue target / Annual revenue per customer"}}},{"id":"lean-viability.calculations.customer_acquisition_rate","layer":"lean-viability","type":"calculation","title":"customer_acquisition_rate","description":"Calculated value: [object Object]","data":{"key":"customer_acquisition_rate","value":{"rate":25,"period":"month","formula":"Required customers / (Time horizon in months)"}}},{"id":"lean-viability.calculations.monthly_acquisition_target","layer":"lean-viability","type":"calculation","title":"monthly_acquisition_target","description":"Calculated value: [object Object]","data":{"key":"monthly_acquisition_target","value":{"rate":25,"period":"month","formula":"Customer acquisition rate adjusted for churn"}}},{"id":"lean-viability.calculations.customer_lifetime_value","layer":"lean-viability","type":"calculation","title":"customer_lifetime_value","description":"Calculated value: [object Object]","data":{"key":"customer_lifetime_value","value":{"years":3,"formula":"Annual revenue per customer * Customer lifetime"}}},{"id":"lean-viability.calculations.churn_rate","layer":"lean-viability","type":"calculation","title":"churn_rate","description":"Calculated value: [object Object]","data":{"key":"churn_rate","value":{"monthly_rate":0.05,"formula":"Industry average for SaaS support tools"}}},{"id":"lean-viability.calculations.conversion_rate","layer":"lean-viability","type":"calculation","title":"conversion_rate","description":"Calculated value: [object Object]","data":{"key":"conversion_rate","value":{"rate":0.15,"basis":"Website visitors to paying customers"}}},{"id":"lean-viability.calculations.monthly_visitors","layer":"lean-viability","type":"calculation","title":"monthly_visitors","description":"Calculated value: [object Object]","data":{"key":"monthly_visitors","value":{"rate":166,"period":"month","formula":"Monthly acquisition target / Conversion rate"}}},{"id":"lean-viability.target.acquisition","layer":"lean-viability","type":"target","title":"acquisition","description":"Target value: [object Object]","data":{"key":"acquisition","value":{"monthly_signups":{"rate":25,"period":"month"}}}},{"id":"lean-viability.target.activation","layer":"lean-viability","type":"target","title":"activation","description":"Target value: [object Object]","data":{"key":"activation","value":{"weekly_active_users":{"rate":20,"period":"month"}}}},{"id":"lean-viability.target.retention","layer":"lean-viability","type":"target","title":"retention","description":"Target value: [object Object]","data":{"key":"retention","value":{"monthly_churn_rate":{"percentage":5}}}},{"id":"lean-viability.target.referral","layer":"lean-viability","type":"target","title":"referral","description":"Target value: [object Object]","data":{"key":"referral","value":{"viral_coefficient":0.1}}},{"id":"lean-viability.target.revenue","layer":"lean-viability","type":"target","title":"revenue","description":"Target value: [object Object]","data":{"key":"revenue","value":{"arpu":{"amount":1000,"currency":"USD","period":"month"}}}},{"id":"aaarr-metrics","layer":"aaarr-metrics","type":"aaarr-metrics","title":"AI Support Assistant AAARR Metrics","description":"AAARR customer factory metrics","data":{"type":"aaarr-metrics","version":"1.0","last_updated":"2025-12-25","last_synced":"2025-12-25","title":"AI Support Assistant AAARR Metrics","lean_viability_ref":"lean-viability.yaml","north_star_ref":"north-star.yaml","stages":{"acquisition":{"stage_goal":"Attract businesses to try our AI support solution","metrics":[{"id":"aaarr.acquisition.monthly-visitors","name":"Website Visitors","description":"Unique visitors to marketing pages","target":{"rate":200,"period":"month","imported_from":"lean-viability.calculations.monthly_visitors"},"current":{"rate":150,"period":"month"}},{"id":"aaarr.acquisition.conversion-rate","name":"Visitor to Trial Conversion","description":"Percentage of visitors who start free trial","target":{"percentage":15},"current":{"percentage":12}}]},"activation":{"stage_goal":"Get customers successfully using AI support","metrics":[{"id":"aaarr.activation.first-response","name":"First AI Response Rate","description":"Customers who receive their first AI response within 1 hour","target":{"percentage":95},"current":{"percentage":88}},{"id":"aaarr.activation.feature-adoption","name":"Core Feature Usage","description":"Customers using AI responses for >50% of support volume","target":{"percentage":70},"current":{"percentage":45}}]},"retention":{"stage_goal":"Keep customers subscribed and expanding usage","metrics":[{"id":"aaarr.retention.monthly-churn","name":"Monthly Churn Rate","description":"Percentage of customers canceling subscription","target":{"percentage":5},"current":{"percentage":7}}]},"referral":{"stage_goal":"Turn satisfied customers into advocates","metrics":[{"id":"aaarr.referral.net-promoter-score","name":"Net Promoter Score","description":"Customer satisfaction and likelihood to recommend","target":{"score":50},"current":{"score":35}}]},"revenue":{"stage_goal":"Generate sustainable recurring revenue","metrics":[{"id":"aaarr.revenue.monthly-recurring-revenue","name":"Monthly Recurring Revenue","description":"Total MRR from all customers","target":{"amount":8333,"currency":"USD","period":"month"},"current":{"amount":5000,"currency":"USD","period":"month"}}]}}}},{"id":"aaarr-metrics.acquisition","layer":"aaarr-metrics","type":"stage","title":"acquisition","description":"Attract businesses to try our AI support solution","data":{"stage":"acquisition","goal":"Attract businesses to try our AI support solution"}},{"id":"aaarr-metrics.activation","layer":"aaarr-metrics","type":"stage","title":"activation","description":"Get customers successfully using AI support","data":{"stage":"activation","goal":"Get customers successfully using AI support"}},{"id":"aaarr-metrics.retention","layer":"aaarr-metrics","type":"stage","title":"retention","description":"Keep customers subscribed and expanding usage","data":{"stage":"retention","goal":"Keep customers subscribed and expanding usage"}},{"id":"aaarr-metrics.referral","layer":"aaarr-metrics","type":"stage","title":"referral","description":"Turn satisfied customers into advocates","data":{"stage":"referral","goal":"Turn satisfied customers into advocates"}},{"id":"aaarr-metrics.revenue","layer":"aaarr-metrics","type":"stage","title":"revenue","description":"Generate sustainable recurring revenue","data":{"stage":"revenue","goal":"Generate sustainable recurring revenue"}},{"id":"aaarr.acquisition.monthly-visitors","layer":"aaarr-metrics","type":"metric","title":"Website Visitors","description":"Unique visitors to marketing pages","data":{"id":"aaarr.acquisition.monthly-visitors","name":"Website Visitors","description":"Unique visitors to marketing pages","target":{"rate":200,"period":"month","imported_from":"lean-viability.calculations.monthly_visitors"},"current":{"rate":150,"period":"month"}}},{"id":"aaarr.acquisition.conversion-rate","layer":"aaarr-metrics","type":"metric","title":"Visitor to Trial Conversion","description":"Percentage of visitors who start free trial","data":{"id":"aaarr.acquisition.conversion-rate","name":"Visitor to Trial Conversion","description":"Percentage of visitors who start free trial","target":{"percentage":15},"current":{"percentage":12}}},{"id":"aaarr.activation.first-response","layer":"aaarr-metrics","type":"metric","title":"First AI Response Rate","description":"Customers who receive their first AI response within 1 hour","data":{"id":"aaarr.activation.first-response","name":"First AI Response Rate","description":"Customers who receive their first AI response within 1 hour","target":{"percentage":95},"current":{"percentage":88}}},{"id":"aaarr.activation.feature-adoption","layer":"aaarr-metrics","type":"metric","title":"Core Feature Usage","description":"Customers using AI responses for >50% of support volume","data":{"id":"aaarr.activation.feature-adoption","name":"Core Feature Usage","description":"Customers using AI responses for >50% of support volume","target":{"percentage":70},"current":{"percentage":45}}},{"id":"aaarr.retention.monthly-churn","layer":"aaarr-metrics","type":"metric","title":"Monthly Churn Rate","description":"Percentage of customers canceling subscription","data":{"id":"aaarr.retention.monthly-churn","name":"Monthly Churn Rate","description":"Percentage of customers canceling subscription","target":{"percentage":5},"current":{"percentage":7}}},{"id":"aaarr.referral.net-promoter-score","layer":"aaarr-metrics","type":"metric","title":"Net Promoter Score","description":"Customer satisfaction and likelihood to recommend","data":{"id":"aaarr.referral.net-promoter-score","name":"Net Promoter Score","description":"Customer satisfaction and likelihood to recommend","target":{"score":50},"current":{"score":35}}},{"id":"aaarr.revenue.monthly-recurring-revenue","layer":"aaarr-metrics","type":"metric","title":"Monthly Recurring Revenue","description":"Total MRR from all customers","data":{"id":"aaarr.revenue.monthly-recurring-revenue","name":"Monthly Recurring Revenue","description":"Total MRR from all customers","target":{"amount":8333,"currency":"USD","period":"month"},"current":{"amount":5000,"currency":"USD","period":"month"}}},{"id":"policy-charter","layer":"policy-charter","type":"policy-charter","title":"AI Support Assistant Operational Policies","description":"Policy charter for operational governance","data":{"type":"policy-charter","version":"1.0","last_updated":"2025-12-25","title":"AI Support Assistant Operational Policies","architectural_scope_ref":"architectural-scope.yaml","aaarr_metrics_ref":"aaarr-metrics.yaml","goals":[{"id":"pc.goal.response-time","title":"Reduce average response time","description":"Deliver instant AI responses instead of hours-long waits","addresses":["To reduce average response time"],"aaarr_impact":["activation","retention"],"tactics":["pc.tactic.ai-first","pc.tactic.scaling"],"policies":["pc.policy.ai-response","pc.policy.handoff"],"kpis":["pc.kpi.response-time","pc.kpi.customer-satisfaction"],"risks":["pc.risk.ai-accuracy"]},{"id":"pc.goal.cost-reduction","title":"Lower support operational costs","description":"Reduce expenses while scaling support capacity","addresses":["To lower support costs"],"aaarr_impact":["revenue"],"tactics":["pc.tactic.automation","pc.tactic.efficiency"],"policies":["pc.policy.cost-monitoring"],"kpis":["pc.kpi.cost-per-ticket"],"risks":["pc.risk.scaling-costs"]},{"id":"pc.goal.quality-maintenance","title":"Maintain expert-level response quality","description":"Ensure AI responses match or exceed human expert quality","addresses":["To improve customer satisfaction","To enhance knowledge sharing"],"aaarr_impact":["activation","retention","referral"],"tactics":["pc.tactic.quality-assurance"],"policies":["pc.policy.quality-gates"],"kpis":["pc.kpi.accuracy-rate"],"risks":["pc.risk.quality-degradation"]}],"tactics":[{"id":"pc.tactic.ai-first","title":"Implement AI-first support routing","description":"Route all initial customer inquiries to AI before human escalation","drives_policies":["pc.policy.ai-response","pc.policy.handoff"]},{"id":"pc.tactic.scaling","title":"Scale AI processing capacity","description":"Dynamically allocate computing resources based on demand","drives_policies":["pc.policy.capacity-planning"]},{"id":"pc.tactic.automation","title":"Automate routine support tasks","description":"Use AI to handle common issues without human intervention","drives_policies":["pc.policy.automation-thresholds","pc.policy.cost-monitoring"]},{"id":"pc.tactic.efficiency","title":"Optimize resource utilization","description":"Monitor and improve AI processing efficiency","drives_policies":["pc.policy.efficiency-targets","pc.policy.capacity-planning"]},{"id":"pc.tactic.quality-assurance","title":"Implement quality assurance processes","description":"Regular validation of AI response accuracy and customer satisfaction","drives_policies":["pc.policy.quality-reviews","pc.policy.quality-gates"]}],"policies":[{"id":"pc.policy.ai-response","title":"AI Response Priority Policy","rule":"All support inquiries must receive an AI-generated response within 5 minutes","driven_by_tactic":"pc.tactic.ai-first","enforcement":"mandatory","brackets":[{"condition":"Business hours (9AM-6PM EST)","rule":"AI response within 2 minutes, human backup within 15 minutes"},{"condition":"After hours","rule":"AI response within 5 minutes, human callback within 2 hours"}]},{"id":"pc.policy.handoff","title":"Intelligent Handoff Policy","rule":"Escalate to human agents when AI confidence score falls below 85%","driven_by_tactic":"pc.tactic.ai-first","enforcement":"mandatory"},{"id":"pc.policy.quality-gates","title":"Response Quality Gates","rule":"All AI responses must pass automated quality checks before delivery","driven_by_tactic":"pc.tactic.quality-assurance","enforcement":"mandatory"},{"id":"pc.policy.capacity-planning","title":"Capacity Planning Policy","rule":"Maintain 200% headroom for peak AI processing capacity","driven_by_tactic":"pc.tactic.scaling","enforcement":"mandatory"},{"id":"pc.policy.cost-monitoring","title":"Cost Monitoring Policy","rule":"Track support cost per ticket and maintain below $15 average","driven_by_tactic":"pc.tactic.efficiency","enforcement":"guideline"}],"risks":[{"id":"pc.risk.ai-accuracy","description":"AI provides incorrect or inappropriate responses","probability":"medium","impact":"high","mitigation":["pc.tactic.quality-assurance","pc.policy.quality-gates"]},{"id":"pc.risk.scaling-costs","description":"AI processing costs grow faster than revenue","probability":"low","impact":"high","mitigation":["pc.tactic.efficiency","pc.policy.capacity-planning"]},{"id":"pc.risk.quality-degradation","description":"AI responses become less accurate over time","probability":"medium","impact":"medium","mitigation":["pc.tactic.quality-assurance","pc.policy.quality-reviews"]}],"kpis":[{"id":"pc.kpi.response-time","name":"Average Response Time","target":{"rate":5,"period":"minute"},"current":{"rate":8,"period":"minute"},"measurement_frequency":"daily","justification":"aaarr.activation.first-response"},{"id":"pc.kpi.customer-satisfaction","name":"Customer Satisfaction Score","target":{"rate":4.5},"current":{"rate":4.2},"measurement_frequency":"weekly","justification":"aaarr.referral.net-promoter-score"},{"id":"pc.kpi.accuracy-rate","name":"AI Response Accuracy","target":{"percentage":95},"current":{"percentage":92},"measurement_frequency":"weekly","justification":"aaarr.activation.feature-adoption"},{"id":"pc.kpi.cost-per-ticket","name":"Cost Per Support Ticket","target":{"amount":15,"currency":"USD"},"current":{"amount":18,"currency":"USD"},"measurement_frequency":"monthly","justification":"aaarr.revenue.monthly-recurring-revenue"}]}},{"id":"policy-charter.goal.0","layer":"policy-charter","type":"policy-goal","title":"Reduce average response time","description":"Deliver instant AI responses instead of hours-long waits","data":{"id":"pc.goal.response-time","title":"Reduce average response time","description":"Deliver instant AI responses instead of hours-long waits","addresses":["To reduce average response time"],"aaarr_impact":["activation","retention"],"tactics":["pc.tactic.ai-first","pc.tactic.scaling"],"policies":["pc.policy.ai-response","pc.policy.handoff"],"kpis":["pc.kpi.response-time","pc.kpi.customer-satisfaction"],"risks":["pc.risk.ai-accuracy"]}},{"id":"policy-charter.goal.1","layer":"policy-charter","type":"policy-goal","title":"Lower support operational costs","description":"Reduce expenses while scaling support capacity","data":{"id":"pc.goal.cost-reduction","title":"Lower support operational costs","description":"Reduce expenses while scaling support capacity","addresses":["To lower support costs"],"aaarr_impact":["revenue"],"tactics":["pc.tactic.automation","pc.tactic.efficiency"],"policies":["pc.policy.cost-monitoring"],"kpis":["pc.kpi.cost-per-ticket"],"risks":["pc.risk.scaling-costs"]}},{"id":"policy-charter.goal.2","layer":"policy-charter","type":"policy-goal","title":"Maintain expert-level response quality","description":"Ensure AI responses match or exceed human expert quality","data":{"id":"pc.goal.quality-maintenance","title":"Maintain expert-level response quality","description":"Ensure AI responses match or exceed human expert quality","addresses":["To improve customer satisfaction","To enhance knowledge sharing"],"aaarr_impact":["activation","retention","referral"],"tactics":["pc.tactic.quality-assurance"],"policies":["pc.policy.quality-gates"],"kpis":["pc.kpi.accuracy-rate"],"risks":["pc.risk.quality-degradation"]}},{"id":"policy-charter.tactic.0","layer":"policy-charter","type":"tactic","title":"Implement AI-first support routing","description":"Route all initial customer inquiries to AI before human escalation","data":{"id":"pc.tactic.ai-first","title":"Implement AI-first support routing","description":"Route all initial customer inquiries to AI before human escalation","drives_policies":["pc.policy.ai-response","pc.policy.handoff"]}},{"id":"policy-charter.tactic.1","layer":"policy-charter","type":"tactic","title":"Scale AI processing capacity","description":"Dynamically allocate computing resources based on demand","data":{"id":"pc.tactic.scaling","title":"Scale AI processing capacity","description":"Dynamically allocate computing resources based on demand","drives_policies":["pc.policy.capacity-planning"]}},{"id":"policy-charter.tactic.2","layer":"policy-charter","type":"tactic","title":"Automate routine support tasks","description":"Use AI to handle common issues without human intervention","data":{"id":"pc.tactic.automation","title":"Automate routine support tasks","description":"Use AI to handle common issues without human intervention","drives_policies":["pc.policy.automation-thresholds","pc.policy.cost-monitoring"]}},{"id":"policy-charter.tactic.3","layer":"policy-charter","type":"tactic","title":"Optimize resource utilization","description":"Monitor and improve AI processing efficiency","data":{"id":"pc.tactic.efficiency","title":"Optimize resource utilization","description":"Monitor and improve AI processing efficiency","drives_policies":["pc.policy.efficiency-targets","pc.policy.capacity-planning"]}},{"id":"policy-charter.tactic.4","layer":"policy-charter","type":"tactic","title":"Implement quality assurance processes","description":"Regular validation of AI response accuracy and customer satisfaction","data":{"id":"pc.tactic.quality-assurance","title":"Implement quality assurance processes","description":"Regular validation of AI response accuracy and customer satisfaction","drives_policies":["pc.policy.quality-reviews","pc.policy.quality-gates"]}},{"id":"policy-charter.policy.0","layer":"policy-charter","type":"policy","title":"AI Response Priority Policy","description":"All support inquiries must receive an AI-generated response within 5 minutes","data":{"id":"pc.policy.ai-response","title":"AI Response Priority Policy","rule":"All support inquiries must receive an AI-generated response within 5 minutes","driven_by_tactic":"pc.tactic.ai-first","enforcement":"mandatory","brackets":[{"condition":"Business hours (9AM-6PM EST)","rule":"AI response within 2 minutes, human backup within 15 minutes"},{"condition":"After hours","rule":"AI response within 5 minutes, human callback within 2 hours"}]}},{"id":"policy-charter.policy.1","layer":"policy-charter","type":"policy","title":"Intelligent Handoff Policy","description":"Escalate to human agents when AI confidence score falls below 85%","data":{"id":"pc.policy.handoff","title":"Intelligent Handoff Policy","rule":"Escalate to human agents when AI confidence score falls below 85%","driven_by_tactic":"pc.tactic.ai-first","enforcement":"mandatory"}},{"id":"policy-charter.policy.2","layer":"policy-charter","type":"policy","title":"Response Quality Gates","description":"All AI responses must pass automated quality checks before delivery","data":{"id":"pc.policy.quality-gates","title":"Response Quality Gates","rule":"All AI responses must pass automated quality checks before delivery","driven_by_tactic":"pc.tactic.quality-assurance","enforcement":"mandatory"}},{"id":"policy-charter.policy.3","layer":"policy-charter","type":"policy","title":"Capacity Planning Policy","description":"Maintain 200% headroom for peak AI processing capacity","data":{"id":"pc.policy.capacity-planning","title":"Capacity Planning Policy","rule":"Maintain 200% headroom for peak AI processing capacity","driven_by_tactic":"pc.tactic.scaling","enforcement":"mandatory"}},{"id":"policy-charter.policy.4","layer":"policy-charter","type":"policy","title":"Cost Monitoring Policy","description":"Track support cost per ticket and maintain below $15 average","data":{"id":"pc.policy.cost-monitoring","title":"Cost Monitoring Policy","rule":"Track support cost per ticket and maintain below $15 average","driven_by_tactic":"pc.tactic.efficiency","enforcement":"guideline"}},{"id":"policy-charter.kpi.0","layer":"policy-charter","type":"kpi","title":"Average Response Time","description":"Target: [object Object], Current: [object Object]","data":{"id":"pc.kpi.response-time","name":"Average Response Time","target":{"rate":5,"period":"minute"},"current":{"rate":8,"period":"minute"},"measurement_frequency":"daily","justification":"aaarr.activation.first-response"}},{"id":"policy-charter.kpi.1","layer":"policy-charter","type":"kpi","title":"Customer Satisfaction Score","description":"Target: [object Object], Current: [object Object]","data":{"id":"pc.kpi.customer-satisfaction","name":"Customer Satisfaction Score","target":{"rate":4.5},"current":{"rate":4.2},"measurement_frequency":"weekly","justification":"aaarr.referral.net-promoter-score"}},{"id":"policy-charter.kpi.2","layer":"policy-charter","type":"kpi","title":"AI Response Accuracy","description":"Target: [object Object], Current: [object Object]","data":{"id":"pc.kpi.accuracy-rate","name":"AI Response Accuracy","target":{"percentage":95},"current":{"percentage":92},"measurement_frequency":"weekly","justification":"aaarr.activation.feature-adoption"}},{"id":"policy-charter.kpi.3","layer":"policy-charter","type":"kpi","title":"Cost Per Support Ticket","description":"Target: [object Object], Current: [object Object]","data":{"id":"pc.kpi.cost-per-ticket","name":"Cost Per Support Ticket","target":{"amount":15,"currency":"USD"},"current":{"amount":18,"currency":"USD"},"measurement_frequency":"monthly","justification":"aaarr.revenue.monthly-recurring-revenue"}},{"id":"policy-charter.risk.0","layer":"policy-charter","type":"risk","title":"AI provides incorrect or inappropriate responses","description":"Probability: medium, Impact: high","data":{"id":"pc.risk.ai-accuracy","description":"AI provides incorrect or inappropriate responses","probability":"medium","impact":"high","mitigation":["pc.tactic.quality-assurance","pc.policy.quality-gates"]}},{"id":"policy-charter.risk.1","layer":"policy-charter","type":"risk","title":"AI processing costs grow faster than revenue","description":"Probability: low, Impact: high","data":{"id":"pc.risk.scaling-costs","description":"AI processing costs grow faster than revenue","probability":"low","impact":"high","mitigation":["pc.tactic.efficiency","pc.policy.capacity-planning"]}},{"id":"policy-charter.risk.2","layer":"policy-charter","type":"risk","title":"AI responses become less accurate over time","description":"Probability: medium, Impact: medium","data":{"id":"pc.risk.quality-degradation","description":"AI responses become less accurate over time","probability":"medium","impact":"medium","mitigation":["pc.tactic.quality-assurance","pc.policy.quality-reviews"]}}],"edges":[{"source":"business","target":"north-star","type":"references","strength":10},{"source":"north-star","target":"north-star.goal.0","type":"contains","strength":10},{"source":"north-star","target":"north-star.goal.1","type":"contains","strength":10},{"source":"north-star","target":"north-star.goal.2","type":"contains","strength":10},{"source":"business","target":"lean-canvas","type":"references","strength":9},{"source":"lean-canvas","target":"lean-canvas.problem","type":"contains","strength":9},{"source":"lean-canvas.problem","target":"lean-canvas.problem.0","type":"contains","strength":8},{"source":"lean-canvas.problem","target":"lean-canvas.problem.1","type":"contains","strength":8},{"source":"lean-canvas.problem","target":"lean-canvas.problem.2","type":"contains","strength":8},{"source":"lean-canvas","target":"lean-canvas.solution","type":"contains","strength":9},{"source":"lean-canvas.solution","target":"lean-canvas.solution.0","type":"contains","strength":8},{"source":"lean-canvas.solution","target":"lean-canvas.solution.1","type":"contains","strength":8},{"source":"lean-canvas.solution","target":"lean-canvas.solution.2","type":"contains","strength":8},{"source":"lean-canvas","target":"lean-canvas.uvp","type":"contains","strength":9},{"source":"lean-canvas","target":"lean-canvas.ua","type":"contains","strength":9},{"source":"lean-canvas","target":"lean-canvas.channels","type":"contains","strength":8},{"source":"lean-canvas.channels","target":"lean-canvas.channel.0","type":"contains","strength":7},{"source":"lean-canvas.channels","target":"lean-canvas.channel.1","type":"contains","strength":7},{"source":"lean-canvas.channels","target":"lean-canvas.channel.2","type":"contains","strength":7},{"source":"lean-canvas","target":"lean-canvas.segments","type":"contains","strength":8},{"source":"lean-canvas","target":"lean-canvas.costs","type":"contains","strength":7},{"source":"lean-canvas.costs","target":"lean-canvas.cost.cac","type":"contains","strength":7},{"source":"lean-canvas.costs","target":"lean-canvas.cost.distribution","type":"contains","strength":7},{"source":"lean-canvas.costs","target":"lean-canvas.cost.hosting","type":"contains","strength":7},{"source":"lean-canvas.costs","target":"lean-canvas.cost.people","type":"contains","strength":7},{"source":"lean-canvas","target":"lean-canvas.revenue","type":"contains","strength":7},{"source":"lean-canvas","target":"lean-canvas.metrics","type":"contains","strength":8},{"source":"lean-canvas.metrics","target":"lean-canvas.metric.0","type":"contains","strength":8},{"source":"lean-canvas.metrics","target":"lean-canvas.metric.1","type":"contains","strength":8},{"source":"lean-canvas.metrics","target":"lean-canvas.metric.2","type":"contains","strength":8},{"source":"business","target":"architectural-scope","type":"references","strength":9},{"source":"architectural-scope","target":"north-star","type":"references","strength":8},{"source":"architectural-scope","target":"architectural-scope.mission","type":"contains","strength":10},{"source":"architectural-scope","target":"architectural-scope.goal.0","type":"contains","strength":9},{"source":"architectural-scope","target":"architectural-scope.goal.1","type":"contains","strength":9},{"source":"architectural-scope","target":"architectural-scope.goal.2","type":"contains","strength":9},{"source":"architectural-scope","target":"architectural-scope.goal.3","type":"contains","strength":9},{"source":"architectural-scope","target":"architectural-scope.goal.4","type":"contains","strength":9},{"source":"architectural-scope","target":"architectural-scope.what.0","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.1","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.2","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.3","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.4","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.5","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.what.6","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.0","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.1","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.2","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.3","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.4","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.5","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.how.6","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.where.0","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.where.1","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.where.2","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.where.3","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.where.4","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.0","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.1","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.2","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.3","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.4","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.5","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.who.6","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.0","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.1","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.2","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.3","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.4","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.5","type":"contains","strength":8},{"source":"architectural-scope","target":"architectural-scope.when.6","type":"contains","strength":8},{"source":"business","target":"lean-viability","type":"references","strength":8},{"source":"lean-viability","target":"lean-viability.calculations.annual_revenue_per_customer","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.required_customers","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.customer_acquisition_rate","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.monthly_acquisition_target","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.customer_lifetime_value","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.churn_rate","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.conversion_rate","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.calculations.monthly_visitors","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.target.acquisition","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.target.activation","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.target.retention","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.target.referral","type":"contains","strength":9},{"source":"lean-viability","target":"lean-viability.target.revenue","type":"contains","strength":9},{"source":"business","target":"aaarr-metrics","type":"references","strength":8},{"source":"aaarr-metrics","target":"aaarr-metrics.acquisition","type":"contains","strength":9},{"source":"aaarr-metrics","target":"aaarr-metrics.activation","type":"contains","strength":9},{"source":"aaarr-metrics","target":"aaarr-metrics.retention","type":"contains","strength":9},{"source":"aaarr-metrics","target":"aaarr-metrics.referral","type":"contains","strength":9},{"source":"aaarr-metrics","target":"aaarr-metrics.revenue","type":"contains","strength":9},{"source":"aaarr-metrics","target":"lean-viability","type":"references","strength":7},{"source":"aaarr-metrics","target":"north-star","type":"references","strength":6},{"source":"aaarr-metrics.acquisition","target":"aaarr.acquisition.monthly-visitors","type":"contains","strength":9},{"source":"aaarr.acquisition.monthly-visitors","target":"lean-viability.calculations.monthly_visitors","type":"imported_from","strength":8,"metadata":{"imported_from":"lean-viability.calculations.monthly_visitors"}},{"source":"aaarr-metrics.acquisition","target":"aaarr.acquisition.conversion-rate","type":"contains","strength":9},{"source":"aaarr-metrics.activation","target":"aaarr.activation.first-response","type":"contains","strength":9},{"source":"aaarr-metrics.activation","target":"aaarr.activation.feature-adoption","type":"contains","strength":9},{"source":"aaarr-metrics.retention","target":"aaarr.retention.monthly-churn","type":"contains","strength":9},{"source":"aaarr-metrics.referral","target":"aaarr.referral.net-promoter-score","type":"contains","strength":9},{"source":"aaarr-metrics.revenue","target":"aaarr.revenue.monthly-recurring-revenue","type":"contains","strength":9},{"source":"business","target":"policy-charter","type":"references","strength":8},{"source":"policy-charter","target":"architectural-scope","type":"references","strength":7},{"source":"policy-charter","target":"aaarr-metrics","type":"references","strength":7},{"source":"policy-charter","target":"policy-charter.goal.0","type":"contains","strength":10},{"source":"policy-charter.goal.0","target":"architectural-scope.goal.0","type":"addresses","strength":9,"metadata":{"addressed_goal":"To reduce average response time"}},{"source":"policy-charter.goal.0","target":"aaarr-metrics.activation","type":"impacts","strength":7,"metadata":{"aaarr_stage":"activation"}},{"source":"policy-charter.goal.0","target":"aaarr-metrics.retention","type":"impacts","strength":7,"metadata":{"aaarr_stage":"retention"}},{"source":"policy-charter","target":"policy-charter.goal.1","type":"contains","strength":10},{"source":"policy-charter.goal.1","target":"architectural-scope.goal.2","type":"addresses","strength":9,"metadata":{"addressed_goal":"To lower support costs"}},{"source":"policy-charter.goal.1","target":"aaarr-metrics.revenue","type":"impacts","strength":7,"metadata":{"aaarr_stage":"revenue"}},{"source":"policy-charter","target":"policy-charter.goal.2","type":"contains","strength":10},{"source":"policy-charter.goal.2","target":"architectural-scope.goal.1","type":"addresses","strength":9,"metadata":{"addressed_goal":"To improve customer satisfaction"}},{"source":"policy-charter.goal.2","target":"architectural-scope.goal.4","type":"addresses","strength":9,"metadata":{"addressed_goal":"To enhance knowledge sharing"}},{"source":"policy-charter.goal.2","target":"aaarr-metrics.activation","type":"impacts","strength":7,"metadata":{"aaarr_stage":"activation"}},{"source":"policy-charter.goal.2","target":"aaarr-metrics.retention","type":"impacts","strength":7,"metadata":{"aaarr_stage":"retention"}},{"source":"policy-charter.goal.2","target":"aaarr-metrics.referral","type":"impacts","strength":7,"metadata":{"aaarr_stage":"referral"}},{"source":"policy-charter","target":"policy-charter.tactic.0","type":"contains","strength":9},{"source":"policy-charter","target":"policy-charter.tactic.1","type":"contains","strength":9},{"source":"policy-charter","target":"policy-charter.tactic.2","type":"contains","strength":9},{"source":"policy-charter","target":"policy-charter.tactic.3","type":"contains","strength":9},{"source":"policy-charter","target":"policy-charter.tactic.4","type":"contains","strength":9},{"source":"policy-charter","target":"policy-charter.policy.0","type":"contains","strength":9},{"source":"policy-charter.policy.0","target":"policy-charter.tactic.0","type":"driven_by","strength":8,"metadata":{"driven_by_tactic":"pc.tactic.ai-first"}},{"source":"policy-charter","target":"policy-charter.policy.1","type":"contains","strength":9},{"source":"policy-charter.policy.1","target":"policy-charter.tactic.0","type":"driven_by","strength":8,"metadata":{"driven_by_tactic":"pc.tactic.ai-first"}},{"source":"policy-charter","target":"policy-charter.policy.2","type":"contains","strength":9},{"source":"policy-charter.policy.2","target":"policy-charter.tactic.4","type":"driven_by","strength":8,"metadata":{"driven_by_tactic":"pc.tactic.quality-assurance"}},{"source":"policy-charter","target":"policy-charter.policy.3","type":"contains","strength":9},{"source":"policy-charter.policy.3","target":"policy-charter.tactic.1","type":"driven_by","strength":8,"metadata":{"driven_by_tactic":"pc.tactic.scaling"}},{"source":"policy-charter","target":"policy-charter.policy.4","type":"contains","strength":9},{"source":"policy-charter.policy.4","target":"policy-charter.tactic.3","type":"driven_by","strength":8,"metadata":{"driven_by_tactic":"pc.tactic.efficiency"}},{"source":"policy-charter","target":"policy-charter.kpi.0","type":"contains","strength":8},{"source":"policy-charter.kpi.0","target":"aaarr.activation.first-response","type":"justified_by","strength":7,"metadata":{"justification":"aaarr.activation.first-response"}},{"source":"policy-charter","target":"policy-charter.kpi.1","type":"contains","strength":8},{"source":"policy-charter.kpi.1","target":"aaarr.referral.net-promoter-score","type":"justified_by","strength":7,"metadata":{"justification":"aaarr.referral.net-promoter-score"}},{"source":"policy-charter","target":"policy-charter.kpi.2","type":"contains","strength":8},{"source":"policy-charter.kpi.2","target":"aaarr.activation.feature-adoption","type":"justified_by","strength":7,"metadata":{"justification":"aaarr.activation.feature-adoption"}},{"source":"policy-charter","target":"policy-charter.kpi.3","type":"contains","strength":8},{"source":"policy-charter.kpi.3","target":"aaarr.revenue.monthly-recurring-revenue","type":"justified_by","strength":7,"metadata":{"justification":"aaarr.revenue.monthly-recurring-revenue"}},{"source":"policy-charter","target":"policy-charter.risk.0","type":"contains","strength":7},{"source":"policy-charter","target":"policy-charter.risk.1","type":"contains","strength":7},{"source":"policy-charter","target":"policy-charter.risk.2","type":"contains","strength":7}]};
+      console.log('Graph data loaded:', graphData.nodes.length, 'nodes,', graphData.edges.length, 'edges');
+
+      // Set fixed dimensions to match CSS container
+      const width = 800;
+      const height = 600;
+
+      // Set up SVG
+      const svg = d3.select('#traceability-graph')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      const g = svg.append('g');
+
+      // Add zoom behavior
+      svg.call(d3.zoom().on('zoom', function(event) {
+        g.attr('transform', event.transform);
+      }));
+
+      // Add arrow marker
+      svg.append('defs').append('marker')
+        .attr('id', 'arrowhead')
+        .attr('viewBox', '-0 -5 10 10')
+        .attr('refX', 20)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('xoverflow', 'visible')
+        .append('svg:path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+         .attr('fill', '#999');
+
+      // Create force simulation
+      const simulation = d3.forceSimulation(graphData.nodes)
+        .force('link', d3.forceLink(graphData.edges).id(d => d.id).distance(100))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(400, 300))
+        .force('collision', d3.forceCollide().radius(30));
+
+      // Create links
+      const link = g.append('g')
+        .attr('class', 'links')
+        .selectAll('line')
+        .data(graphData.edges)
+        .enter().append('line')
+        .attr('class', 'link')
+        .attr('stroke-width', d => Math.sqrt(d.strength) * 2);
+
+      // Create nodes
+      const node = g.append('g')
+        .attr('class', 'nodes')
+        .selectAll('circle')
+        .data(graphData.nodes)
+        .enter().append('circle')
+        .attr('class', 'node')
+        .attr('r', 20)
+        .attr('fill', d => getNodeColor(d.layer))
+        .call(d3.drag()
+          .on('start', dragstarted)
+          .on('drag', dragged)
+          .on('end', dragended))
+        .on('click', nodeClick)
+        .on('mouseover', nodeMouseover)
+        .on('mouseout', nodeMouseout);
+
+      // Add labels
+      const labels = g.append('g')
+        .attr('class', 'labels')
+        .selectAll('text')
+        .data(graphData.nodes)
+        .enter().append('text')
+        .attr('class', 'node-label')
+        .text(d => d.title.length > 15 ? d.title.substring(0, 12) + '...' : d.title)
+        .attr('font-size', '10px')
+        .attr('fill', '#fff')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em');
+
+      // Simulation tick
+      simulation.on('tick', () => {
+        link
+          .attr('x1', d => d.source.x)
+          .attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x)
+          .attr('y2', d => d.target.y);
+
+        node
+          .attr('cx', d => d.x)
+          .attr('cy', d => d.y);
+
+        labels
+          .attr('x', d => d.x)
+          .attr('y', d => d.y);
+      });
+
+      // Drag functions
+      function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+      }
+
+      function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      // Node interaction functions
+      function nodeClick(event, d) {
+        // Highlight connected nodes and edges
+        highlightConnections(d.id);
+
+        // Navigate to the corresponding tab
+        navigateToTab(d.layer);
+      }
+
+      function nodeMouseover(event, d) {
+        // Show tooltip
+        const tooltip = d3.select('body').append('div')
+          .attr('class', 'tooltip')
+          .style('position', 'absolute')
+          .style('background', 'rgba(0, 0, 0, 0.8)')
+          .style('color', 'white')
+          .style('padding', '8px')
+          .style('border-radius', '4px')
+          .style('font-size', '12px')
+          .style('pointer-events', 'none')
+          .style('z-index', '1000')
+          .html(`
+            <strong>${d.title}</strong><br>
+            Layer: ${d.layer}<br>
+            Type: ${d.type}
+            ${d.description ? '<br>Description: ' + d.description : ''}
+          `);
+
+        tooltip
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY - 10) + 'px');
+      }
+
+      function nodeMouseout() {
+        d3.selectAll('.tooltip').remove();
+      }
+
+      // Highlight connections
+      function highlightConnections(nodeId) {
+        // Reset all links and nodes
+        link.classed('highlighted', false);
+        node.classed('highlighted', false);
+
+        // Find connected edges
+        const connectedEdges = graphData.edges.filter(edge =>
+          edge.source.id === nodeId || edge.target.id === nodeId
+        );
+
+        // Highlight connected edges
+        link.filter(d =>
+          connectedEdges.some(edge =>
+            (edge.source.id === d.source.id && edge.target.id === d.target.id) ||
+            (edge.source.id === d.target.id && edge.target.id === d.source.id)
+          )
+        ).classed('highlighted', true);
+
+        // Highlight connected nodes
+        const connectedNodeIds = new Set([nodeId]);
+        connectedEdges.forEach(edge => {
+          connectedNodeIds.add(edge.source.id);
+          connectedNodeIds.add(edge.target.id);
+        });
+
+        node.filter(d => connectedNodeIds.has(d.id)).classed('highlighted', true);
+      }
+
+      // Navigation function for cross-tab navigation
+      function navigateToTab(layerType) {
+        // Map layer types to tab titles
+        const tabTitles = {
+          'business': 'Business',
+          'north-star': 'North Star',
+          'lean-canvas': 'Lean Canvas',
+          'architectural-scope': 'Architectural Scope',
+          'lean-viability': 'Lean Viability',
+          'aaarr-metrics': 'AAARR Metrics',
+          'policy-charter': 'Policy Charter'
+        };
+
+        const tabTitle = tabTitles[layerType] || layerType;
+
+        // Use the main tab navigation if available
+        if (window.switchTab) {
+          window.switchTab(null, tabTitle);
+        }
+      }
+
+      // Make functions globally available
+      window.nodeClick = nodeClick;
+      window.highlightConnections = highlightConnections;
+      window.navigateToTab = navigateToTab;
+    </script>
+  
+    </div>
+  
+
+  <script>
+    function showTab(index) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const tabContent = document.getElementById('tab-' + index);
+      tabContent.classList.add('active');
+      document.querySelectorAll('.tab-button')[index].classList.add('active');
+
+      // Render any unprocessed Mermaid diagrams in this tab
+      if (typeof mermaid !== 'undefined') {
+        const mermaidElements = tabContent.querySelectorAll('.mermaid:not([data-processed])');
+        if (mermaidElements.length > 0) {
+          mermaid.run({ nodes: mermaidElements });
+        }
+      }
+
+      // Scroll to top when switching tabs
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Navigation function for cross-tab navigation
+    function switchTab(event, tabId) {
+      const tabIndex = Array.from(document.querySelectorAll('.tab-button')).findIndex(btn =>
+        btn.textContent.trim().toLowerCase().includes(tabId.toLowerCase())
+      );
+      if (tabIndex !== -1) {
+        showTab(tabIndex);
+      }
+    }
+
+    // Make switchTab globally available
+    window.switchTab = switchTab;
+
+    // Initialize expandable content
+    document.addEventListener('DOMContentLoaded', function() {
+      // Render Mermaid diagrams in the initially active tab
+      if (typeof mermaid !== 'undefined') {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab) {
+          const mermaidElements = activeTab.querySelectorAll('.mermaid');
+          if (mermaidElements.length > 0) {
+            mermaid.run({ nodes: mermaidElements });
+          }
+        }
+      }
+
+      // Add expand/collapse functionality to long content
+      const expandableContents = document.querySelectorAll('.expandable-content');
+      expandableContents.forEach(content => {
+        if (content.scrollHeight > 300) {
+          const toggle = document.createElement('button');
+          toggle.className = 'expand-toggle';
+          toggle.textContent = 'Show More';
+          toggle.onclick = function() {
+            content.classList.toggle('expanded');
+            toggle.textContent = content.classList.contains('expanded') ? 'Show Less' : 'Show More';
+          };
+          content.parentNode.insertBefore(toggle, content.nextSibling);
+        }
+      });
+
+      // Add search functionality
+      const searchInputs = document.querySelectorAll('.search-input');
+      searchInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const tabContent = e.target.closest('.tab-content');
+          const searchableItems = tabContent.querySelectorAll('[data-searchable]');
+
+          searchableItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+        });
+      });
+
+      // Add pagination functionality
+      const paginationContainers = document.querySelectorAll('.pagination-container');
+      paginationContainers.forEach(container => {
+        const items = container.querySelectorAll('.paginated-item');
+        const pageSize = 10;
+        let currentPage = 1;
+
+        function showPage(page) {
+          const start = (page - 1) * pageSize;
+          const end = start + pageSize;
+
+          items.forEach((item, index) => {
+            item.style.display = (index >= start && index < end) ? '' : 'none';
+          });
+
+          updatePaginationButtons(container, page, Math.ceil(items.length / pageSize));
+        }
+
+        function updatePaginationButtons(container, currentPage, totalPages) {
+          const pagination = container.querySelector('.pagination');
+          if (!pagination) return;
+
+          pagination.innerHTML = '';
+
+          // Previous button
+          const prevBtn = document.createElement('button');
+          prevBtn.textContent = '«';
+          prevBtn.disabled = currentPage === 1;
+          prevBtn.onclick = () => showPage(currentPage - 1);
+          pagination.appendChild(prevBtn);
+
+          // Page numbers
+          for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i.toString();
+            pageBtn.className = i === currentPage ? 'active' : '';
+            pageBtn.onclick = () => showPage(i);
+            pagination.appendChild(pageBtn);
+          }
+
+          // Next button
+          const nextBtn = document.createElement('button');
+          nextBtn.textContent = '»';
+          nextBtn.disabled = currentPage === totalPages;
+          nextBtn.onclick = () => showPage(currentPage + 1);
+          pagination.appendChild(nextBtn);
+        }
+
+        // Initialize pagination
+        if (items.length > pageSize) {
+          const pagination = document.createElement('div');
+          pagination.className = 'pagination';
+          container.appendChild(pagination);
+          showPage(1);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

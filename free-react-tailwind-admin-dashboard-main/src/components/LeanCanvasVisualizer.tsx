@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
+import ReactMarkdown from 'react-markdown';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
@@ -51,9 +53,20 @@ interface LeanCanvasVisualizerProps {
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
   const { openChat } = useChat();
+  const navigate = useNavigate();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const markdownComponents = {
+    a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
+      if (href?.startsWith('misc/')) {
+        const file = href.split('/')[1];
+        return <a href="#" onClick={() => navigate(`/misc?file=${file}`)} className="text-blue-500 underline">{children}</a>;
+      }
+      return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">{children}</a>;
+    }
+  };
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
@@ -168,9 +181,10 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
                    {canvas.problem.top_3_problems.map((item, idx) => <li key={idx}>{item}</li>)}
                  </ul>
                )}
-               {canvas.problem?.existing_alternatives && (
-                 <p>{canvas.problem.existing_alternatives}</p>
-               )}
+                {canvas.problem?.existing_alternatives && (
+                  // @ts-ignore
+                  <ReactMarkdown components={markdownComponents}>{canvas.problem.existing_alternatives}</ReactMarkdown>
+                )}
              </div>
            )}
          </div>
@@ -280,12 +294,14 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
              />
            ) : (
              <div className="text-gray-600 dark:text-gray-300">
-               {canvas.unique_value_proposition?.single_clear_message && (
-                 <p className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</p>
-               )}
-               {canvas.unique_value_proposition?.high_level_concept && (
-                 <p>{canvas.unique_value_proposition.high_level_concept}</p>
-               )}
+                {canvas.unique_value_proposition?.single_clear_message && (
+                  // @ts-ignore
+                  <ReactMarkdown components={markdownComponents} className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</ReactMarkdown>
+                )}
+                {canvas.unique_value_proposition?.high_level_concept && (
+                  // @ts-ignore
+                  <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.high_level_concept}</ReactMarkdown>
+                )}
              </div>
            )}
         </div>

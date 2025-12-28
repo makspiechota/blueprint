@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Short Horizon Test - Lean 1-2-3 Viability</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .metadata { color: #666; font-size: 0.9rem; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #333;
+    }
+
+    .metric {
+      margin-bottom: 1rem;
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .calculation {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-left: 4px solid #007bff;
+      border-radius: 4px;
+    }
+
+    .calc-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .calc-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 0.5rem;
+    }
+
+    .formula {
+      font-family: 'Courier New', monospace;
+      background: #fff;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+      border: 1px solid #e0e0e0;
+    }
+
+    .calc-formula-ref {
+      font-size: 0.85rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    .target-item {
+      padding: 1rem;
+      background: #f0f8ff;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .target-stage {
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 0.25rem;
+    }
+
+    .target-metric {
+      font-size: 0.95rem;
+    }
+
+    @media print {
+      body { padding: 0; background: white; }
+      .section { break-inside: avoid; }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .full-width {
+        grid-column: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Short Horizon Test</h1>
+      <div class="metadata">
+        Version 1.0 • Last updated: 2025-12-21
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="section">
+      <div class="section-title">Success Criteria</div>
+      <div class="metric">
+        <div class="metric-label">Target Revenue</div>
+        <div class="metric-value">$1,000,000</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Time Horizon</div>
+        <div class="metric-value">1 years</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Target Year</div>
+        <div class="metric-value">Year 1</div>
+      </div>
+    </div>
+      <div class="section">
+      <div class="section-title">Assumptions</div>
+      <div class="metric">
+        <div class="metric-label">Annual Revenue per Customer</div>
+        <div class="metric-value">$1,000</div>
+      </div>
+      <div class="metric"><div class="metric-label">Basis</div><p>Test basis</p></div>
+    </div>
+      <div class="section full-width">
+      <div class="section-title">Work-Backwards Calculations</div>
+
+      <div class="calculation">
+        <div class="calc-name">Required Customers</div>
+        <div class="calc-value">1,000</div>
+        <div class="formula">Test formula</div>
+      </div>
+
+      
+
+      
+
+      <div class="calculation">
+        <div class="calc-name">Customer Acquisition Rate</div>
+        <div class="calc-value">1,000/year</div>
+        <div class="formula">Test formula</div>
+      </div>
+
+      <div class="calculation">
+        <div class="calc-name">Monthly Acquisition Target</div>
+        <div class="calc-value">84/month</div>
+        <div class="formula">Test formula</div>
+      </div>
+
+      
+
+      
+    </div>
+      <div class="section full-width">
+      <div class="section-title">Generated Targets (for AAARR Import)</div>
+      <p style="color: #999;">No targets generated</p>
+    </div>
+    </div>
+  </div>
+</body>
+</html>

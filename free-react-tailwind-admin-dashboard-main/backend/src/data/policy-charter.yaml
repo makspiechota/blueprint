@@ -173,3 +173,9 @@ risks:
     impact: medium
     mitigation:
       - pc.policy.knowledge-sharing-events
+  - id: pc.risk.1766925695677
+    description: New Risk
+    probability: low
+    impact: low
+    mitigation:
+      - pc.policy.ai-tool-adoption
