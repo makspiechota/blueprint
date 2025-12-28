@@ -1,4 +1,6 @@
 import React from 'react';
+import ChatButton from './ChatButton';
+import { useChat } from '../context/ChatContext';
 
 interface ArchitecturalScopeData {
   title?: string;
@@ -40,6 +42,12 @@ interface ArchitecturalScopeVisualizerProps {
 }
 
 const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> = ({ data }) => {
+  const { openChat } = useChat();
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
   const sections = [
     {
       key: 'what',
@@ -92,7 +100,12 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
 
       {/* WHY - Mission & Goals (Featured at top) */}
       {data.why && (
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8 relative">
+          <ChatButton
+            resourceType="architectural-scope-why"
+            resourceData={{ title: 'WHY - Business Mission & Goals', content: data.why }}
+            onClick={handleChatClick}
+          />
           <div className="flex items-center gap-4 mb-6">
             <span className="text-5xl">🎯</span>
             <div>
@@ -129,7 +142,12 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
       {/* The other 5W sections in a grid below */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sections.map((section) => (
-          <div key={section.key} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+           <div key={section.key} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+             <ChatButton
+               resourceType={`architectural-scope-${section.key}`}
+               resourceData={{ title: `${section.title} - ${section.subtitle}`, content: section.items }}
+               onClick={handleChatClick}
+             />
             <div className="flex items-center gap-3 mb-4">
               <span className="text-3xl">{section.icon}</span>
               <div>

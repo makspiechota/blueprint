@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ChatButton from './ChatButton';
+import { useChat } from '../context/ChatContext';
 
 interface AAARRData {
   title?: string;
@@ -56,7 +58,12 @@ interface CustomersFactoryVisualizerProps {
 }
 
 const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({ data }) => {
+  const { openChat } = useChat();
   const [selectedStage, setSelectedStage] = useState('acquisition');
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
 
   const stages = [
     { key: 'acquisition', label: 'Acquisition', color: 'blue' },
@@ -77,7 +84,12 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
   const currentStage = data.stages?.[selectedStage as keyof typeof data.stages];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      <ChatButton
+        resourceType="customers-factory-overview"
+        resourceData={{ title: 'Customers Factory Overview', content: data }}
+        onClick={handleChatClick}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{data.title || 'Customers Factory'}</h1>
         <span className="text-sm text-gray-500 dark:text-gray-400">AAARR Growth Framework</span>

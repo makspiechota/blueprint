@@ -1,4 +1,6 @@
 import React from 'react';
+import ChatButton from './ChatButton';
+import { useChat } from '../context/ChatContext';
 
 interface LeanViability {
   title?: string;
@@ -30,6 +32,12 @@ interface LeanViabilityVisualizerProps {
 }
 
 const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data }) => {
+  const { openChat } = useChat();
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -39,29 +47,49 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
 
       {/* Key Financial Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <div className="text-3xl mb-3">💰</div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+           <ChatButton
+             resourceType="lean-viability-revenue"
+             resourceData={{ title: 'Annual Revenue Target', content: data.success_criteria?.annual_revenue }}
+             onClick={handleChatClick}
+           />
+           <div className="text-3xl mb-3">💰</div>
           <div className="text-2xl font-bold text-green-600 dark:text-green-400">
             ${data.success_criteria?.annual_revenue?.amount?.toLocaleString() || '10,000,000'}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Annual Revenue Target</div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <div className="text-3xl mb-3">👥</div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+           <ChatButton
+             resourceType="lean-viability-customers"
+             resourceData={{ title: 'Required Customers', content: data.calculations?.required_customers }}
+             onClick={handleChatClick}
+           />
+           <div className="text-3xl mb-3">👥</div>
           <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             {data.calculations?.required_customers?.count || 833}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Required Customers</div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <div className="text-3xl mb-3">💵</div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+           <ChatButton
+             resourceType="lean-viability-arpu"
+             resourceData={{ title: 'ARPU (Annual Revenue Per User)', content: data.calculations?.annual_revenue_per_customer }}
+             onClick={handleChatClick}
+           />
+           <div className="text-3xl mb-3">💵</div>
           <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
             ${data.calculations?.annual_revenue_per_customer?.amount?.toLocaleString() || '12,000'}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">ARPU (Annual Revenue Per User)</div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-          <div className="text-3xl mb-3">⏰</div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+           <ChatButton
+             resourceType="lean-viability-time"
+             resourceData={{ title: 'Time Horizon', content: data.time_horizon }}
+             onClick={handleChatClick}
+           />
+           <div className="text-3xl mb-3">⏰</div>
           <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
             {data.time_horizon?.duration || 3} {data.time_horizon?.unit || 'years'}
           </div>

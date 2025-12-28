@@ -1,4 +1,6 @@
 import React from 'react';
+import ChatButton from './ChatButton';
+import { useChat } from '../context/ChatContext';
 
 interface LeanCanvas {
   title?: string;
@@ -45,6 +47,12 @@ interface LeanCanvasVisualizerProps {
 }
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
+  const { openChat } = useChat();
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
   return (
     <div className="w-full p-6">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
@@ -55,8 +63,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
       </div>
 
       <div className="grid grid-cols-5 gap-4 grid-rows-3">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Problem</div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-problem"
+             resourceData={{ title: 'Problem', content: canvas.problem }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Problem</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.problem?.top_3_problems && (
               <ul className="list-disc list-inside mb-3">
@@ -69,8 +82,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Solution</div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-solution"
+             resourceData={{ title: 'Solution', content: canvas.solution }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Solution</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.solution?.top_3_features && (
               <ul className="list-disc list-inside">
@@ -80,8 +98,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unique Value Proposition</div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-value-proposition"
+             resourceData={{ title: 'Unique Value Proposition', content: canvas.unique_value_proposition }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Unique Value Proposition</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.unique_value_proposition?.single_clear_message && (
               <p className="font-semibold mb-2">{canvas.unique_value_proposition.single_clear_message}</p>
@@ -99,8 +122,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Customer Segments</div>
+        <div className="row-span-2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-customer-segments"
+             resourceData={{ title: 'Customer Segments', content: canvas.customer_segments }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Customer Segments</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.customer_segments?.target_customers && (
               <p><strong>Target: </strong>{canvas.customer_segments.target_customers}</p>
@@ -111,8 +139,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Key Metrics</div>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-key-metrics"
+             resourceData={{ title: 'Key Metrics', content: canvas.key_metrics }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Key Metrics</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.key_metrics?.activities_to_measure && (
               <ul className="list-disc list-inside">
@@ -122,8 +155,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Channels</div>
+        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-channels"
+             resourceData={{ title: 'Channels', content: canvas.channels }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Channels</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.channels?.path_to_customers && (
               <ul className="list-disc list-inside">

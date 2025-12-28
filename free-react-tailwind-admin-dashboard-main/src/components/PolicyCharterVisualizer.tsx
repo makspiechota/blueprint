@@ -12,6 +12,8 @@ import ReactFlow, {
   Connection,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import ChatButton from './ChatButton';
+import { useChat } from '../context/ChatContext';
 
 interface PolicyCharterData {
   goals?: Array<{
@@ -47,6 +49,12 @@ interface PolicyCharterVisualizerProps {
 }
 
 const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ charter }) => {
+  const { openChat } = useChat();
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
   const initialNodes: Node[] = useMemo(() => {
     const nodes: Node[] = [];
     const levelSpacing = 280;
@@ -283,7 +291,12 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   return (
     <div className="space-y-6">
-      <div className="policy-charter-visualizer">
+      <div className="policy-charter-visualizer relative">
+        <ChatButton
+          resourceType="policy-charter-overview"
+          resourceData={{ title: 'Policy Charter Overview', content: charter }}
+          onClick={handleChatClick}
+        />
         <style>{`
           .policy-charter-visualizer {
             width: 100%;

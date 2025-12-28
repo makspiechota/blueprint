@@ -1,4 +1,5 @@
-// AI service for communicating with the OpenCode backend
+import { createOpencodeClient } from '@opencode-ai/sdk';
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -8,7 +9,7 @@ export interface ChatMessage {
 export interface ChatContext {
   resourceType: string;
   resourcePath: string;
-  currentContent: any;
+  currentContent: Record<string, unknown>;
 }
 
 export interface AIResponse {
@@ -18,58 +19,151 @@ export interface AIResponse {
 }
 
 class AIService {
-  private baseUrl = 'http://localhost:3001/api';
+  private client = createOpencodeClient({
+    baseUrl: 'http://localhost:4097',
+  });
 
-  async sendMessage(message: string, context: ChatContext): Promise<AIResponse> {
-    const response = await fetch(`${this.baseUrl}/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message,
-        context,
-      }),
-    });
+  private currentSessionId: string | null = null;
+  private blueprintContent: string | null = null;
+  private messageCount: number = 0;
 
-    if (!response.ok) {
-      throw new Error(`AI service error: ${response.statusText}`);
+  async initializeSession(resourceType: string, resourcePath: string, blueprintData?: any): Promise<string> {
+    try {
+      // Create a new session for each chat
+      const session = await this.client.session.create({
+        body: { title: `Blueprint Chat: ${resourceType}` },
+      });
+
+      if (session.error || !session.data?.id) {
+        throw new Error('Failed to create session');
+      }
+
+      this.currentSessionId = session.data.id;
+      console.log('Created OpenCode session:', this.currentSessionId);
+
+      // Use provided blueprint data if available, otherwise try to read file
+      if (blueprintData) {
+        this.blueprintContent = typeof blueprintData === 'string' ? blueprintData : JSON.stringify(blueprintData, null, 2);
+        console.log('Using provided blueprint data, length:', this.blueprintContent.length);
+      } else {
+        // Load the blueprint file content
+        console.log('Attempting to read file:', resourcePath);
+        try {
+          const content = await this.client.file.read({
+            query: { path: resourcePath },
+          });
+
+          console.log('File read response:', content);
+
+          if (!content.error && content.data?.content) {
+            this.blueprintContent = content.data.content;
+            console.log('Loaded blueprint content for session, length:', this.blueprintContent.length);
+          } else {
+            this.blueprintContent = null;
+            console.warn('Failed to load blueprint content, error:', content.error);
+          }
+        } catch (fileError) {
+          console.warn('File read failed, using empty context:', fileError);
+          this.blueprintContent = null;
+        }
+      }
+
+      this.messageCount = 0;
+      return this.currentSessionId;
+    } catch (error) {
+      console.error('Session initialization error:', error);
+      throw error;
     }
-
-    return response.json();
   }
 
-  async requestModification(
-    resourceType: string,
-    resourcePath: string,
-    newContent: string
-  ): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${this.baseUrl}/modify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resourceType,
-        resourcePath,
-        newContent,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Modification error: ${response.statusText}`);
+  async sendMessage(message: string, context: ChatContext): Promise<AIResponse> {
+    if (!this.currentSessionId) {
+      throw new Error('No active session. Call initializeSession first.');
     }
 
-    const result = await response.json();
+    try {
+      console.log('Sending message to session:', this.currentSessionId);
 
-    // If modification was successful, trigger hot-reload by updating the file
-    if (result.success) {
-      // In a real implementation, the file would be modified on the server
-      // For now, we'll assume the hot-reload happens automatically
-      console.log('File modification requested:', result);
+      // Include blueprint context only in the first message to avoid payload size issues
+      const blueprintContext = this.messageCount === 0 && this.blueprintContent ?
+        `Blueprint context (refer to this for all questions):\n${this.blueprintContent}\n\n` :
+        (this.blueprintContent ? 'Remember the blueprint context provided earlier.\n\n' : '');
+
+      const fullPrompt = `${blueprintContext}User question: ${message}`;
+      this.messageCount++;
+      console.log('Full prompt length:', fullPrompt.length);
+
+      const result = await this.client.session.prompt({
+        path: { id: this.currentSessionId },
+        body: {
+          model: { providerID: "opencode", modelID: "grok-code" },
+          parts: [{ type: "text", text: fullPrompt }],
+        },
+      });
+
+      console.log('API response received:', result);
+
+      if (result.error) {
+        console.error('API returned error:', result.error);
+        // If session error, try to recreate session
+        if (result.error.toString().includes('session')) {
+          console.log('Session error, attempting to recreate session...');
+          try {
+            const newSession = await this.client.session.create({
+              body: { title: `Blueprint Chat: ${context.resourceType} (retry)` },
+            });
+            if (newSession.data?.id) {
+              this.currentSessionId = newSession.data.id;
+              console.log('Recreated session:', this.currentSessionId);
+              // Retry the prompt with new session
+              const retryResult = await this.client.session.prompt({
+                path: { id: this.currentSessionId },
+                body: {
+                  model: { providerID: "opencode", modelID: "grok-code" },
+                  parts: [{ type: "text", text: fullPrompt }],
+                },
+              });
+              if (!retryResult.error) {
+                const retryParts = (retryResult.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
+                const retryTextPart = retryParts.find(part => part.type === 'text');
+                return {
+                  message: retryTextPart?.text || 'Response received after retry',
+                  model: 'grok-code',
+                  context
+                };
+              }
+            }
+          } catch (retryError) {
+            console.error('Retry failed:', retryError);
+          }
+        }
+        throw new Error(`OpenCode API error: ${result.error}`);
+      }
+
+      // Extract the text part from the response
+      const parts = (result.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
+      console.log('Response parts:', parts.length, 'parts found');
+
+      const textPart = parts.find(part => part.type === 'text');
+      const responseMessage = textPart?.text || 'Response received';
+
+      console.log('Extracted response message:', responseMessage.substring(0, 100) + '...');
+
+      return {
+        message: responseMessage,
+        model: 'grok-code',
+        context
+      };
+    } catch (error) {
+      console.error('Message send error:', error);
+      throw error;
     }
+  }
 
-    return result;
+  async closeSession(): Promise<void> {
+    this.currentSessionId = null;
+    this.blueprintContent = null;
+    this.messageCount = 0;
   }
 
   // Helper to detect if a message contains modification intent
@@ -89,6 +183,67 @@ class AIService {
     }
 
     return { isModification: false };
+  }
+
+  async requestModification(
+    _resourceType: string,
+    resourcePath: string,
+    newContent: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('Attempting to modify file:', resourcePath, 'with content:', newContent);
+
+      // For now, since file.write may not be available, let's use a different approach
+      // We'll ask the AI to suggest the modification through the session
+      if (!this.currentSessionId) {
+        return {
+          success: false,
+          message: 'No active session for modification'
+        };
+      }
+
+      try {
+        const modificationPrompt = `Please modify the blueprint file at ${resourcePath} with the following content:\n\n${newContent}\n\nConfirm when the modification is complete.`;
+
+        const result = await this.client.session.prompt({
+          path: { id: this.currentSessionId },
+          body: {
+            model: { providerID: "opencode", modelID: "grok-code" },
+            parts: [{ type: "text", text: modificationPrompt }],
+          },
+        });
+
+        if (result.error) {
+          console.error('Modification prompt error:', result.error);
+          return {
+            success: false,
+            message: `Failed to request modification: ${result.error}`
+          };
+        }
+
+        // Extract the response
+        const parts = (result.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
+        const textPart = parts.find(part => part.type === 'text');
+        const responseMessage = textPart?.text || 'Modification request sent';
+
+        return {
+          success: true,
+          message: responseMessage
+        };
+      } catch (error) {
+        console.error('Modification request error:', error);
+        return {
+          success: false,
+          message: `Modification request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        };
+      }
+    } catch (error) {
+      console.error('File modification error:', error);
+      return {
+        success: false,
+        message: `File modification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 }
 

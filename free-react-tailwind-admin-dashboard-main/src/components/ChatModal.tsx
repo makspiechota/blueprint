@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatMessage, ChatContext } from '../types/chat';
 import { aiService } from '../services/aiService';
 
@@ -18,15 +18,78 @@ const ChatModal: React.FC<ChatModalProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const getResourcePath = (resourceType: string): string => {
+    // Map resource types to their corresponding blueprint files
+    // Since we're running from the server at blueprint root, and files are in the subfolder
+    if (resourceType.startsWith('north-star')) {
+      return 'src/data/north-star.yaml';
+    }
+    if (resourceType.startsWith('lean-canvas')) {
+      return 'src/data/lean-canvas.yaml';
+    }
+    if (resourceType.startsWith('architectural-scope')) {
+      return 'src/data/architectural-scope.yaml';
+    }
+    if (resourceType.startsWith('lean-viability')) {
+      return 'src/data/lean-viability.yaml';
+    }
+    if (resourceType.startsWith('aaarr-metrics') || resourceType.startsWith('customers-factory')) {
+      return 'src/data/aaarr-metrics.yaml';
+    }
+    if (resourceType.startsWith('policy-charter')) {
+      return 'src/data/policy-charter.yaml';
+    }
+    // Default fallback
+    return `src/data/${resourceType}.yaml`;
+  };
+
+  const initializeSession = useCallback(async () => {
+    if (isInitialized) {
+      console.log('Session already initialized, skipping');
+      return; // Prevent double initialization
+    }
+
+    console.log('Initializing session for:', resourceType);
+    try {
+      const resourcePath = getResourcePath(resourceType);
+
+      await aiService.initializeSession(resourceType, resourcePath, resourceData);
+      setIsInitialized(true);
+      console.log('Session initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize chat session:', error);
+      // Add error message to chat
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `Error initializing chat: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date()
+      };
+      setMessages([errorMessage]);
+    }
+  }, [resourceType, resourceData, isInitialized]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (isOpen && resourceData && !isInitialized) {
+      initializeSession();
+    } else if (!isOpen && isInitialized) {
+      // Clean up session when modal closes
+      aiService.closeSession();
+      setIsInitialized(false);
+      setMessages([]);
+    }
+  }, [isOpen, resourceData, isInitialized, initializeSession]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -43,9 +106,10 @@ const ChatModal: React.FC<ChatModalProps> = ({
     setIsLoading(true);
 
     try {
+      const resourcePath = getResourcePath(resourceType);
       const context: ChatContext = {
         resourceType,
-        resourcePath: `src/data/${resourceType}.yaml`, // Assuming YAML files
+        resourcePath,
         currentContent: resourceData
       };
 
@@ -54,11 +118,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
 
       if (modificationIntent.isModification && modificationIntent.newContent) {
         // Handle modification
-        const modifyResult = await aiService.requestModification(
-          resourceType,
-          context.resourcePath,
-          modificationIntent.newContent
-        );
+        const modifyResult = await aiService.requestModification(resourceType, context.resourcePath, modificationIntent.newContent);
 
         const aiMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
