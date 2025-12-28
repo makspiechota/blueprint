@@ -53,6 +53,9 @@ interface PolicyCharterVisualizerProps {
 const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ charter }) => {
   const { openChat } = useChat();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const nodeWidth = 250;
+  const levelSpacing = 280;
+  const horizontalSpacing = 100;
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
@@ -60,9 +63,6 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   const initialNodes: Node[] = useMemo(() => {
     const nodes: Node[] = [];
-    const levelSpacing = 280;
-    const nodeWidth = 250;
-    const horizontalSpacing = 100;
     const addedPolicyIds = new Set();
 
     const goals = charter.goals || [];
@@ -417,11 +417,79 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
   useEffect(() => setEdges(initialEdges), [initialEdges, setEdges]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds) => addEdge({ ...params, markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
     [setEdges]
   );
 
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => setSelectedNode(node), []);
+
+  const addTactic = () => {
+    const id = `pc.tactic.${Date.now()}`;
+    const newNode: Node = {
+      id,
+      type: 'default',
+      position: { x: nodes.filter(n => n.id.includes('tactic')).length * (nodeWidth + 50), y: 50 + levelSpacing },
+      data: {
+        label: (
+          <div className="node-content">
+            <div className="node-type"><span>📝</span> Tactic</div>
+            <div className="node-title">New Tactic</div>
+            <div className="node-description">Description</div>
+          </div>
+        ),
+        title: 'New Tactic',
+        description: 'Description',
+      },
+      style: { background: '#D1FAE5', border: '2px solid #10B981', borderRadius: '8px', width: nodeWidth },
+    };
+    setNodes(nds => nds.concat(newNode));
+  };
+
+  const addPolicy = () => {
+    const id = `pc.policy.${Date.now()}`;
+    const newNode: Node = {
+      id,
+      type: 'default',
+      position: { x: nodes.filter(n => n.id.includes('policy')).length * (nodeWidth + 50), y: 50 + levelSpacing * 2 },
+      data: {
+        label: (
+          <div className="node-content">
+            <div className="node-type"><span>☂️</span> Policy</div>
+            <div className="node-title">New Policy</div>
+            <div className="node-description">Rule</div>
+          </div>
+        ),
+        title: 'New Policy',
+        rule: 'Rule',
+        description: 'Rule',
+      },
+      style: { background: '#E9D5FF', border: '2px solid #8B5CF6', borderRadius: '8px', width: nodeWidth },
+    };
+    setNodes(nds => nds.concat(newNode));
+  };
+
+  const addRisk = () => {
+    const id = `pc.risk.${Date.now()}`;
+    const newNode: Node = {
+      id,
+      type: 'default',
+      position: { x: nodes.filter(n => n.id.includes('risk')).length * (nodeWidth + 50), y: 50 + levelSpacing * 3 },
+      data: {
+        label: (
+          <div className="node-content">
+            <div className="node-type"><span>⛈️</span> Risk</div>
+            <div className="node-title">New Risk</div>
+            <div className="node-description">P: low | I: low</div>
+          </div>
+        ),
+        description: 'New Risk',
+        probability: 'low',
+        impact: 'low',
+      },
+      style: { background: '#FEE2E2', border: '2px solid #EF4444', borderRadius: '8px', width: nodeWidth },
+    };
+    setNodes(nds => nds.concat(newNode));
+  };
 
   const buildDataFromNodesAndEdges = (nodes: Node[], edges: Edge[]) => {
     const goals: any[] = [];
@@ -511,7 +579,10 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           }
         `}</style>
 
-        <div className="mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button onClick={addTactic} className="px-3 py-2 bg-green-500 text-white rounded text-sm">Add Tactic</button>
+          <button onClick={addPolicy} className="px-3 py-2 bg-purple-500 text-white rounded text-sm">Add Policy</button>
+          <button onClick={addRisk} className="px-3 py-2 bg-red-500 text-white rounded text-sm">Add Risk</button>
           <button onClick={() => {
             // Build data and save
             const data = buildDataFromNodesAndEdges(nodes, edges);
@@ -520,7 +591,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ data }),
             }).then(() => {}).catch(() => alert('Save failed'));
-          }} className="px-4 py-2 bg-blue-500 text-white rounded">Save Changes</button>
+          }} className="px-3 py-2 bg-blue-500 text-white rounded text-sm">Save Changes</button>
         </div>
 
         {selectedNode && (
