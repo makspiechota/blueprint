@@ -1,143 +1,390 @@
+# Policy Charter Example - Software Factory Capability
+# This demonstrates the YAML DSL syntax for defining policy charter layer
+# Policy Charter connects strategic goals to operational execution using Ronald Ross framework
+
+# Required metadata
 type: policy-charter
 version: "1.0"
-last_updated: "2025-12-28"
-title: "BLUEPRINT Platform Operational Policies"
-architectural_scope_ref: "architectural-scope.yaml"
-aaarr_metrics_ref: "aaarr-metrics.yaml"
+last_updated: "2025-12-25"
+title: "Software Factory Policy Charter"
+
+# Required references to other layers (validates that files exist)
+architectural_scope_ref: sample-architectural-scope.yaml
+aaarr_metrics_ref: aaarr-metrics.yaml
+
+# GOALS - Operational objectives addressing Architectural Scope goals
+# Goals translate strategic WHY into measurable operational objectives
 goals:
-  - id: "pc.goal.context-integrity"
-    title: "Ensure business context integrity"
-    description: "Maintain accurate, consistent business knowledge across all blueprint layers"
-    addresses: ["To enable consistent AI agent performance"]
-    aaarr_impact: ["activation", "retention"]
-    tactics: ["pc.tactic.validation", "pc.tactic.versioning"]
-    policies: ["pc.policy.schema-validation", "pc.policy.context-consistency"]
-    kpis: ["pc.kpi.context-accuracy", "pc.kpi.ai-agent-satisfaction"]
-    risks: ["pc.risk.context-drift"]
-  - id: "pc.goal.ai-agent-efficiency"
-    title: "Maximize AI agent workflow efficiency"
-    description: "Ensure AI agents can access and utilize business context effectively"
-    addresses: ["To reduce manual context overhead"]
-    aaarr_impact: ["activation", "revenue"]
-    tactics: ["pc.tactic.api-optimization", "pc.tactic.context-structure"]
-    policies: ["pc.policy.api-limits", "pc.policy.context-formatting"]
-    kpis: ["pc.kpi.ai-response-time", "pc.kpi.context-utilization"]
-    risks: ["pc.risk.api-limits"]
-  - id: "pc.goal.platform-reliability"
-    title: "Ensure platform reliability and security"
-    description: "Maintain high availability and protect sensitive business knowledge"
-    addresses: ["To improve AI workflow reliability", "To maintain knowledge integrity"]
-    aaarr_impact: ["retention", "referral"]
-    tactics: ["pc.tactic.security", "pc.tactic.monitoring"]
-    policies: ["pc.policy.access-control", "pc.policy.backup-recovery"]
-    kpis: ["pc.kpi.uptime", "pc.kpi.security-incidents"]
-    risks: ["pc.risk.data-breach"]
+  - id: pc.goal.delivery-velocity
+    title: "Accelerate Engineering Velocity"
+    description: "Enable teams to deliver features 3-6x faster through systematic practices and AI augmentation"
+    addresses:
+      - arch.goal.velocity  # Links to Architectural Scope goal
+    aaarr_impact:
+      - acquisition  # Which AAARR stages this goal affects
+      - activation
+      - retention
+    tactics:
+      - pc.tactic.tdd-mandate
+      - pc.tactic.ai-augmentation
+      - pc.tactic.systematic-practices
+      - pc.tactic.training-program
+    policies:
+      - pc.policy.code-review-mandatory
+      - pc.policy.tdd-required
+      - pc.policy.testing-standards
+    kpis:
+      - pc.kpi.deployment-frequency
+      - pc.kpi.lead-time
+      - pc.kpi.development-efficiency
+    risks:
+      - pc.risk.skill-gap
+      - pc.risk.resistance-to-change
+
+  - id: pc.goal.code-quality
+    title: "Maintain High Code Quality Standards"
+    description: "Ensure all delivered code meets enterprise quality standards and reduces technical debt"
+    addresses:
+      - arch.goal.quality
+    aaarr_impact:
+      - retention
+      - revenue
+    tactics:
+      - pc.tactic.quality-gates
+      - pc.tactic.code-reviews
+    policies:
+      - pc.policy.code-review-mandatory
+      - pc.policy.static-analysis
+      - pc.policy.quality-gates
+    kpis:
+      - pc.kpi.defect-density
+      - pc.kpi.code-coverage
+      - pc.kpi.technical-debt-ratio
+    risks:
+      - pc.risk.quality-compromises
+
+  - id: pc.goal.collaboration
+    title: "Enhance Team Collaboration"
+    description: "Foster knowledge sharing and collaborative practices across distributed teams"
+    addresses:
+      - arch.goal.collaboration
+    aaarr_impact:
+      - activation
+      - retention
+    tactics:
+      - pc.tactic.documentation-standards
+      - pc.tactic.knowledge-sharing
+      - pc.tactic.change-management
+    policies:
+      - pc.policy.documentation-mandatory
+      - pc.policy.code-reviews
+    kpis:
+      - pc.kpi.knowledge-sharing-rate
+      - pc.kpi.collaboration-metrics
+    risks:
+      - pc.risk.isolation
+
+# TACTICS - Courses of action to achieve goals
+# Tactics are concrete approaches that drive policy creation
 tactics:
-  - id: "pc.tactic.validation"
-    title: "Implement comprehensive schema validation"
-    description: "Ensure all blueprint content adheres to schema requirements and business rules"
-    drives_policies: ["pc.policy.schema-validation", "pc.policy.context-consistency"]
-  - id: "pc.tactic.versioning"
-    title: "Establish version control for blueprints"
-    description: "Track changes and maintain blueprint evolution history"
-    drives_policies: ["pc.policy.version-control", "pc.policy.audit-trail"]
-  - id: "pc.tactic.api-optimization"
-    title: "Optimize AI agent API performance"
-    description: "Ensure fast, reliable access to business context for AI workflows"
-    drives_policies: ["pc.policy.api-limits", "pc.policy.context-formatting"]
-  - id: "pc.tactic.context-structure"
-    title: "Maintain optimal context structure"
-    description: "Organize business knowledge for efficient AI agent consumption"
-    drives_policies: ["pc.policy.context-hierarchy", "pc.policy.ai-readability"]
-  - id: "pc.tactic.security"
-    title: "Implement platform security measures"
-    description: "Protect sensitive business knowledge and ensure authorized access"
-    drives_policies: ["pc.policy.access-control", "pc.policy.encryption"]
-  - id: "pc.tactic.monitoring"
-    title: "Establish platform monitoring and alerting"
-    description: "Track system performance and detect issues proactively"
-    drives_policies: ["pc.policy.monitoring", "pc.policy.incident-response"]
+  - id: pc.tactic.tdd-mandate
+    title: "Mandate Test-Driven Development"
+    description: "Require TDD for all new features to ensure quality at speed"
+    drives_policies:
+      - pc.policy.tdd-required
+      - pc.policy.testing-standards
+
+  - id: pc.tactic.ai-augmentation
+    title: "Implement AI-Augmented Development"
+    description: "Use AI tools to accelerate development while maintaining quality"
+    drives_policies:
+      - pc.policy.ai-tool-adoption
+      - pc.policy.ai-review-process
+
+  - id: pc.tactic.systematic-practices
+    title: "Establish Systematic Engineering Practices"
+    description: "Implement consistent processes for planning, development, and delivery"
+    drives_policies:
+      - pc.policy.agile-methodology
+      - pc.policy.retrospectives
+
+  - id: pc.tactic.quality-gates
+    title: "Implement Quality Gates"
+    description: "Establish automated and manual quality checkpoints throughout development"
+    drives_policies:
+      - pc.policy.static-analysis
+      - pc.policy.quality-gates
+
+  - id: pc.tactic.code-reviews
+    title: "Mandate Code Reviews"
+    description: "Require peer review for all code changes"
+    drives_policies:
+      - pc.policy.code-review-mandatory
+
+  - id: pc.tactic.documentation-standards
+    title: "Establish Documentation Standards"
+    description: "Create and maintain comprehensive documentation"
+    drives_policies:
+      - pc.policy.documentation-mandatory
+
+  - id: pc.tactic.knowledge-sharing
+    title: "Promote Knowledge Sharing"
+    description: "Encourage sharing of knowledge and best practices"
+    drives_policies:
+      - pc.policy.knowledge-sharing-events
+
+  - id: pc.tactic.training-program
+    title: "Implement Training Program"
+    description: "Provide comprehensive training for new development practices and tools"
+    drives_policies:
+      - pc.policy.training-budget
+
+  - id: pc.tactic.change-management
+    title: "Change Management Process"
+    description: "Implement structured change management to reduce resistance"
+    drives_policies:
+      - pc.policy.communication-plan
+
+ # POLICIES - Business rules driven by tactics
+# Policies are specific enforceable rules with graduated brackets for complex scenarios
 policies:
-  - id: "pc.policy.ai-response"
-    title: "AI Response Priority Policy"
-    rule: "All support inquiries must receive an AI-generated response within 5 minutes"
-    driven_by_tactic: "pc.tactic.ai-first"
-    enforcement: "mandatory"
+  - id: pc.policy.tdd-required
+    title: "Test-Driven Development Required"
+    rule: "All new features must be developed using Test-Driven Development practices"
+    driven_by_tactic: pc.tactic.tdd-mandate
+    enforcement: mandatory
     brackets:
-      - condition: "Business hours (9AM-6PM EST)"
-        rule: "AI response within 2 minutes, human backup within 15 minutes"
-      - condition: "After hours"
-        rule: "AI response within 5 minutes, human callback within 2 hours"
-  - id: "pc.policy.handoff"
-    title: "Intelligent Handoff Policy"
-    rule: "Escalate to human agents when AI confidence score falls below 85%"
-    driven_by_tactic: "pc.tactic.ai-first"
-    enforcement: "mandatory"
-  - id: "pc.policy.quality-gates"
-    title: "Response Quality Gates"
-    rule: "All AI responses must pass automated quality checks before delivery"
-    driven_by_tactic: "pc.tactic.quality-assurance"
-    enforcement: "mandatory"
-  - id: "pc.policy.capacity-planning"
-    title: "Capacity Planning Policy"
-    rule: "Maintain 200% headroom for peak AI processing capacity"
-    driven_by_tactic: "pc.tactic.scaling"
-    enforcement: "mandatory"
-  - id: "pc.policy.cost-monitoring"
-    title: "Cost Monitoring Policy"
-    rule: "Track support cost per ticket and maintain below $15 average"
-    driven_by_tactic: "pc.tactic.efficiency"
-    enforcement: "guideline"
+      - condition: "Feature complexity > 13 story points OR critical business impact"
+        rule: "Full TDD required with 90%+ test coverage and integration tests"
+      - condition: "Feature complexity 5-13 story points"
+        rule: "TDD required with 80%+ test coverage"
+      - condition: "Feature complexity < 5 story points AND low business impact"
+        rule: "TDD encouraged but simplified tests acceptable (60%+ coverage)"
+
+  - id: pc.policy.code-review-mandatory
+    title: "Mandatory Code Reviews"
+    rule: "All code changes require peer review before merging"
+    driven_by_tactic: pc.tactic.code-reviews
+    enforcement: mandatory
+    brackets:
+      - condition: "High-risk changes (security, performance, database)"
+        rule: "Senior developer + security review required"
+      - condition: "Medium-risk changes (new features, API changes)"
+        rule: "Two peer reviews required"
+      - condition: "Low-risk changes (bug fixes, documentation)"
+        rule: "One peer review required"
+
+  - id: pc.policy.testing-standards
+    title: "Testing Standards and Coverage"
+    rule: "All code must meet minimum testing standards"
+    driven_by_tactic: pc.tactic.tdd-mandate
+    enforcement: mandatory
+    brackets:
+      - condition: "Production code changes"
+        rule: "Unit tests 80%+, integration tests required"
+      - condition: "Infrastructure/utility code"
+        rule: "Unit tests 90%+, integration tests required"
+      - condition: "Proof-of-concept or experimental code"
+        rule: "Basic tests encouraged but not enforced"
+
+  - id: pc.policy.static-analysis
+    title: "Static Analysis Requirements"
+    rule: "Code must pass static analysis checks"
+    driven_by_tactic: pc.tactic.quality-gates
+    enforcement: mandatory
+
+  - id: pc.policy.quality-gates
+    title: "Quality Gates for Deployment"
+    rule: "Code must pass all quality gates before deployment"
+    driven_by_tactic: pc.tactic.quality-gates
+    enforcement: mandatory
+    brackets:
+      - condition: "Production deployment"
+        rule: "All gates: tests, security, performance, accessibility"
+      - condition: "Staging deployment"
+        rule: "Core gates: tests, security"
+      - condition: "Development deployment"
+        rule: "Basic gates: tests"
+
+  - id: pc.policy.ai-tool-adoption
+    title: "AI Tool Adoption Guidelines"
+    rule: "Use approved AI tools to enhance productivity"
+    driven_by_tactic: pc.tactic.ai-augmentation
+    enforcement: guideline
+
+  - id: pc.policy.ai-review-process
+    title: "AI-Generated Code Review Process"
+    rule: "AI-generated code requires additional review"
+    driven_by_tactic: pc.tactic.ai-augmentation
+    enforcement: mandatory
+
+  - id: pc.policy.agile-methodology
+    title: "Agile Methodology Requirements"
+    rule: "All teams must follow agile practices"
+    driven_by_tactic: pc.tactic.systematic-practices
+    enforcement: mandatory
+
+  - id: pc.policy.retrospectives
+    title: "Regular Retrospectives"
+    rule: "Teams must conduct retrospectives every 2 weeks"
+    driven_by_tactic: pc.tactic.systematic-practices
+    enforcement: mandatory
+
+  - id: pc.policy.documentation-mandatory
+    title: "Mandatory Documentation"
+    rule: "All features must have complete documentation"
+    driven_by_tactic: pc.tactic.documentation-standards
+    enforcement: mandatory
+    brackets:
+      - condition: "Public APIs or user-facing features"
+        rule: "Full documentation including examples and tutorials"
+      - condition: "Internal APIs or components"
+        rule: "API documentation and usage examples"
+      - condition: "Internal utilities"
+        rule: "Code comments and basic documentation"
+
+  - id: pc.policy.knowledge-sharing-events
+    title: "Knowledge Sharing Events"
+    rule: "Teams must participate in knowledge sharing activities"
+    driven_by_tactic: pc.tactic.knowledge-sharing
+    enforcement: guideline
+
+  - id: pc.policy.training-budget
+    title: "Training Budget Allocation"
+    rule: "Allocate sufficient budget for team training programs"
+    driven_by_tactic: pc.tactic.training-program
+    enforcement: mandatory
+
+  - id: pc.policy.communication-plan
+    title: "Change Communication Plan"
+    rule: "Develop and execute comprehensive communication plan for organizational changes"
+    driven_by_tactic: pc.tactic.change-management
+    enforcement: mandatory
+
+ # RISKS - Threats to goals with mitigation strategies
+# Risks identify potential obstacles and link to tactics/policies that mitigate them
 risks:
-  - id: "pc.risk.ai-accuracy"
-    description: "AI provides incorrect or inappropriate responses"
-    probability: "medium"
-    impact: "high"
-    mitigation: ["pc.tactic.quality-assurance", "pc.policy.quality-gates"]
-  - id: "pc.risk.scaling-costs"
-    description: "AI processing costs grow faster than revenue"
-    probability: "low"
-    impact: "high"
-    mitigation: ["pc.tactic.efficiency", "pc.policy.capacity-planning"]
-  - id: "pc.risk.quality-degradation"
-    description: "AI responses become less accurate over time"
-    probability: "medium"
-    impact: "medium"
-    mitigation: ["pc.tactic.quality-assurance", "pc.policy.quality-reviews"]
+  - id: pc.risk.skill-gap
+    description: "Team lacks skills in new practices (TDD, AI tools)"
+    probability: high
+    impact: medium
+    mitigation:
+      - pc.tactic.training-program
+      - pc.policy.training-budget
+
+  - id: pc.risk.resistance-to-change
+    description: "Team resistance to adopting new development practices"
+    probability: medium
+    impact: high
+    mitigation:
+      - pc.tactic.change-management
+      - pc.policy.communication-plan
+
+  - id: pc.risk.quality-compromises
+    description: "Pressure to deliver quickly leads to quality compromises"
+    probability: medium
+    impact: high
+    mitigation:
+      - pc.tactic.quality-gates
+      - pc.policy.quality-gates
+
+  - id: pc.risk.isolation
+    description: "Remote/distributed teams become isolated"
+    probability: low
+    impact: medium
+    mitigation:
+      - pc.tactic.knowledge-sharing
+      - pc.policy.knowledge-sharing-events
+
+# KPIS - Measurable outcomes justified by AAARR metrics
+# KPIs track progress toward goals and must justify their measurement approach
 kpis:
-  - id: "pc.kpi.response-time"
-    name: "Average Response Time"
+  - id: pc.kpi.deployment-frequency
+    name: "Deployment Frequency"
+    description: "How often we deploy to production"
     target:
-      rate: 5
-      period: "minute"
+      rate: 30
+      period: day
+    current:
+      rate: 12
+      period: day
+    measurement_frequency: daily
+    justification: aaarr.activation.feature-rollout-rate
+
+  - id: pc.kpi.lead-time
+    name: "Lead Time for Changes"
+    description: "Time from code commit to production deployment"
+    target:
+      rate: 2
+      period: hour
     current:
       rate: 8
-      period: "minute"
-    measurement_frequency: "daily"
-    justification: "aaarr.activation.first-response"
-  - id: "pc.kpi.customer-satisfaction"
-    name: "Customer Satisfaction Score"
+      period: hour
+    measurement_frequency: weekly
+    justification: aaarr.activation.development-cycle-time
+
+  - id: pc.kpi.development-efficiency
+    name: "Development Efficiency"
+    description: "Lines of code per developer per day"
     target:
-      rate: 4.5
+      rate: 150
+      period: day
     current:
-      rate: 4.2
-    measurement_frequency: "weekly"
-    justification: "aaarr.referral.net-promoter-score"
-  - id: "pc.kpi.accuracy-rate"
-    name: "AI Response Accuracy"
+      rate: 120
+      period: day
+    measurement_frequency: monthly
+    justification: aaarr.revenue.productivity-metrics
+
+  - id: pc.kpi.defect-density
+    name: "Defect Density"
+    description: "Number of defects per 1000 lines of code"
     target:
-      percentage: 95
+      rate: 2
+      period: month
     current:
-      percentage: 92
-    measurement_frequency: "weekly"
-    justification: "aaarr.activation.feature-adoption"
-  - id: "pc.kpi.cost-per-ticket"
-    name: "Cost Per Support Ticket"
+      rate: 5
+      period: month
+    measurement_frequency: monthly
+    justification: aaarr.retention.quality-satisfaction
+
+  - id: pc.kpi.code-coverage
+    name: "Test Code Coverage"
+    description: "Percentage of code covered by automated tests"
     target:
-      amount: 15
-      currency: "USD"
+      percentage: 85
     current:
-      amount: 18
-      currency: "USD"
-    measurement_frequency: "monthly"
-    justification: "aaarr.revenue.monthly-recurring-revenue"
+      percentage: 78
+    measurement_frequency: weekly
+    justification: aaarr.retention.quality-assurance
+
+  - id: pc.kpi.technical-debt-ratio
+    name: "Technical Debt Ratio"
+    description: "Ratio of technical debt to total codebase"
+    target:
+      percentage: 5
+    current:
+      percentage: 12
+    measurement_frequency: quarterly
+    justification: aaarr.revenue.maintainability-cost
+
+  - id: pc.kpi.knowledge-sharing-rate
+    name: "Knowledge Sharing Participation"
+    description: "Percentage of team members actively participating in knowledge sharing"
+    target:
+      percentage: 80
+    current:
+      percentage: 65
+    measurement_frequency: monthly
+    justification: aaarr.activation.team-engagement
+
+  - id: pc.kpi.collaboration-metrics
+    name: "Cross-Team Collaboration"
+    description: "Number of cross-team code contributions per month"
+    target:
+      rate: 25
+      period: month
+    current:
+      rate: 18
+      period: month
+    measurement_frequency: monthly
+    justification: aaarr.retention.team-satisfaction
