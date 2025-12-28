@@ -20,17 +20,18 @@ solution:
     - "Hierarchical blueprint system (North Star → Architecture → Business Model → Metrics → Policies)"
     - "YAML-based DSL with validation and cross-references optimized for AI parsing"
     - "Single source of truth providing consistent context across all AI-agent interactions"
+    - "Interactive blueprint visualization system facilitating efficient human-agent communication and collaboration"
 channels:
   path_to_customers:
-    - "Content marketing on AI adoption and engineering velocity"
-    - "ICP #2 (aspirational engineers) ambassador network and referrals"
-    - "Conference presentations and workshops on systematic AI practices"
-    - "Direct enterprise sales for larger implementations"
+    - "Technical content marketing on AI context management and structured DSLs"
+    - "Developer community engagement and open-source contributions"
+    - "Engineering conference presentations and workshops"
+    - "Direct sales to engineering leaders and platform teams"
 revenue_streams:
   revenue_model: "SaaS subscription based on team size and blueprint complexity"
   lifetime_value: "$50,000+ for mid-sized SaaS companies over 3-year adoption"
 cost_structure:
-  customer_acquisition_cost: "$500 per customer through content marketing and ICP #2 referrals"
+  customer_acquisition_cost: "$500 per customer through content marketing and community referrals"
   distribution_costs: "$200 per customer for cloud infrastructure and AI processing"
   hosting_costs: "$150 per customer for platform maintenance and updates"
   people_costs: "$300 per customer for customer success and support"
@@ -41,4 +42,4 @@ key_metrics:
     - "Engineering velocity improvement (3-6x target)"
     - "Time to AI adoption readiness (<30 days)"
 unfair_advantage:
-  cant_be_copied: "Proprietary multi-layer orchestration engine with AI-native DSL design, validated through Software Factory methodology"
+  cant_be_copied: "Decade of deep expertise in SDLC development, encompassing methodologies from business strategy to design patterns"
