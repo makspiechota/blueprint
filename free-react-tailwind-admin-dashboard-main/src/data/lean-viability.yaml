@@ -1,23 +1,23 @@
 type: lean-viability
 version: "1.0"
-last_updated: "2025-12-25"
-title: "AI Support Assistant Viability Analysis"
+last_updated: "2025-12-28"
+title: "BLUEPRINT Platform Viability Analysis"
 lean_canvas_ref: "lean-canvas.yaml"
 time_horizon:
   duration: 3
   unit: "years"
 success_criteria:
   annual_revenue:
-    amount: 1000000
+    amount: 750000
     currency: "USD"
-  target_year: 3
+    target_year: 3
 calculations:
   annual_revenue_per_customer:
-    amount: 12000
+    amount: 3000
     currency: "USD"
-    basis: "Average contract value for SMB customers"
+    basis: "SaaS subscription for engineering teams (5-15 engineers)"
   required_customers:
-    count: 833
+    count: 250
     formula: "Annual revenue target / Annual revenue per customer"
   customer_acquisition_rate:
     rate: 25

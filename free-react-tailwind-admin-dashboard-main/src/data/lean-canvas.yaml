@@ -1,42 +1,44 @@
 type: lean-canvas
 version: "1.0"
-last_updated: "2025-12-25"
-title: "AI Support Assistant Business Model"
+last_updated: "2025-12-28"
+title: "BLUEPRINT SaaS Business Model"
 north_star_ref: "north-star.yaml"
 problem:
   top_3_problems:
-    - "Support tickets take 24-48 hours to resolve, frustrating customers"
-    - "Hiring skilled support agents is expensive and difficult"
-    - "Inconsistent responses across different support channels"
-  existing_alternatives: "Generic chatbots, outsourced support teams, basic ticketing systems"
+    - "B2B SaaS companies struggle to provide consistent business context to AI agents across different tools and workflows"
+    - "Engineering teams waste time manually gathering and reformatting business knowledge for each AI interaction"
+    - "AI agents produce inconsistent outputs due to lack of structured, machine-readable business context"
+  existing_alternatives: "Generic documentation tools, unstructured wikis, manual context sharing, ad-hoc AI prompting"
 customer_segments:
-  target_customers: "Small to medium businesses (50-500 employees) in B2B SaaS, e-commerce, and professional services"
-  early_adopters: "Tech-savvy SaaS companies already using basic automation"
+  target_customers: "B2B SaaS companies with engineering teams using AI tools for development workflows"
+  early_adopters: "Tech-forward companies already experimenting with AI agents in software development"
 unique_value_proposition:
-  single_clear_message: "Get expert-level customer support that never sleeps"
-  high_level_concept: "AI assistant trained on your expert team's responses"
+  single_clear_message: "Give your AI agents the business context they need to work effectively"
+  high_level_concept: "Structured business knowledge management platform using DSL, optimized for AI agent consumption and systematic workflows"
 solution:
   top_3_features:
-    - "Context-aware responses using company knowledge base"
-    - "Seamless handoff to human agents when needed"
-    - "Multi-channel support (email, chat, voice)"
+    - "Hierarchical blueprint system (North Star → Architecture → Business Model → Metrics → Policies)"
+    - "YAML-based DSL with validation and cross-references optimized for AI parsing"
+    - "Single source of truth providing consistent context across all AI-agent interactions"
 channels:
   path_to_customers:
-    - "Content marketing on support automation"
-    - "Partnerships with CRM and helpdesk platforms"
-    - "Direct sales to enterprise customers"
+    - "Content marketing on AI adoption and engineering velocity"
+    - "ICP #2 (aspirational engineers) ambassador network and referrals"
+    - "Conference presentations and workshops on systematic AI practices"
+    - "Direct enterprise sales for larger implementations"
 revenue_streams:
-  revenue_model: "SaaS subscription based on support volume"
-  lifetime_value: "$50,000+ for mid-sized businesses"
+  revenue_model: "SaaS subscription based on team size and blueprint complexity"
+  lifetime_value: "$50,000+ for mid-sized SaaS companies over 3-year adoption"
 cost_structure:
-  customer_acquisition_cost: "$500 per customer through content marketing"
-  distribution_costs: "$100 per customer for cloud infrastructure"
-  hosting_costs: "$200 per customer for AI processing"
-  people_costs: "$300 per customer for ongoing model training"
+  customer_acquisition_cost: "$500 per customer through content marketing and ICP #2 referrals"
+  distribution_costs: "$200 per customer for cloud infrastructure and AI processing"
+  hosting_costs: "$150 per customer for platform maintenance and updates"
+  people_costs: "$300 per customer for customer success and support"
 key_metrics:
   activities_to_measure:
-    - "Response accuracy rate (>95%)"
-    - "Customer satisfaction score"
-    - "Resolution time reduction"
+    - "Blueprint creation completion rate (>80%)"
+    - "AI integration success rate (>90%)"
+    - "Engineering velocity improvement (3-6x target)"
+    - "Time to AI adoption readiness (<30 days)"
 unfair_advantage:
-  cant_be_copied: "Proprietary training data from Fortune 500 support interactions"
+  cant_be_copied: "Proprietary multi-layer orchestration engine with AI-native DSL design, validated through Software Factory methodology"
