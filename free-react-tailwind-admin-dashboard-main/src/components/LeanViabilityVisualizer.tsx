@@ -5,6 +5,7 @@ import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import yaml from 'js-yaml';
 import { calculateLeanViabilityMetrics } from '../utils/leanViabilityCalculations';
+import ReactApexChart from 'react-apexcharts';
 
 interface LeanViability {
   title?: string;
@@ -56,6 +57,116 @@ interface LeanViability {
 interface LeanViabilityVisualizerProps {
   data: LeanViability;
 }
+
+// Hockey Stick Chart Component
+const HockeyStickChart: React.FC<{ targetCustomers: number }> = ({ targetCustomers }) => {
+  console.log('HockeyStickChart targetCustomers:', targetCustomers);
+  // Calculate hockey stick data points (exponential growth)
+  // Year 1: target ÷ 100, Year 2: target ÷ 10, Year 3: target
+  const year1 = Math.round(targetCustomers / 100);
+  const year2 = Math.round(targetCustomers / 10);
+  const year3 = targetCustomers;
+  console.log('Chart data points:', year1, year2, year3);
+
+  const chartData = {
+    series: [{
+      name: 'Customers',
+      data: [year1, year2, year3]
+    }],
+    options: {
+      chart: {
+        type: 'line' as const,
+        height: 300,
+        toolbar: {
+          show: false
+        },
+        background: 'transparent'
+      },
+      colors: ['#4f46e5'], // Indigo color
+      stroke: {
+        curve: 'smooth' as const,
+        width: 4
+      },
+      markers: {
+        size: 6,
+        colors: ['#4f46e5'],
+        strokeColors: '#fff',
+        strokeWidth: 2
+      },
+      xaxis: {
+        categories: ['Year 1', 'Year 2', 'Year 3'],
+        labels: {
+          style: {
+            colors: '#6b7280',
+            fontSize: '12px'
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: '#6b7280',
+            fontSize: '12px'
+          },
+          formatter: (value: number) => {
+            return value.toLocaleString();
+          }
+        }
+      },
+      grid: {
+        show: true,
+        borderColor: '#e5e7eb',
+        strokeDashArray: 3,
+        xaxis: {
+          lines: {
+            show: false
+          }
+        },
+        yaxis: {
+          lines: {
+            show: true
+          }
+        }
+      },
+      tooltip: {
+        theme: 'dark',
+        y: {
+          formatter: (value: number) => `${value.toLocaleString()} customers`
+        }
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'light',
+          type: 'vertical',
+          shadeIntensity: 0.4,
+          gradientToColors: ['#4f46e5'],
+          inverseColors: false,
+          opacityFrom: 0.4,
+          opacityTo: 0.1,
+          stops: [0, 100]
+        }
+      }
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <ReactApexChart
+        options={chartData.options}
+        series={chartData.series}
+        type="line"
+        height={300}
+      />
+    </div>
+  );
+};
 
 const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data }) => {
   const { openChat } = useChat();
@@ -611,16 +722,22 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
          </div>
        </div>
 
-       {/* Financial Projections Placeholder */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-          <span className="text-indigo-600 dark:text-indigo-400">📈</span>
-          3-Year Financial Projections
-        </h3>
-        <div className="text-gray-600 dark:text-gray-300">
-          Financial projections table would go here.
-        </div>
-      </div>
+       {/* Financial Projections - Hockey Stick Chart */}
+       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+           <span className="text-indigo-600 dark:text-indigo-400">📈</span>
+           3-Year Customer Growth Projection
+         </h3>
+         <div className="mb-4">
+           <HockeyStickChart targetCustomers={localData.calculations?.required_customers?.count || 250} />
+         </div>
+         <div className="text-sm text-gray-600 dark:text-gray-400">
+           <p className="mb-2"><strong>Hockey Stick Growth:</strong> Exponential customer acquisition following the classic hockey stick pattern where each year is 10x the previous year.</p>
+           <p><strong>Year 1:</strong> {Math.round((localData.calculations?.required_customers?.count || 250) / 100)} customers</p>
+           <p><strong>Year 2:</strong> {Math.round((localData.calculations?.required_customers?.count || 250) / 10)} customers</p>
+           <p><strong>Year 3:</strong> {localData.calculations?.required_customers?.count || 250} customers (annual target)</p>
+         </div>
+       </div>
     </div>
   );
 };
