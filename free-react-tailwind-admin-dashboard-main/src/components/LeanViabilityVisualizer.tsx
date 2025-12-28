@@ -340,14 +340,7 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
                   <span className="text-gray-700 dark:text-gray-300">Monthly Churn Rate</span>
                    <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.churn_rate?.monthly_rate || 0.05) * 100).toFixed(1)}%</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-700 dark:text-gray-300">Customer Acquisition Cost</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">$500</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-700 dark:text-gray-300">Gross Margins</span>
-                   <span className="font-semibold text-gray-900 dark:text-white">75%</span>
-                 </div>
+
                </div>
         </div>
 
@@ -378,17 +371,13 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-700 dark:text-gray-300 font-medium">Customer Lifetime Value</span>
-                    <span className="font-bold text-purple-600 dark:text-purple-400">$36,000</span>
+                     <span className="font-bold text-purple-600 dark:text-purple-400">
+                       ${((localData.calculations?.annual_revenue_per_customer?.amount || 12000) * (localData.calculations?.customer_lifetime_value?.years || 3)).toLocaleString()}
+                     </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">ARPU × Lifetime</div>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">Break-even Point</span>
-                    <span className="font-bold text-orange-600 dark:text-orange-400">18 months</span>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Based on cumulative cash flow analysis</div>
-                </div>
+
                </div>
         </div>
       </div>
