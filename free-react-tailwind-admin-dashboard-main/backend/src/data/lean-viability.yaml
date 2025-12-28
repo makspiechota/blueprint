@@ -1,54 +1,56 @@
 type: lean-viability
-version: "1.0"
-last_updated: "2025-12-28"
-title: "BLUEPRINT Platform Viability Analysis"
-lean_canvas_ref: "lean-canvas.yaml"
+version: '1.0'
+last_updated: '2025-12-28'
+title: BLUEPRINT Platform Viability Analysis
+lean_canvas_ref: lean-canvas.yaml
 time_horizon:
   duration: 3
-  unit: "years"
+  unit: years
 success_criteria:
   annual_revenue:
-    amount: 750000
-    currency: "USD"
+    amount: 5000000
+    currency: USD
     target_year: 3
 calculations:
   annual_revenue_per_customer:
-    amount: 3000
-    currency: "USD"
-    basis: "SaaS subscription for engineering teams (5-15 engineers)"
+    amount: 1200
+    currency: USD
+    basis: SaaS subscription for engineering teams (5-15 engineers)
   required_customers:
-    count: 250
-    formula: "Annual revenue target / Annual revenue per customer"
+    count: 4167
+    formula: Annual revenue target / Annual revenue per customer
   customer_acquisition_rate:
     rate: 25
-    period: "month"
-    formula: "Required customers / (Time horizon in months)"
+    period: month
+    formula: Required customers / (Time horizon in months)
   monthly_acquisition_target:
-    rate: 25
-    period: "month"
-    formula: "Customer acquisition rate adjusted for churn"
+    rate: 35
+    period: month
+    formula: Required customers × Monthly churn rate
   customer_lifetime_value:
-    years: 3
-    formula: "Annual revenue per customer * Customer lifetime"
+    years: 10
+    formula: Annual revenue per customer * Customer lifetime
+    amount: 12000
+    currency: USD
   churn_rate:
-    monthly_rate: 0.05
-    formula: "Industry average for SaaS support tools"
+    monthly_rate: 0.008333333333333333
+    formula: 1 / (12 * Customer lifetime)
   conversion_rate:
     rate: 0.15
-    basis: "Website visitors to paying customers"
+    basis: Website visitors to paying customers
   monthly_visitors:
     rate: 166
-    period: "month"
-    formula: "Monthly acquisition target / Conversion rate"
+    period: month
+    formula: Monthly acquisition target / Conversion rate
 targets:
   acquisition:
     monthly_signups:
       rate: 25
-      period: "month"
+      period: month
   activation:
     weekly_active_users:
       rate: 20
-      period: "month"
+      period: month
   retention:
     monthly_churn_rate:
       percentage: 5
@@ -57,5 +59,6 @@ targets:
   revenue:
     arpu:
       amount: 1000
-      currency: "USD"
-      period: "month"
+      currency: USD
+      period: month
+customer_lifetime: 10
