@@ -401,7 +401,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ data }),
-            }).then(() => alert('Saved!')).catch(() => alert('Save failed'));
+            }).then(() => {}).catch(() => alert('Save failed'));
           }} className="px-4 py-2 bg-blue-500 text-white rounded">Save Changes</button>
         </div>
 
