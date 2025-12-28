@@ -645,6 +645,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
           onConnect={onConnect}
           fitView
           attributionPosition="bottom-left"
+          deleteKeyCode="Delete"
         >
           <Background color="#e2e8f0" gap={16} />
           <Controls />
