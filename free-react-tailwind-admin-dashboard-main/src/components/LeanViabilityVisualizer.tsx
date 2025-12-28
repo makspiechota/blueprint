@@ -100,8 +100,13 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
       {/* Detailed Financial Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Assumptions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+           <ChatButton
+             resourceType="lean-viability-assumptions"
+             resourceData={{ title: 'Key Assumptions', content: data.calculations }}
+             onClick={handleChatClick}
+           />
+           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
             <span className="text-blue-600 dark:text-blue-400">📊</span>
             Key Assumptions
           </h3>
@@ -130,8 +135,13 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
         </div>
 
         {/* Work-Backwards Calculations */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+           <ChatButton
+             resourceType="lean-viability-calculations"
+             resourceData={{ title: 'Work-Backwards Calculations', content: data.calculations }}
+             onClick={handleChatClick}
+           />
+           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
             <span className="text-green-600 dark:text-green-400">🧮</span>
             Work-Backwards Calculations
           </h3>

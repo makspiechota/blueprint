@@ -171,8 +171,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="col-span-2 row-span-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Cost Structure</div>
+        <div className="col-span-2 row-span-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-cost-structure"
+             resourceData={{ title: 'Cost Structure', content: canvas.cost_structure }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Cost Structure</div>
           <div className="text-gray-600 dark:text-gray-300 text-sm">
             {canvas.cost_structure?.customer_acquisition_cost && (
               <p><strong>Customer acquisition: </strong>{canvas.cost_structure.customer_acquisition_cost}</p>
@@ -189,8 +194,13 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
           </div>
         </div>
 
-        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Revenue Streams</div>
+        <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+           <ChatButton
+             resourceType="lean-canvas-revenue-streams"
+             resourceData={{ title: 'Revenue Streams', content: canvas.revenue_streams }}
+             onClick={handleChatClick}
+           />
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Revenue Streams</div>
           <div className="text-gray-600 dark:text-gray-300">
             {canvas.revenue_streams?.revenue_model && (
               <p><strong>Model: </strong>{canvas.revenue_streams.revenue_model}</p>

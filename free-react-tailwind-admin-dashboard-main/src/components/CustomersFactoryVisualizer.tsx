@@ -98,10 +98,15 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
       {/* Stage Selection Menu */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {stages.map((stage) => (
-          <button
-            key={stage.key}
-            onClick={() => setSelectedStage(stage.key)}
-            className={`p-4 rounded-lg border text-left hover:shadow-md transition-all ${
+           <div key={stage.key} className="relative">
+             <ChatButton
+               resourceType={`customers-factory-${stage.key}`}
+               resourceData={{ title: `${stage.label} Stage`, content: data.stages?.[stage.key as keyof typeof data.stages] }}
+               onClick={handleChatClick}
+             />
+             <button
+               onClick={() => setSelectedStage(stage.key)}
+               className={`w-full p-4 rounded-lg border text-left hover:shadow-md transition-all ${
               selectedStage === stage.key
                 ? `bg-${stage.color}-100 dark:bg-${stage.color}-900/30 border-${stage.color}-300 dark:border-${stage.color}-700`
                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
@@ -113,11 +118,12 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                 {stage.label}
               </span>
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
-            </p>
-          </button>
-        ))}
+             <p className="text-xs text-gray-600 dark:text-gray-400">
+               {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
+             </p>
+           </button>
+           </div>
+         ))}
       </div>
 
       {/* Stage Metrics Display */}
@@ -129,7 +135,12 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {currentStage.metrics?.map((metric, index) => (
-              <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+               <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 relative">
+                 <ChatButton
+                   resourceType={`customers-factory-${selectedStage}-metric`}
+                   resourceData={{ title: `${metric.name} Metric`, content: metric }}
+                   onClick={handleChatClick}
+                 />
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{metric.name}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{metric.description}</p>
                 <div className="space-y-2">
