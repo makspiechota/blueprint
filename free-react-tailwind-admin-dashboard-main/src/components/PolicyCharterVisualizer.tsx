@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -281,8 +281,11 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
     return edges;
   }, [charter]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  useEffect(() => setNodes(initialNodes), [initialNodes, setNodes]);
+  useEffect(() => setEdges(initialEdges), [initialEdges, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
