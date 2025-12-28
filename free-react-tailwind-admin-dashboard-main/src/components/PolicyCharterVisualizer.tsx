@@ -620,6 +620,39 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 }}
                 className="w-full p-2 border rounded"
               />
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Connections</h4>
+                <div className="space-y-2">
+                  <div>
+                    <h5 className="text-sm font-medium">Outgoing:</h5>
+                    {edges.filter(e => e.source === selectedNode.id).map(e => (
+                      <div key={e.id} className="flex justify-between items-center text-sm">
+                        <span>To: {nodes.find(n => n.id === e.target)?.data.title || e.target}</span>
+                        <button 
+                          onClick={() => setEdges(eds => eds.filter(edge => edge.id !== e.id))} 
+                          className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium">Incoming:</h5>
+                    {edges.filter(e => e.target === selectedNode.id).map(e => (
+                      <div key={e.id} className="flex justify-between items-center text-sm">
+                        <span>From: {nodes.find(n => n.id === e.source)?.data.title || e.source}</span>
+                        <button 
+                          onClick={() => setEdges(eds => eds.filter(edge => edge.id !== e.id))} 
+                          className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <button 
                 disabled={edges.some(e => e.source === selectedNode.id)}
                 onClick={() => {
@@ -627,11 +660,11 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                   setEdges(eds => eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id));
                   setSelectedNode(null);
                 }} 
-                className="w-full px-4 py-2 bg-red-500 text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-red-500 text-white rounded disabled:bg-gray-400 disabled:cursor-not-allowed mt-4"
               >
                 Delete Node
               </button>
-              <button onClick={() => setSelectedNode(null)} className="w-full px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+              <button onClick={() => setSelectedNode(null)} className="w-full px-4 py-2 bg-gray-500 text-white rounded mt-2">Close</button>
             </div>
           </div>
         )}
