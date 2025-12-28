@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ChatButton from './ChatButton';
+import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
+import { aiService } from '../services/aiService';
+import yaml from 'js-yaml';
 
 interface ArchitecturalScopeData {
   title?: string;
@@ -43,9 +46,48 @@ interface ArchitecturalScopeVisualizerProps {
 
 const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> = ({ data }) => {
   const { openChat } = useChat();
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
+  };
+
+  const handleEditClick = (sectionKey: string, sectionData: any) => {
+    setEditingSection(sectionKey);
+    setEditedContent(yaml.dump(sectionData || {}));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSection || !editedContent.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const parsedSection = yaml.load(editedContent);
+      const updatedData = { ...data };
+      (updatedData as any)[editingSection] = parsedSection;
+
+      const yamlContent = yaml.dump(updatedData);
+      const result = await aiService.saveFileContent('src/data/architectural-scope.yaml', yamlContent);
+
+      if (result.success) {
+        setEditingSection(null);
+        setEditedContent('');
+        alert('Changes saved successfully!');
+      } else {
+        alert('Failed to save changes: ' + result.message);
+      }
+    } catch (error) {
+      alert('Invalid YAML format. Please check your syntax and try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSection(null);
+    setEditedContent('');
   };
 
   const sections = [
@@ -100,12 +142,15 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
 
       {/* WHY - Mission & Goals (Featured at top) */}
       {data.why && (
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8 relative">
-          <ChatButton
-            resourceType="architectural-scope-why"
-            resourceData={{ title: 'WHY - Business Mission & Goals', content: data.why }}
-            onClick={handleChatClick}
-          />
+         <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg p-8 relative">
+           <div className="flex items-center justify-between mb-4">
+             <ChatButton
+               resourceType="architectural-scope-why"
+               resourceData={{ title: 'WHY - Business Mission & Goals', content: data.why }}
+               onClick={handleChatClick}
+             />
+             <EditButton onClick={() => handleEditClick('why', data.why)} className="text-white hover:bg-white hover:bg-opacity-20" />
+           </div>
           <div className="flex items-center gap-4 mb-6">
             <span className="text-5xl">🎯</span>
             <div>

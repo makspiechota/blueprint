@@ -185,6 +185,32 @@ class AIService {
     return { isModification: false };
   }
 
+  async saveFileContent(resourcePath: string, content: string): Promise<{ success: boolean; message: string }> {
+    try {
+      // Extract filename from resourcePath (e.g., "src/data/north-star.yaml" -> "north-star.yaml")
+      const filename = resourcePath.split('/').pop() || '';
+
+      const response = await fetch(`/api/yaml/${filename}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: content }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, message: error.error || 'Failed to save file' };
+      }
+
+      const result = await response.json();
+      return { success: true, message: result.message || 'File saved successfully' };
+    } catch (error) {
+      console.error('Save file error:', error);
+      return { success: false, message: 'Network error while saving file' };
+    }
+  }
+
   async requestModification(
     _resourceType: string,
     resourcePath: string,

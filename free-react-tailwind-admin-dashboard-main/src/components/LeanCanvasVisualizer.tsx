@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ChatButton from './ChatButton';
+import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
+import { aiService } from '../services/aiService';
+import yaml from 'js-yaml';
 
 interface LeanCanvas {
   title?: string;
@@ -48,9 +51,59 @@ interface LeanCanvasVisualizerProps {
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
   const { openChat } = useChat();
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
+  };
+
+  const handleEditClick = (sectionKey: string, sectionData: any) => {
+    setEditingSection(sectionKey);
+    // For editing, show just this section's content as YAML
+    setEditedContent(yaml.dump(sectionData || {}));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSection || !editedContent.trim()) return;
+
+    setIsSaving(true);
+    try {
+      // Parse the YAML to validate it
+      const parsedSection = yaml.load(editedContent);
+
+      // Create updated canvas with the modified section
+      const updatedCanvas = { ...canvas };
+      (updatedCanvas as any)[editingSection] = parsedSection;
+
+      // Convert the full updated canvas back to YAML for saving
+      const yamlContent = yaml.dump(updatedCanvas);
+
+      // Save the edited content directly as the new file content
+      const result = await aiService.saveFileContent('src/data/lean-canvas.yaml', yamlContent);
+
+      if (result.success) {
+        console.log('File saved successfully');
+        setEditingSection(null);
+        setEditedContent('');
+        // Optionally reload the page or update parent state here
+        alert('Changes saved successfully!');
+      } else {
+        console.error('Failed to save file:', result.message);
+        alert('Failed to save changes: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Failed to save:', error);
+      alert('Invalid YAML format. Please check your syntax and try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSection(null);
+    setEditedContent('');
   };
 
   return (
@@ -64,38 +117,116 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
 
       <div className="grid grid-cols-5 gap-4 grid-rows-3">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-problem"
-             resourceData={{ title: 'Problem', content: canvas.problem }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Problem</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.problem?.top_3_problems && (
-              <ul className="list-disc list-inside mb-3">
-                {canvas.problem.top_3_problems.map((item, idx) => <li key={idx}>{item}</li>)}
-              </ul>
-            )}
-            {canvas.problem?.existing_alternatives && (
-              <p>{canvas.problem.existing_alternatives}</p>
-            )}
-          </div>
-        </div>
+           <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <ChatButton
+                  resourceType="lean-canvas-problem"
+                  resourceData={{ title: 'Problem', content: canvas.problem }}
+                  onClick={handleChatClick}
+                />
+                <EditButton onClick={() => handleEditClick('problem', canvas.problem)} />
+              </div>
+           </div>
+           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+             Problem
+              {editingSection === 'full' && (
+               <div className="flex items-center gap-2 mt-2">
+                 <button
+                   onClick={handleSaveEdit}
+                   disabled={isSaving}
+                   className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                 >
+                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                   </svg>
+                   {isSaving ? 'Saving...' : 'Save'}
+                 </button>
+                 <button
+                   onClick={handleCancelEdit}
+                   disabled={isSaving}
+                   className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                 >
+                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                   </svg>
+                   Cancel
+                 </button>
+               </div>
+             )}
+           </div>
+            {editingSection === 'full' ? (
+             <textarea
+               value={editedContent}
+               onChange={(e) => setEditedContent(e.target.value)}
+               className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+               disabled={isSaving}
+             />
+           ) : (
+             <div className="text-gray-600 dark:text-gray-300">
+               {canvas.problem?.top_3_problems && (
+                 <ul className="list-disc list-inside mb-3">
+                   {canvas.problem.top_3_problems.map((item, idx) => <li key={idx}>{item}</li>)}
+                 </ul>
+               )}
+               {canvas.problem?.existing_alternatives && (
+                 <p>{canvas.problem.existing_alternatives}</p>
+               )}
+             </div>
+           )}
+         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
-           <ChatButton
-             resourceType="lean-canvas-solution"
-             resourceData={{ title: 'Solution', content: canvas.solution }}
-             onClick={handleChatClick}
-           />
-           <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Solution</div>
-          <div className="text-gray-600 dark:text-gray-300">
-            {canvas.solution?.top_3_features && (
-              <ul className="list-disc list-inside">
-                {canvas.solution.top_3_features.map((item, idx) => <li key={idx}>{item}</li>)}
-              </ul>
+         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between mb-2">
+              <ChatButton
+                resourceType="lean-canvas-solution"
+                resourceData={{ title: 'Solution', content: canvas.solution }}
+                onClick={handleChatClick}
+              />
+              <EditButton onClick={() => handleEditClick('solution', canvas.solution)} />
+            </div>
+            <div className="font-semibold text-lg text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+              Solution
+              {editingSection === 'solution' && (
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={isSaving}
+                    className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    disabled={isSaving}
+                    className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+            {editingSection === 'solution' ? (
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={isSaving}
+              />
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                {canvas.solution?.top_3_features && (
+                  <ul className="list-disc list-inside">
+                    {canvas.solution.top_3_features.map((item, idx) => <li key={idx}>{item}</li>)}
+                  </ul>
+                )}
+              </div>
             )}
-          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">

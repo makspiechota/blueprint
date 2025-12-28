@@ -1,14 +1,29 @@
 type: north-star
-version: "2.0"
-last_updated: "2025-12-28"
-title: "AI Context Management System"
-vision: "Blueprint: AI Context Management System that helps to manage business knowledge in plain-text DSL optimized for AI-based workflows"
-problem: "Businesses struggle to organize and access their knowledge effectively for AI-driven workflows, resulting in inefficiencies and untapped potential"
-solution: "Build Blueprint, an AI Context Management System using plain-text DSL to structure business knowledge for optimized AI integration and workflows"
+version: '2.0'
+last_updated: '2025-12-28'
+title: 'BLUEPRINT: AI Context Management Platform'
+vision: >-
+  BLUEPRINT: Structured business knowledge management platform using plain-text
+  DSL, optimized for AI-agent based workflows and systematic development
+  practices
+problem: >-
+  B2B SaaS companies struggle to organize and provide business context to AI
+  agents, resulting in inconsistent outputs, manual overhead, and inability to
+  leverage AI effectively across development workflows
+solution: >-
+  Build BLUEPRINT, a hierarchical DSL platform that structures business
+  knowledge as single source of truth, enabling AI agents to understand context
+  and execute systematically across development workflows
 strategic_goals:
-  - title: "Achieve Product-Market Fit"
-    description: "Validate that organizations are willing to adopt DSL-based knowledge management for AI workflows"
-  - title: "Scale to 1000 Active Organizations"
-    description: "Grow the user base to demonstrate market demand for AI context management"
-  - title: "Establish Thought Leadership"
-    description: "Become recognized as the leading solution for AI-powered knowledge management"
+  - title: Establish BLUEPRINT as the standard for AI context management
+    description: >-
+      Become the go-to platform for organizations implementing AI-agent based
+      development workflows
+  - title: Achieve 100+ organization adoption
+    description: >-
+      Grow BLUEPRINT user base to demonstrate market demand for structured AI
+      context management
+  - title: Lead AI-native knowledge management
+    description: >-
+      Pioneer the category of business knowledge platforms optimized for AI
+      agent consumption

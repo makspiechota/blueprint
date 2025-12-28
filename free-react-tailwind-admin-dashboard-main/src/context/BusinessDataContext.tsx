@@ -1,13 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import yaml from 'js-yaml';
-
-// Import YAML files
-import northStarYaml from '../data/north-star.yaml?raw';
-import leanCanvasYaml from '../data/lean-canvas.yaml?raw';
-import architecturalScopeYaml from '../data/architectural-scope.yaml?raw';
-import leanViabilityYaml from '../data/lean-viability.yaml?raw';
-import aaarrMetricsYaml from '../data/aaarr-metrics.yaml?raw';
-import policyCharterYaml from '../data/policy-charter.yaml?raw';
 
 interface BusinessData {
   northStar?: any;
@@ -18,62 +9,160 @@ interface BusinessData {
   policyCharter?: any;
 }
 
-const BusinessDataContext = createContext<BusinessData | null>(null);
+const BusinessDataContext = createContext<BusinessData>({
+  northStar: null,
+  leanCanvas: null,
+  architecturalScope: null,
+  leanViability: null,
+  aaarrMetrics: null,
+  policyCharter: null,
+});
 
 export const useBusinessData = () => {
   const context = useContext(BusinessDataContext);
-  if (!context) {
-    throw new Error('useBusinessData must be used within BusinessDataProvider');
-  }
   return context;
 };
 
-const loadData = () => ({
-  northStar: yaml.load(northStarYaml),
-  leanCanvas: yaml.load(leanCanvasYaml),
-  architecturalScope: yaml.load(architecturalScopeYaml),
-  leanViability: yaml.load(leanViabilityYaml),
-  aaarrMetrics: yaml.load(aaarrMetricsYaml),
-  policyCharter: yaml.load(policyCharterYaml),
-});
+const loadData = async () => {
+  try {
+    const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes] = await Promise.all([
+      fetch('/api/yaml/north-star.yaml'),
+      fetch('/api/yaml/lean-canvas.yaml'),
+      fetch('/api/yaml/architectural-scope.yaml'),
+      fetch('/api/yaml/lean-viability.yaml'),
+      fetch('/api/yaml/aaarr-metrics.yaml'),
+      fetch('/api/yaml/policy-charter.yaml'),
+    ]);
+
+    const northStar = northStarRes.ok ? (await northStarRes.json()).data : null;
+    const leanCanvas = leanCanvasRes.ok ? (await leanCanvasRes.json()).data : null;
+    const architecturalScope = architecturalScopeRes.ok ? (await architecturalScopeRes.json()).data : null;
+    const leanViability = leanViabilityRes.ok ? (await leanViabilityRes.json()).data : null;
+    const aaarrMetrics = aaarrMetricsRes.ok ? (await aaarrMetricsRes.json()).data : null;
+    const policyCharter = policyCharterRes.ok ? (await policyCharterRes.json()).data : null;
+
+    return {
+      northStar,
+      leanCanvas,
+      architecturalScope,
+      leanViability,
+      aaarrMetrics,
+      policyCharter,
+    };
+  } catch (error) {
+    console.error('Failed to load data from backend:', error);
+    return {
+      northStar: null,
+      leanCanvas: null,
+      architecturalScope: null,
+      leanViability: null,
+      aaarrMetrics: null,
+      policyCharter: null,
+    };
+  }
+};
 
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [data, setData] = useState<BusinessData>(loadData);
+  const [data, setData] = useState<BusinessData>({
+    northStar: null,
+    leanCanvas: null,
+    architecturalScope: null,
+    leanViability: null,
+    aaarrMetrics: null,
+    policyCharter: null,
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (import.meta.hot) {
-      import.meta.hot.accept('../data/north-star.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, northStar: yaml.load(newModule.default) }));
+    const fetchData = async () => {
+      setLoading(true);
+      const loadedData = await loadData();
+      setData(loadedData);
+      setLoading(false);
+    };
+
+    fetchData();
+
+    // WebSocket connection for real-time updates
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'file_update') {
+          const { filename, data: updatedData } = message;
+
+          // Map filename to data key
+          const keyMap = {
+            'north-star.yaml': 'northStar',
+            'lean-canvas.yaml': 'leanCanvas',
+            'architectural-scope.yaml': 'architecturalScope',
+            'lean-viability.yaml': 'leanViability',
+            'aaarr-metrics.yaml': 'aaarrMetrics',
+            'policy-charter.yaml': 'policyCharter',
+          };
+
+          const dataKey = keyMap[filename as keyof typeof keyMap];
+          if (dataKey) {
+            setData(prev => ({
+              ...prev,
+              [dataKey]: updatedData
+            }));
+            console.log(`Updated ${dataKey} from WebSocket`);
+          }
+        } else if (message.type === 'file_delete') {
+          const { filename } = message;
+
+          // Map filename to data key
+          const keyMap = {
+            'north-star.yaml': 'northStar',
+            'lean-canvas.yaml': 'leanCanvas',
+            'architectural-scope.yaml': 'architecturalScope',
+            'lean-viability.yaml': 'leanViability',
+            'aaarr-metrics.yaml': 'aaarrMetrics',
+            'policy-charter.yaml': 'policyCharter',
+          };
+
+          const dataKey = keyMap[filename as keyof typeof keyMap];
+          if (dataKey) {
+            setData(prev => ({
+              ...prev,
+              [dataKey]: null
+            }));
+            console.log(`Removed ${dataKey} from WebSocket`);
+          }
         }
-      });
-      import.meta.hot.accept('../data/lean-canvas.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, leanCanvas: yaml.load(newModule.default) }));
-        }
-      });
-      import.meta.hot.accept('../data/architectural-scope.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, architecturalScope: yaml.load(newModule.default) }));
-        }
-      });
-      import.meta.hot.accept('../data/lean-viability.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, leanViability: yaml.load(newModule.default) }));
-        }
-      });
-      import.meta.hot.accept('../data/aaarr-metrics.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, aaarrMetrics: yaml.load(newModule.default) }));
-        }
-      });
-      import.meta.hot.accept('../data/policy-charter.yaml?raw', (newModule) => {
-        if (newModule) {
-          setData(prev => ({ ...prev, policyCharter: yaml.load(newModule.default) }));
-        }
-      });
-    }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    return () => {
+      ws.close();
+    };
   }, []);
+
+  if (loading) {
+    return (
+      <BusinessDataContext.Provider value={data}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-lg">Loading blueprint data...</div>
+        </div>
+      </BusinessDataContext.Provider>
+    );
+  }
 
   return (
     <BusinessDataContext.Provider value={data}>
