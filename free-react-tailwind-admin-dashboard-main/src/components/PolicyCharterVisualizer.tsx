@@ -425,10 +425,11 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   const addTactic = () => {
     const id = `pc.tactic.${Date.now()}`;
+    const tacticCount = nodes.filter(n => n.id.includes('tactic')).length;
     const newNode: Node = {
       id,
       type: 'default',
-      position: { x: nodes.filter(n => n.id.includes('tactic')).length * (nodeWidth + 50), y: 50 + levelSpacing },
+      position: { x: 300, y: 50 + levelSpacing + tacticCount * 50 },
       data: {
         label: (
           <div className="node-content">
@@ -447,10 +448,11 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   const addPolicy = () => {
     const id = `pc.policy.${Date.now()}`;
+    const policyCount = nodes.filter(n => n.id.includes('policy')).length;
     const newNode: Node = {
       id,
       type: 'default',
-      position: { x: nodes.filter(n => n.id.includes('policy')).length * (nodeWidth + 50), y: 50 + levelSpacing * 2 },
+      position: { x: 400, y: 50 + levelSpacing * 2 + policyCount * 50 },
       data: {
         label: (
           <div className="node-content">
@@ -470,10 +472,11 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   const addRisk = () => {
     const id = `pc.risk.${Date.now()}`;
+    const riskCount = nodes.filter(n => n.id.includes('risk')).length;
     const newNode: Node = {
       id,
       type: 'default',
-      position: { x: nodes.filter(n => n.id.includes('risk')).length * (nodeWidth + 50), y: 50 + levelSpacing * 3 },
+      position: { x: 500, y: 50 + levelSpacing * 3 + riskCount * 50 },
       data: {
         label: (
           <div className="node-content">
