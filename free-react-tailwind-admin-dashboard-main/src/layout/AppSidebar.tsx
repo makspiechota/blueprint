@@ -6,6 +6,7 @@ import {
   BoxCubeIcon,
   CheckCircleIcon,
   ChevronDownIcon,
+  DocsIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -266,29 +267,12 @@ const AppSidebar: React.FC = () => {
       >
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <DocsIcon className="w-8 h-8" />
+              <span className="text-xl font-bold">BLUEPRINT</span>
+            </div>
           ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
+            <DocsIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           )}
         </Link>
       </div>
