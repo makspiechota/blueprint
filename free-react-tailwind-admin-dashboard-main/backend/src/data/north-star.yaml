@@ -1,2 +1,14 @@
-north-star:
-  vision: BluePrint AI Context Management System
+type: north-star
+version: "2.0"
+last_updated: "2025-12-28"
+title: "AI Context Management System"
+vision: "Blueprint: AI Context Management System that helps to manage business knowledge in plain-text DSL optimized for AI-based workflows"
+problem: "Businesses struggle to organize and access their knowledge effectively for AI-driven workflows, resulting in inefficiencies and untapped potential"
+solution: "Build Blueprint, an AI Context Management System using plain-text DSL to structure business knowledge for optimized AI integration and workflows"
+strategic_goals:
+  - title: "Achieve Product-Market Fit"
+    description: "Validate that organizations are willing to adopt DSL-based knowledge management for AI workflows"
+  - title: "Scale to 1000 Active Organizations"
+    description: "Grow the user base to demonstrate market demand for AI context management"
+  - title: "Establish Thought Leadership"
+    description: "Become recognized as the leading solution for AI-powered knowledge management"
