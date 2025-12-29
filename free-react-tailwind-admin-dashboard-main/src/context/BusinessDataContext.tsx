@@ -55,7 +55,29 @@ const loadData = async () => {
     const architecturalScope = architecturalScopeRes.ok ? processObjectDocLinks((await architecturalScopeRes.json()).data) : null;
     const leanViability = leanViabilityRes.ok ? processObjectDocLinks((await leanViabilityRes.json()).data) : null;
     const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
-    const policyCharter = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
+    let policyCharter = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
+
+    // If architectural scope has goals, use them for policy charter goals
+    if (architecturalScope && architecturalScope.why && architecturalScope.why.goals && policyCharter) {
+      policyCharter.goals = architecturalScope.why.goals.map((goal: any, index: number) => ({
+        id: `as.goal.${index + 1}`,
+        title: goal.title,
+        description: goal.description,
+        tactics: [] // Will be populated if policy charter defines tactics for these goals
+      }));
+
+      // Add tactics to goals based on addresses_goal
+      if (policyCharter.tactics) {
+        policyCharter.tactics.forEach((tactic: any) => {
+          if (tactic.addresses_goal) {
+            const goal = policyCharter.goals.find((g: any) => g.id === tactic.addresses_goal);
+            if (goal) {
+              goal.tactics.push(tactic.id);
+            }
+          }
+        });
+      }
+    }
 
     return {
       northStar,
