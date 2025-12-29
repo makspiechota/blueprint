@@ -22,13 +22,13 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<NorthStar />} />
-            <Route path="/north-star" element={<NorthStar />} />
-            <Route path="/lean-canvas" element={<LeanCanvas />} />
-            <Route path="/architectural-scope" element={<ArchitecturalScope />} />
-            <Route path="/lean-viability" element={<LeanViability />} />
-            <Route path="/customer-factory" element={<CustomersFactory />} />
-            <Route path="/policy-charter" element={<PolicyCharter />} />
-            <Route path="/misc" element={<Misc />} />
+            <Route path="/:productName/north-star" element={<NorthStar />} />
+            <Route path="/:productName/lean-canvas" element={<LeanCanvas />} />
+            <Route path="/:productName/architectural-scope" element={<ArchitecturalScope />} />
+            <Route path="/:productName/lean-viability" element={<LeanViability />} />
+            <Route path="/:productName/customer-factory" element={<CustomersFactory />} />
+            <Route path="/:productName/policy-charter" element={<PolicyCharter />} />
+            <Route path="/:productName/misc" element={<Misc />} />
           </Route>
 
           {/* Fallback Route */}

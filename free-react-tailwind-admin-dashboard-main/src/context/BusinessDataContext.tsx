@@ -4,6 +4,8 @@ import { processDocLinks } from '../utils/docLinkProcessor';
 const API_BASE = 'http://localhost:3001';
 
 interface BusinessData {
+  productName?: string;
+  setProductName?: (name: string) => void;
   northStar?: any;
   leanCanvas?: any;
   architecturalScope?: any;
@@ -13,6 +15,8 @@ interface BusinessData {
 }
 
 const BusinessDataContext = createContext<BusinessData>({
+  productName: 'blueprint',
+  setProductName: () => {},
   northStar: null,
   leanCanvas: null,
   architecturalScope: null,
@@ -72,15 +76,15 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
   };
 };
 
-const loadData = async () => {
+const loadData = async (productName: string) => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes] = await Promise.all([
-      fetch(`${API_BASE}/api/yaml/north-star.yaml`),
-      fetch(`${API_BASE}/api/yaml/lean-canvas.yaml`),
-      fetch(`${API_BASE}/api/yaml/architectural-scope.yaml`),
-      fetch(`${API_BASE}/api/yaml/lean-viability.yaml`),
-      fetch(`${API_BASE}/api/yaml/aaarr-metrics.yaml`),
-      fetch(`${API_BASE}/api/yaml/policy-charter.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/north-star.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/lean-canvas.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/architectural-scope.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/lean-viability.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/aaarr-metrics.yaml`),
+      fetch(`${API_BASE}/api/yaml/${productName}/policy-charter.yaml`),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
@@ -115,6 +119,7 @@ const loadData = async () => {
 };
 
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [productName, setProductName] = useState('blueprint');
   const [data, setData] = useState<BusinessData>({
     northStar: null,
     leanCanvas: null,
@@ -128,8 +133,8 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const loadedData = await loadData();
-      setData(loadedData);
+      const loadedData = await loadData(productName);
+      setData({ ...loadedData, productName, setProductName });
       setLoading(false);
     };
 
@@ -204,7 +209,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => {
       ws.close();
     };
-  }, []);
+  }, [productName]);
 
   if (loading) {
     return (

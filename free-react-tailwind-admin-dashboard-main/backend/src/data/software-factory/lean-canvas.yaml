@@ -1,0 +1,73 @@
+type: lean-canvas
+version: '1.0'
+last_updated: '2025-12-28'
+title: BLUEPRINT SaaS Business Model
+north_star_ref: north-star.yaml
+problem:
+  top_3_problems:
+    - >-
+      B2B SaaS companies struggle to provide consistent business context to AI
+      agents across different tools and workflows
+    - >-
+      Engineering teams waste time manually gathering and reformatting business
+      knowledge for each AI interaction
+    - >-
+      AI agents produce inconsistent outputs due to lack of structured,
+      machine-readable business context
+  existing_alternatives: >-
+    Generic documentation tools, unstructured wikis, manual context sharing,
+    ad-hoc AI prompting
+customer_segments:
+  target_customers: >-
+    B2B SaaS companies with engineering teams using AI tools for development
+    workflows
+  early_adopters: >-
+    Tech-forward companies already experimenting with AI agents in software
+    development
+unique_value_proposition:
+  single_clear_message: Give your AI agents the business context they need to work effectively
+  high_level_concept: >-
+    Structured business knowledge management platform using DSL, optimized for
+    AI agent consumption and systematic workflows
+solution:
+  top_3_features:
+    - >-
+      Hierarchical blueprint system (North Star → Architecture → Business Model
+      → Metrics → Policies)
+    - >-
+      YAML-based DSL with validation and cross-references optimized for AI
+      parsing
+    - >-
+      Single source of truth providing consistent context across all AI-agent
+      interactions
+    - >-
+      Interactive blueprint visualization system facilitating efficient
+      human-agent communication and collaboration
+channels:
+  path_to_customers:
+    - Technical content marketing on AI context management and structured DSLs
+    - Developer community engagement and open-source contributions
+    - Engineering conference presentations and workshops
+    - Direct sales to engineering leaders and platform teams
+revenue_streams:
+  revenue_model: SaaS subscription based on team size and blueprint complexity
+  lifetime_value: $50,000+ for mid-sized SaaS companies over 3-year adoption
+cost_structure:
+  customer_acquisition_cost: $500 per customer through content marketing and community referrals
+  distribution_costs: $200 per customer for cloud infrastructure and AI processing
+  hosting_costs: $150 per customer for platform maintenance and updates
+  people_costs: $300 per customer for customer success and support
+key_metrics:
+  annual_revenue_3_years_target:
+    amount: 750000
+    currency: USD
+    timeframe: 3 years
+  activities_to_measure:
+    - Blueprint creation completion rate (>80%)
+    - AI integration success rate (>90%)
+    - Engineering velocity improvement (3-6x target)
+    - Time to AI adoption readiness (<30 days)
+unfair_advantage:
+  cant_be_copied: >-
+    Decade of deep expertise in SDLC development, encompassing methodologies
+    from business strategy to design patterns

@@ -29,11 +29,11 @@ if (!fs.existsSync(miscDir)) {
 
 // CRUD Routes for YAML files
 
-// GET /api/yaml/:filename - Read a YAML file
-app.get('/api/yaml/:filename', (req, res) => {
+// GET /api/yaml/:productName/:filename - Read a YAML file
+app.get('/api/yaml/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
-    const filePath = path.join(yamlDir, filename);
+    const { productName, filename } = req.params;
+    const filePath = path.join(yamlDir, productName, filename);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'File not found' });
@@ -49,17 +49,17 @@ app.get('/api/yaml/:filename', (req, res) => {
   }
 });
 
-// PUT /api/yaml/:filename - Update a YAML file
-app.put('/api/yaml/:filename', (req, res) => {
+// PUT /api/yaml/:productName/:filename - Update a YAML file
+app.put('/api/yaml/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
     const { data } = req.body;
 
     if (!data) {
       return res.status(400).json({ error: 'Data is required' });
     }
 
-    const filePath = path.join(yamlDir, filename);
+    const filePath = path.join(yamlDir, productName, filename);
 
     // Check if data is already a YAML string or needs to be dumped
     let yamlContent;
@@ -86,17 +86,17 @@ app.put('/api/yaml/:filename', (req, res) => {
   }
 });
 
-// POST /api/yaml/:filename - Create a new YAML file
-app.post('/api/yaml/:filename', (req, res) => {
+// POST /api/yaml/:productName/:filename - Create a new YAML file
+app.post('/api/yaml/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
     const { data } = req.body;
 
     if (!data) {
       return res.status(400).json({ error: 'Data is required' });
     }
 
-    const filePath = path.join(yamlDir, filename);
+    const filePath = path.join(yamlDir, productName, filename);
 
     if (fs.existsSync(filePath)) {
       return res.status(409).json({ error: 'File already exists' });
@@ -112,11 +112,11 @@ app.post('/api/yaml/:filename', (req, res) => {
   }
 });
 
-// DELETE /api/yaml/:filename - Delete a YAML file
-app.delete('/api/yaml/:filename', (req, res) => {
+// DELETE /api/yaml/:productName/:filename - Delete a YAML file
+app.delete('/api/yaml/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
-    const filePath = path.join(yamlDir, filename);
+    const { productName, filename } = req.params;
+    const filePath = path.join(yamlDir, productName, filename);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'File not found' });
@@ -131,14 +131,19 @@ app.delete('/api/yaml/:filename', (req, res) => {
   }
 });
 
-// GET /api/yaml - List all YAML files
-app.get('/api/yaml', (req, res) => {
+// GET /api/yaml/:productName - List all YAML files for a product
+app.get('/api/yaml/:productName', (req, res) => {
   try {
-    const files = fs.readdirSync(yamlDir)
-      .filter(file => file.endsWith('.yaml') || file.endsWith('.yml'))
+    const { productName } = req.params;
+    const productDir = path.join(yamlDir, productName);
+    if (!fs.existsSync(productDir)) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    const files = fs.readdirSync(productDir)
+      .filter(file => file.endsWith('.yaml'))
       .map(file => ({
         name: file,
-        path: `/api/yaml/${file}`
+        path: `/api/yaml/${productName}/${file}`
       }));
 
     res.json({ files });

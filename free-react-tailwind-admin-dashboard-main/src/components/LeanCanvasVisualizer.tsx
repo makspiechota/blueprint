@@ -52,9 +52,10 @@ interface LeanCanvas {
 
 interface LeanCanvasVisualizerProps {
   canvas: LeanCanvas;
+  productName?: string;
 }
 
-const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
+const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, productName = 'blueprint' }) => {
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
@@ -86,7 +87,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
       const yamlContent = yaml.dump(updatedCanvas);
 
       // Save the edited content directly as the new file content
-      const result = await aiService.saveFileContent('src/data/lean-canvas.yaml', yamlContent);
+      const result = await aiService.saveFileContent(`src/data/${productName}/lean-canvas.yaml`, yamlContent);
 
       if (result.success) {
         console.log('File saved successfully');

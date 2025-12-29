@@ -15,9 +15,10 @@ interface NorthStarData {
 
 interface NorthStarVisualizerProps {
   data: NorthStarData;
+  productName?: string;
 }
 
-const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
+const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data, productName = 'blueprint' }) => {
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
@@ -54,7 +55,7 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
       }
 
       const yamlContent = yaml.dump(updatedData);
-      const result = await aiService.saveFileContent('src/data/north-star.yaml', yamlContent);
+      const result = await aiService.saveFileContent(`src/data/${productName}/north-star.yaml`, yamlContent);
 
       if (result.success) {
         setEditingSection(null);

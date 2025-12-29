@@ -1,9 +1,16 @@
+import { useParams } from 'react-router';
+import { useEffect } from 'react';
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
 import LeanCanvasVisualizer from "../../components/LeanCanvasVisualizer";
 
 export default function LeanCanvas() {
-  const { leanCanvas } = useBusinessData();
+  const { productName: urlProductName } = useParams<{ productName: string }>();
+  const { leanCanvas, setProductName, productName } = useBusinessData();
+
+  useEffect(() => {
+    if (urlProductName) setProductName?.(urlProductName);
+  }, [urlProductName, setProductName]);
 
   return (
     <>
@@ -11,7 +18,7 @@ export default function LeanCanvas() {
         title="Lean Canvas | Business Blueprint Dashboard"
         description="Lean Canvas business layer visualization"
       />
-      <LeanCanvasVisualizer canvas={leanCanvas || {}} />
+      <LeanCanvasVisualizer canvas={leanCanvas || {}} productName={productName} />
     </>
   );
 }
