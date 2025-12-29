@@ -211,6 +211,27 @@ class AIService {
     }
   }
 
+  async generateLayer(resourceType: string, resourceData: any): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resourceType, resourceData }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, message: error.error || 'Failed to generate layer' };
+      }
+
+      const result = await response.json();
+      return { success: true, message: result.message || 'Layer generated successfully' };
+    } catch (error) {
+      console.error('Generate layer error:', error);
+      return { success: false, message: 'Network error while generating layer' };
+    }
+  }
+
   async requestModification(
     _resourceType: string,
     resourcePath: string,
