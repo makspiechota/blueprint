@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { processDocLinks } from '../utils/docLinkProcessor';
 
+const API_BASE = 'http://localhost:3001';
+
 interface BusinessData {
   northStar?: any;
   leanCanvas?: any;
@@ -39,15 +41,46 @@ const processObjectDocLinks = (obj: any): any => {
   return obj;
 };
 
+// Merge goals from architectural-scope into policy-charter
+const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any): any => {
+  if (!architecturalScope?.why?.goals || !policyCharter) {
+    return policyCharter;
+  }
+
+  const mappedGoals = architecturalScope.why.goals.map((goal: any, index: number) => ({
+    id: `as.goal.${index + 1}`,
+    title: goal.title,
+    description: goal.description,
+    tactics: []
+  }));
+
+  // Add tactics to goals based on addresses_goal
+  if (policyCharter.tactics) {
+    policyCharter.tactics.forEach((tactic: any) => {
+      if (tactic.addresses_goal) {
+        const goal = mappedGoals.find((g: any) => g.id === tactic.addresses_goal);
+        if (goal) {
+          goal.tactics.push(tactic.id);
+        }
+      }
+    });
+  }
+
+  return {
+    ...policyCharter,
+    goals: mappedGoals
+  };
+};
+
 const loadData = async () => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes] = await Promise.all([
-      fetch('/api/yaml/north-star.yaml'),
-      fetch('/api/yaml/lean-canvas.yaml'),
-      fetch('/api/yaml/architectural-scope.yaml'),
-      fetch('/api/yaml/lean-viability.yaml'),
-      fetch('/api/yaml/aaarr-metrics.yaml'),
-      fetch('/api/yaml/policy-charter.yaml'),
+      fetch(`${API_BASE}/api/yaml/north-star.yaml`),
+      fetch(`${API_BASE}/api/yaml/lean-canvas.yaml`),
+      fetch(`${API_BASE}/api/yaml/architectural-scope.yaml`),
+      fetch(`${API_BASE}/api/yaml/lean-viability.yaml`),
+      fetch(`${API_BASE}/api/yaml/aaarr-metrics.yaml`),
+      fetch(`${API_BASE}/api/yaml/policy-charter.yaml`),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
@@ -55,29 +88,10 @@ const loadData = async () => {
     const architecturalScope = architecturalScopeRes.ok ? processObjectDocLinks((await architecturalScopeRes.json()).data) : null;
     const leanViability = leanViabilityRes.ok ? processObjectDocLinks((await leanViabilityRes.json()).data) : null;
     const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
-    let policyCharter = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
+    const policyCharterRaw = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
 
-    // If architectural scope has goals, use them for policy charter goals
-    if (architecturalScope && architecturalScope.why && architecturalScope.why.goals && policyCharter) {
-      policyCharter.goals = architecturalScope.why.goals.map((goal: any, index: number) => ({
-        id: `as.goal.${index + 1}`,
-        title: goal.title,
-        description: goal.description,
-        tactics: [] // Will be populated if policy charter defines tactics for these goals
-      }));
-
-      // Add tactics to goals based on addresses_goal
-      if (policyCharter.tactics) {
-        policyCharter.tactics.forEach((tactic: any) => {
-          if (tactic.addresses_goal) {
-            const goal = policyCharter.goals.find((g: any) => g.id === tactic.addresses_goal);
-            if (goal) {
-              goal.tactics.push(tactic.id);
-            }
-          }
-        });
-      }
-    }
+    // Merge goals from architectural-scope into policy-charter
+    const policyCharter = mergeGoalsIntoPolicyCharter(architecturalScope, policyCharterRaw);
 
     return {
       northStar,
@@ -122,7 +136,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     fetchData();
 
     // WebSocket connection for real-time updates
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket('ws://localhost:3001');
 
     ws.onopen = () => {
       console.log('WebSocket connected');
