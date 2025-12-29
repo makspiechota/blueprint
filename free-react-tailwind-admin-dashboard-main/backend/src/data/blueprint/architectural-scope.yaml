@@ -116,10 +116,7 @@ who:
 why:
   mission:
     action: To provide
-    service: >-
-      structured business knowledge management. See <a
-      href="/misc?file=north-star.md" class="text-blue-600 hover:text-blue-800
-      underline">north-star</a> for vision details
+    service: structured business knowledge management. See [[north-star]] for vision details
     beneficiary: organizations implementing AI-agent based workflows
   goals:
     - title: To enable consistent AI agent performance

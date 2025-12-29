@@ -3,6 +3,7 @@ import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
+import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
 import yaml from 'js-yaml';
 
 interface AAARRData {
@@ -136,7 +137,9 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
         }
       }
 
-      const yamlContent = yaml.dump(updatedData);
+      // Convert HTML links back to [[doc-name]] syntax before saving
+      const cleanedData = unprocessObjectDocLinks(updatedData);
+      const yamlContent = yaml.dump(cleanedData);
       const result = await aiService.saveFileContent('src/data/aaarr-metrics.yaml', yamlContent);
 
       if (result.success) {

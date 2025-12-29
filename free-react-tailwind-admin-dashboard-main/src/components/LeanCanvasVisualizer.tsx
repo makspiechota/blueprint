@@ -3,6 +3,7 @@ import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
+import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
 import yaml from 'js-yaml';
 
 interface LeanCanvas {
@@ -83,8 +84,9 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, pro
       const updatedCanvas = { ...canvas };
       (updatedCanvas as any)[editingSection] = parsedSection;
 
-      // Convert the full updated canvas back to YAML for saving
-      const yamlContent = yaml.dump(updatedCanvas);
+      // Convert HTML links back to [[doc-name]] syntax before saving
+      const cleanedCanvas = unprocessObjectDocLinks(updatedCanvas);
+      const yamlContent = yaml.dump(cleanedCanvas);
 
       // Save the edited content directly as the new file content
       const result = await aiService.saveFileContent(`src/data/${productName}/lean-canvas.yaml`, yamlContent);

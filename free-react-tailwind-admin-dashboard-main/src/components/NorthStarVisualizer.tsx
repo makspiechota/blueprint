@@ -3,6 +3,7 @@ import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
+import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
 import yaml from 'js-yaml';
 
 interface NorthStarData {
@@ -54,7 +55,9 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data, product
         (updatedData as any)[editingSection] = parsedSection;
       }
 
-      const yamlContent = yaml.dump(updatedData);
+      // Convert HTML links back to [[doc-name]] syntax before saving
+      const cleanedData = unprocessObjectDocLinks(updatedData);
+      const yamlContent = yaml.dump(cleanedData);
       const result = await aiService.saveFileContent(`src/data/${productName}/north-star.yaml`, yamlContent);
 
       if (result.success) {

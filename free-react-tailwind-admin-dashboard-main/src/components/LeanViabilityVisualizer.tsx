@@ -3,6 +3,7 @@ import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
+import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
 import yaml from 'js-yaml';
 import { calculateLeanViabilityMetrics } from '../utils/leanViabilityCalculations';
 import ReactApexChart from 'react-apexcharts';
@@ -252,7 +253,9 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data,
       // Recalculate all dependent values
       const calculatedData = calculateLeanViabilityMetrics(updatedData, leanCanvasData);
       console.log('Calculated data:', calculatedData);
-      const yamlContent = yaml.dump(calculatedData);
+      // Convert HTML links back to [[doc-name]] syntax before saving
+      const cleanedData = unprocessObjectDocLinks(calculatedData);
+      const yamlContent = yaml.dump(cleanedData);
       const result = await aiService.saveFileContent('src/data/lean-viability.yaml', yamlContent);
 
        if (result.success) {
