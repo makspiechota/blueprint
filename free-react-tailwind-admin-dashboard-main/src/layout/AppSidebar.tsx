@@ -54,11 +54,11 @@ const navItems: NavItem[] = [
     name: "Policy Charter",
     path: "/policy-charter",
   },
-  {
-    icon: <HorizontaLDots />,
-    name: "Misc",
-    path: "/misc",
-  },
+   {
+     icon: <HorizontaLDots />,
+     name: "Misc Documents",
+     path: "/misc",
+   },
 ];
 
 const AppSidebar: React.FC = () => {

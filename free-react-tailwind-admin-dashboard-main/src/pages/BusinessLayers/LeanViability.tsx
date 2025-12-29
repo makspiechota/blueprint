@@ -3,7 +3,7 @@ import { useBusinessData } from "../../context/BusinessDataContext";
 import LeanViabilityVisualizer from "../../components/LeanViabilityVisualizer";
 
 export default function LeanViability() {
-  const { leanViability } = useBusinessData();
+  const { leanViability, leanCanvas } = useBusinessData();
 
   return (
     <>
@@ -11,7 +11,7 @@ export default function LeanViability() {
         title="Lean Viability | Business Blueprint Dashboard"
         description="Lean Viability business layer visualization"
       />
-      <LeanViabilityVisualizer data={leanViability || {}} />
+      <LeanViabilityVisualizer data={leanViability || {}} leanCanvasData={leanCanvas} />
     </>
   );
 }
