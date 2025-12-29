@@ -7,11 +7,12 @@ import LayerWrapper from "../../components/LayerWrapper";
 
 export default function NorthStar() {
   const { productName: urlProductName } = useParams<{ productName: string }>();
-  const { northStar, setProductName, productName } = useBusinessData();
+  const safeProductName = urlProductName === 'blueprint' || urlProductName === 'software-factory' ? urlProductName : 'blueprint';
+  const { northStar, setProductName } = useBusinessData();
 
   useEffect(() => {
-    if (urlProductName) setProductName?.(urlProductName);
-  }, [urlProductName, setProductName]);
+    setProductName?.(safeProductName);
+  }, [safeProductName, setProductName]);
 
   return (
     <>
@@ -26,7 +27,7 @@ export default function NorthStar() {
         resourceType="generate-north-star"
         dependencies={[]}
       >
-        <NorthStarVisualizer data={northStar} productName={productName} />
+        <NorthStarVisualizer data={northStar} productName={safeProductName} />
       </LayerWrapper>
     </>
   );

@@ -354,6 +354,10 @@ app.put('/api/c4/:productName/:filename', (req, res) => {
     }
 
     fs.writeFileSync(filePath, content, 'utf8');
+
+    // Broadcast the update to all connected WebSocket clients
+    broadcastC4Update(productName, filename, content);
+
     res.json({ success: true, message: 'File updated successfully' });
   } catch (error) {
     console.error('Error writing C4 file:', error);
@@ -389,6 +393,10 @@ app.post('/api/c4/:productName/:filename', (req, res) => {
     }
 
     fs.writeFileSync(filePath, content || '', 'utf8');
+
+    // Broadcast the update to all connected WebSocket clients
+    broadcastC4Update(productName, filename, content || '');
+
     res.json({ success: true, message: 'File created successfully' });
   } catch (error) {
     console.error('Error creating C4 file:', error);

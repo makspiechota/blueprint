@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 
 const API_BASE = 'http://localhost:3001';
@@ -67,6 +67,18 @@ const C4Visualizer: React.FC = () => {
     fetchFiles();
   }, [productName]);
 
+  // Refs for WebSocket to avoid stale closures
+  const selectedFileRef = useRef(selectedFile);
+  const isEditingRef = useRef(isEditing);
+
+  useEffect(() => {
+    selectedFileRef.current = selectedFile;
+  }, [selectedFile]);
+
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+  }, [isEditing]);
+
   // WebSocket for real-time updates
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -100,20 +112,11 @@ const C4Visualizer: React.FC = () => {
               }
             });
 
-            // Update content if this is the selected file and not currently being edited
-            setSelectedFile(currentSelected => {
-              if (currentSelected === message.filename) {
-                setContent(message.content);
-                setEditedContent(prev => {
-                  // Only update if user hasn't made changes
-                  if (prev === content) {
-                    return message.content;
-                  }
-                  return prev;
-                });
-              }
-              return currentSelected;
-            });
+            // Update content if this is the selected file and user is not editing
+            if (selectedFileRef.current === message.filename && !isEditingRef.current) {
+              setContent(message.content);
+              setEditedContent(message.content);
+            }
           }
 
           // Handle C4 file deletions
@@ -122,14 +125,11 @@ const C4Visualizer: React.FC = () => {
             setFiles(prev => prev.filter(f => f.name !== message.filename));
 
             // If deleted file was selected, clear selection
-            setSelectedFile(currentSelected => {
-              if (currentSelected === message.filename) {
-                setContent('');
-                setEditedContent('');
-                return null;
-              }
-              return currentSelected;
-            });
+            if (selectedFileRef.current === message.filename) {
+              setSelectedFile(null);
+              setContent('');
+              setEditedContent('');
+            }
           }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
@@ -154,7 +154,7 @@ const C4Visualizer: React.FC = () => {
         ws.close();
       }
     };
-  }, [productName, content]);
+  }, [productName]);
 
   const handleFileSelect = async (fileName: string) => {
     try {
