@@ -31,14 +31,3 @@ export default function CustomersFactory() {
     </>
   );
 }
-
-  return (
-    <>
-      <PageMeta
-        title="Customers Factory | Business Blueprint Dashboard"
-        description="Customers Factory business layer visualization"
-      />
-      <CustomersFactoryVisualizer data={aaarrMetrics} leanViabilityData={leanViability} leanCanvasData={leanCanvas} />
-    </>
-  );
-}

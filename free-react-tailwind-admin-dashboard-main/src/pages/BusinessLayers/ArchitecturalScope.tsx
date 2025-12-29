@@ -31,14 +31,3 @@ export default function ArchitecturalScope() {
     </>
   );
 }
-
-  return (
-    <>
-      <PageMeta
-        title="Architectural Scope | Business Blueprint Dashboard"
-        description="Architectural Scope business layer visualization"
-      />
-      <ArchitecturalScopeVisualizer data={architecturalScope} />
-    </>
-  );
-}

@@ -31,14 +31,3 @@ export default function LeanCanvas() {
     </>
   );
 }
-
-  return (
-    <>
-      <PageMeta
-        title="Lean Canvas | Business Blueprint Dashboard"
-        description="Lean Canvas business layer visualization"
-      />
-      <LeanCanvasVisualizer canvas={leanCanvas} productName={productName} />
-    </>
-  );
-}

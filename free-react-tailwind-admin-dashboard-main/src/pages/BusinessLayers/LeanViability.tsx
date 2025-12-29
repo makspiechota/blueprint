@@ -31,14 +31,3 @@ export default function LeanViability() {
     </>
   );
 }
-
-  return (
-    <>
-      <PageMeta
-        title="Lean Viability | Business Blueprint Dashboard"
-        description="Lean Viability business layer visualization"
-      />
-      <LeanViabilityVisualizer data={leanViability} leanCanvasData={leanCanvas} />
-    </>
-  );
-}
