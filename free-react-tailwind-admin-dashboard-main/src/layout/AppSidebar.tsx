@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
@@ -14,6 +14,7 @@ import {
   ShootingStarIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { useBusinessData } from "../context/BusinessDataContext";
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -23,7 +24,7 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   {
     icon: <ShootingStarIcon />,
     name: "North Star",
@@ -54,16 +55,26 @@ const navItems: NavItem[] = [
     name: "Policy Charter",
     path: "/policy-charter",
   },
-   {
-     icon: <HorizontaLDots />,
-     name: "Misc Documents",
-     path: "/misc",
-   },
+  {
+    icon: <DocsIcon />,
+    name: "Misc",
+    path: "/misc",
+  },
 ];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { productName } = useBusinessData();
   const location = useLocation();
+
+  const navItems = useMemo(() =>
+    baseNavItems.map(item => ({
+      ...item,
+      path: item.path ? `/${productName}${item.path}` : undefined,
+      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
+    })),
+    [productName]
+  );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
