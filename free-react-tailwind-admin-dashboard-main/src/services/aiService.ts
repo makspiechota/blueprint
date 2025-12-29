@@ -1,5 +1,7 @@
 import { createOpencodeClient } from '@opencode-ai/sdk';
 
+const API_BASE = 'http://localhost:3001';
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -187,10 +189,12 @@ class AIService {
 
   async saveFileContent(resourcePath: string, content: string): Promise<{ success: boolean; message: string }> {
     try {
-      // Extract filename from resourcePath (e.g., "src/data/north-star.yaml" -> "north-star.yaml")
-      const filename = resourcePath.split('/').pop() || '';
+      // Extract productName and filename from resourcePath (e.g., "src/data/blueprint/north-star.yaml")
+      const parts = resourcePath.split('/');
+      const productName = parts[parts.length - 2];
+      const filename = parts[parts.length - 1];
 
-      const response = await fetch(`/api/yaml/${filename}`, {
+      const response = await fetch(`${API_BASE}/api/yaml/${productName}/${filename}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
