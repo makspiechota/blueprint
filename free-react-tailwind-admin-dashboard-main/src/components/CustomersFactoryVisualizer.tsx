@@ -197,15 +197,19 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
               }`}
            >
             <>
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-3 h-3 ${stage.bulletClass} rounded-full`}></div>
-                <span className={`font-semibold ${stage.textClass}`}>
-                  {stage.label}
-                </span>
+              {/* Top section: Stage name and goal */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-3 h-3 ${stage.bulletClass} rounded-full`}></div>
+                  <span className={`font-semibold ${stage.textClass}`}>
+                    {stage.label}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
+                </p>
               </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
-              </p>
+              {/* Bottom section: Target metrics - pushed to bottom with mt-auto */}
               {(() => {
                 let targetValue = '';
                 let currentValue = '';
@@ -234,51 +238,46 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                   `${((currentData.rate || 0) * 100).toFixed(1)}%`
               ) : 'Not set';
                 return targetValue ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2 mt-auto pt-3 w-full">
                     <div className="text-xs text-gray-500 dark:text-gray-400">{unit}</div>
-                    <div className="flex justify-between text-xs items-center">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-500 dark:text-gray-400">Target:</span>
                       <span className="font-medium text-green-600 dark:text-green-400">
                         {targetValue}
                       </span>
                     </div>
-                    <div className="flex justify-between text-xs items-center">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-500 dark:text-gray-400">Current:</span>
-                      <div className="flex items-center gap-1">
-                        {editingSection === `customers-factory-${stage.key}-current` ? (
-                          <>
-                            <input
-                              type="number"
-                              value={editingCurrent}
-                              onChange={(e) => setEditingCurrent(e.target.value)}
-                              className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                              autoFocus
-                              step="0.01"
-                            />
-                            <button
-                              onClick={handleSaveEdit}
-                              disabled={isSaving}
-                              className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
-                            >
-                              ✓
-                            </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              disabled={isSaving}
-                              className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
-                            >
-                              ✕
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <EditButton onClick={() => handleEditClick(`customers-factory-${stage.key}-current`, data.stages?.[stage.key as keyof typeof data.stages]?.current)} className="!w-4 !h-4" />
-                            <span className="font-medium text-blue-600 dark:text-blue-400">
-                              {currentValue || 'Not set'}
-                            </span>
-                          </>
-                        )}
-                      </div>
+                      {editingSection === `customers-factory-${stage.key}-current` ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            value={editingCurrent}
+                            onChange={(e) => setEditingCurrent(e.target.value)}
+                            className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                            autoFocus
+                            step="0.01"
+                          />
+                          <button
+                            onClick={handleSaveEdit}
+                            disabled={isSaving}
+                            className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            disabled={isSaving}
+                            className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="font-medium text-blue-600 dark:text-blue-400">
+                          {currentValue || 'Not set'}
+                        </span>
+                      )}
                     </div>
                     {stage.key === 'revenue' && (() => {
                       const saleRate = leanViabilityData?.calculations?.conversion_rates?.acquisition_rate;
@@ -288,49 +287,44 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                       return saleTarget ? (
                         <>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Sale Conversion Rate</div>
-                          <div className="flex justify-between text-xs items-center">
+                          <div className="flex justify-between text-xs">
                             <span className="text-gray-500 dark:text-gray-400">Target:</span>
                             <span className="font-medium text-green-600 dark:text-green-400">
                               {saleTarget}
                             </span>
                           </div>
-                          <div className="flex justify-between text-xs items-center">
+                          <div className="flex justify-between text-xs">
                             <span className="text-gray-500 dark:text-gray-400">Current:</span>
-                            <div className="flex items-center gap-1">
-                              {editingSection === 'customers-factory-revenue-sale-current' ? (
-                                <>
-                                  <input
-                                    type="number"
-                                    value={editingCurrent}
-                                    onChange={(e) => setEditingCurrent(e.target.value)}
-                                    className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                                    autoFocus
-                                    step="0.01"
-                                  />
-                                  <button
-                                    onClick={handleSaveEdit}
-                                    disabled={isSaving}
-                                    className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
-                                  >
-                                    ✓
-                                  </button>
-                                  <button
-                                    onClick={handleCancelEdit}
-                                    disabled={isSaving}
-                                    className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
-                                  >
-                                    ✕
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <EditButton onClick={() => handleEditClick('customers-factory-revenue-sale-current', data.stages?.revenue?.current)} className="!w-4 !h-4" />
-                                  <span className="font-medium text-blue-600 dark:text-blue-400">
-                                    {saleCurrent}
-                                  </span>
-                                </>
-                              )}
-                            </div>
+                            {editingSection === 'customers-factory-revenue-sale-current' ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  value={editingCurrent}
+                                  onChange={(e) => setEditingCurrent(e.target.value)}
+                                  className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                  autoFocus
+                                  step="0.01"
+                                />
+                                <button
+                                  onClick={handleSaveEdit}
+                                  disabled={isSaving}
+                                  className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  disabled={isSaving}
+                                  className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="font-medium text-blue-600 dark:text-blue-400">
+                                {saleCurrent}
+                              </span>
+                            )}
                           </div>
                         </>
                       ) : null;
