@@ -629,9 +629,9 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         `}</style>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          <button onClick={addTactic} className="px-3 py-2 bg-green-500 text-white rounded text-sm">Add Tactic</button>
-          <button onClick={addPolicy} className="px-3 py-2 bg-purple-500 text-white rounded text-sm">Add Policy</button>
-          <button onClick={addRisk} className="px-3 py-2 bg-red-500 text-white rounded text-sm">Add Risk</button>
+          <button onClick={addTactic} className="px-3 py-2 bg-blue-200 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-sm hover:bg-blue-300 dark:hover:bg-blue-900/50">Add Tactic</button>
+          <button onClick={addPolicy} className="px-3 py-2 bg-green-200 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-sm hover:bg-green-300 dark:hover:bg-green-900/50">Add Policy</button>
+          <button onClick={addRisk} className="px-3 py-2 bg-purple-200 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-sm hover:bg-purple-300 dark:hover:bg-purple-900/50">Add Risk</button>
           <button onClick={() => {
             // Build data and save
             const data = buildDataFromNodesAndEdges(nodes, edges);
