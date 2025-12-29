@@ -9,6 +9,8 @@ north_star_ref: "north-star.yaml"
 stages:
   acquisition:
     stage_goal: "Attract engineering teams to try BLUEPRINT for AI context management"
+    current:
+      rate: 0.05
     metrics:
       - id: aaarr.acquisition.monthly-visitors
         name: "Website Visitors"
@@ -30,6 +32,8 @@ stages:
 
   activation:
     stage_goal: "Get engineering teams successfully using BLUEPRINT for AI workflows"
+    current:
+      rate: 0.1
     metrics:
       - id: aaarr.activation.first-blueprint
         name: "Blueprint Creation Rate"
@@ -49,6 +53,8 @@ stages:
 
   retention:
     stage_goal: "Keep teams subscribed and expanding BLUEPRINT usage"
+    current:
+      rate: 0.008
     metrics:
       - id: aaarr.retention.monthly-churn
         name: "Monthly Churn Rate"
@@ -60,6 +66,8 @@ stages:
 
   referral:
     stage_goal: "Turn satisfied teams into BLUEPRINT advocates"
+    current:
+      score: 50
     metrics:
       - id: aaarr.referral.net-promoter-score
         name: "Net Promoter Score"
@@ -71,6 +79,8 @@ stages:
 
   revenue:
     stage_goal: "Generate sustainable recurring revenue from BLUEPRINT subscriptions"
+    current:
+      amount: 750000
     metrics:
       - id: aaarr.revenue.monthly-recurring-revenue
         name: "Monthly Recurring Revenue"

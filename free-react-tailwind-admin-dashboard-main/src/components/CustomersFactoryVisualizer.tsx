@@ -10,6 +10,7 @@ interface AAARRData {
   stages?: {
     acquisition?: {
       stage_goal?: string;
+      current?: any;
       metrics?: Array<{
         name?: string;
         description?: string;
@@ -19,6 +20,7 @@ interface AAARRData {
     };
     activation?: {
       stage_goal?: string;
+      current?: any;
       metrics?: Array<{
         name?: string;
         description?: string;
@@ -28,6 +30,7 @@ interface AAARRData {
     };
     retention?: {
       stage_goal?: string;
+      current?: any;
       metrics?: Array<{
         name?: string;
         description?: string;
@@ -37,6 +40,7 @@ interface AAARRData {
     };
     referral?: {
       stage_goal?: string;
+      current?: any;
       metrics?: Array<{
         name?: string;
         description?: string;
@@ -46,6 +50,7 @@ interface AAARRData {
     };
     revenue?: {
       stage_goal?: string;
+      current?: any;
       metrics?: Array<{
         name?: string;
         description?: string;
@@ -72,19 +77,27 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
 
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
+  const [editingCurrent, setEditingCurrent] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
 
   const handleEditClick = (sectionKey: string, sectionData: any) => {
     setEditingSection(sectionKey);
-    setEditedContent(yaml.dump(sectionData || {}));
+    if (sectionKey.includes('-current')) {
+      setEditingCurrent(yaml.dump(sectionData || {}));
+    } else {
+      setEditedContent(yaml.dump(sectionData || {}));
+    }
   };
 
   const handleSaveEdit = async () => {
-    if (!editingSection || !editedContent.trim()) return;
+    if (!editingSection) return;
+
+    const content = editingSection.includes('-current') ? editingCurrent : editedContent;
+    if (!content.trim()) return;
 
     setIsSaving(true);
     try {
-      const parsedSection = yaml.load(editedContent);
+      const parsedSection = yaml.load(content);
 
       // For customers factory, we need to update the specific stage
       const updatedData = { ...data };
@@ -96,6 +109,12 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
 
         if (updatedData.stages?.[stageKey as keyof typeof updatedData.stages]?.metrics?.[metricIndex]) {
           (updatedData.stages[stageKey as keyof typeof updatedData.stages] as any).metrics[metricIndex] = parsedSection;
+        }
+      } else if (editingSection.includes('-current')) {
+        // Handle current editing: customers-factory-{stage}-current
+        const stageKey = editingSection.replace('customers-factory-', '').replace('-current', '');
+        if (updatedData.stages?.[stageKey as keyof typeof updatedData.stages]) {
+          (updatedData.stages[stageKey as keyof typeof updatedData.stages] as any).current = parsedSection;
         }
       } else if (editingSection.startsWith('customers-factory-')) {
         // Handle stage editing
@@ -111,6 +130,7 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
       if (result.success) {
         setEditingSection(null);
         setEditedContent('');
+        setEditingCurrent('');
       } else {
         alert('Failed to save changes: ' + result.message);
       }
@@ -124,6 +144,7 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
   const handleCancelEdit = () => {
     setEditingSection(null);
     setEditedContent('');
+    setEditingCurrent('');
   };
 
   const stages = [
@@ -169,25 +190,77 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                  {stage.label}
                </span>
              </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                 {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
               </p>
               {(() => {
-                let goal = '';
+                let targetValue = '';
+                let currentValue = '';
+                let unit = '';
                 if (stage.key === 'acquisition') {
                   const rate = leanViabilityData?.calculations?.conversion_rates?.prospect_acquisition_rate;
-                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% prospect acquisition`;
+                  if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
+                  unit = 'prospect acquisition';
                 } else if (stage.key === 'activation') {
                   const rate = leanViabilityData?.calculations?.conversion_rates?.acquisition_rate;
-                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% conversion`;
+                  if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
+                  unit = 'conversion';
                 } else if (stage.key === 'retention') {
                   const rate = leanViabilityData?.calculations?.churn_rate?.monthly_rate;
-                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% monthly churn`;
+                  if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
+                  unit = 'monthly churn';
                 } else if (stage.key === 'revenue') {
                   const amount = leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount;
-                  if (amount) goal = `Goal: $${amount.toLocaleString()}`;
+                  if (amount) targetValue = `$${amount.toLocaleString()}`;
+                  unit = 'annual revenue';
                 }
-                return goal ? <p className="text-xs text-green-600 dark:text-green-400">{goal}</p> : null;
+                currentValue = renderMetricValue(data.stages?.[stage.key as keyof typeof data.stages]?.current);
+                return targetValue ? (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs items-center">
+                      <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">
+                        {targetValue}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs items-center">
+                      <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                      {editingSection === `customers-factory-${stage.key}-current` ? (
+                        <>
+                          <input
+                            type="text"
+                            value={editingCurrent}
+                            onChange={(e) => setEditingCurrent(e.target.value)}
+                            className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                            autoFocus
+                          />
+                          <button
+                            onClick={handleSaveEdit}
+                            disabled={isSaving}
+                            className="flex items-center gap-1 px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={() => { setEditingSection(null); setEditingCurrent(''); }}
+                            disabled={isSaving}
+                            className="flex items-center gap-1 px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-medium text-blue-600 dark:text-blue-400">
+                            {currentValue || 'Not set'}
+                          </span>
+                          <EditButton onClick={() => handleEditClick(`customers-factory-${stage.key}-current`, data.stages?.[stage.key as keyof typeof data.stages]?.current)} className="!w-4 !h-4" />
+                        </>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{unit}</div>
+                  </div>
+                ) : null;
               })()}
             </button>
            </div>
