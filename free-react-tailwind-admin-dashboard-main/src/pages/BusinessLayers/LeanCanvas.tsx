@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import PageMeta from "../../components/common/PageMeta";
 import { useBusinessData } from "../../context/BusinessDataContext";
 import LeanCanvasVisualizer from "../../components/LeanCanvasVisualizer";
+import LayerWrapper from "../../components/LayerWrapper";
 
 export default function LeanCanvas() {
   const { productName: urlProductName } = useParams<{ productName: string }>();
@@ -18,7 +19,26 @@ export default function LeanCanvas() {
         title="Lean Canvas | Business Blueprint Dashboard"
         description="Lean Canvas business layer visualization"
       />
-      <LeanCanvasVisualizer canvas={leanCanvas || {}} productName={productName} />
+      <LayerWrapper
+        layerKey="leanCanvas"
+        title="Lean Canvas Not Found"
+        description="The Lean Canvas layer hasn't been created yet. Use AI to generate it based on your North Star."
+        resourceType="generate-lean-canvas"
+        dependencies={['northStar']}
+      >
+        <LeanCanvasVisualizer canvas={leanCanvas} productName={productName} />
+      </LayerWrapper>
+    </>
+  );
+}
+
+  return (
+    <>
+      <PageMeta
+        title="Lean Canvas | Business Blueprint Dashboard"
+        description="Lean Canvas business layer visualization"
+      />
+      <LeanCanvasVisualizer canvas={leanCanvas} productName={productName} />
     </>
   );
 }

@@ -6,13 +6,15 @@ interface ChatButtonProps {
   resourceData: any;
   onClick?: (resourceType: string, resourceData: any) => void;
   className?: string;
+  text?: string;
 }
 
 const ChatButton: React.FC<ChatButtonProps> = ({
   resourceType,
   resourceData,
   onClick,
-  className = ""
+  className = "",
+  text
 }) => {
   const handleClick = () => {
     if (onClick) {
@@ -27,6 +29,7 @@ const ChatButton: React.FC<ChatButtonProps> = ({
       title="Chat about this"
     >
       <ChatIcon />
+      {text && <span className="ml-2">{text}</span>}
     </button>
   );
 };
