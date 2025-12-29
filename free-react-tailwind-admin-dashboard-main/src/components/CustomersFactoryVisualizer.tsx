@@ -83,7 +83,8 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
   const handleEditClick = (sectionKey: string, sectionData: any) => {
     setEditingSection(sectionKey);
     if (sectionKey.includes('-current')) {
-      setEditingCurrent(yaml.dump(sectionData || {}));
+      // For current, extract the main value for editing
+      setEditingCurrent(sectionData?.rate?.toString() || sectionData?.amount?.toString() || sectionData?.score?.toString() || '');
     } else {
       setEditedContent(yaml.dump(sectionData || {}));
     }
@@ -114,7 +115,18 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
         // Handle current editing: customers-factory-{stage}-current
         const stageKey = editingSection.replace('customers-factory-', '').replace('-current', '');
         if (updatedData.stages?.[stageKey as keyof typeof updatedData.stages]) {
-          (updatedData.stages[stageKey as keyof typeof updatedData.stages] as any).current = parsedSection;
+          // Reconstruct the current object based on stage
+          let currentObj: any = {};
+          const value = parseFloat(editingCurrent);
+          if (stageKey === 'acquisition' || stageKey === 'activation' || stageKey === 'retention') {
+            currentObj.rate = value;
+          } else if (stageKey === 'revenue') {
+            currentObj.amount = value;
+            currentObj.currency = 'USD';
+          } else if (stageKey === 'referral') {
+            currentObj.score = value;
+          }
+          (updatedData.stages[stageKey as keyof typeof updatedData.stages] as any).current = currentObj;
         }
       } else if (editingSection.startsWith('customers-factory-')) {
         // Handle stage editing
@@ -178,18 +190,19 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
             <div key={stage.key}>
                <button
                 onClick={() => setSelectedStage(stage.key)}
-                className={`w-full p-4 rounded-lg border text-left hover:shadow-md transition-all ${
-               selectedStage === stage.key
-                 ? `${stage.bgClass} ${stage.borderClass}`
-                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-             }`}
+                className={`w-full p-4 rounded-lg border text-left hover:shadow-md transition-all h-full flex flex-col ${
+                selectedStage === stage.key
+                  ? `${stage.bgClass} ${stage.borderClass}`
+                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+              }`}
            >
-             <div className="flex items-center gap-2 mb-2">
-               <div className={`w-3 h-3 ${stage.bulletClass} rounded-full`}></div>
-               <span className={`font-semibold ${stage.textClass}`}>
-                 {stage.label}
-               </span>
-             </div>
+            <>
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-3 h-3 ${stage.bulletClass} rounded-full`}></div>
+                <span className={`font-semibold ${stage.textClass}`}>
+                  {stage.label}
+                </span>
+              </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                 {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
               </p>
@@ -200,23 +213,29 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                 if (stage.key === 'acquisition') {
                   const rate = leanViabilityData?.calculations?.conversion_rates?.prospect_acquisition_rate;
                   if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
-                  unit = 'prospect acquisition';
+                  unit = 'Prospect Acquisition Rate';
                 } else if (stage.key === 'activation') {
                   const rate = leanViabilityData?.calculations?.conversion_rates?.acquisition_rate;
                   if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
-                  unit = 'conversion';
+                  unit = 'Conversion Rate';
                 } else if (stage.key === 'retention') {
                   const rate = leanViabilityData?.calculations?.churn_rate?.monthly_rate;
                   if (rate) targetValue = `${(rate * 100).toFixed(1)}%`;
-                  unit = 'monthly churn';
+                  unit = 'Monthly Churn Rate (Lower is Better)';
                 } else if (stage.key === 'revenue') {
                   const amount = leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount;
                   if (amount) targetValue = `$${amount.toLocaleString()}`;
-                  unit = 'annual revenue';
+                  unit = 'Annual Revenue Target';
                 }
-                currentValue = renderMetricValue(data.stages?.[stage.key as keyof typeof data.stages]?.current);
+              const currentData = data.stages?.[stage.key as keyof typeof data.stages]?.current;
+              currentValue = currentData ? (
+                stage.key === 'revenue' ?
+                  `$${currentData.amount?.toLocaleString() || '0'}` :
+                  `${((currentData.rate || 0) * 100).toFixed(1)}%`
+              ) : 'Not set';
                 return targetValue ? (
                   <div className="space-y-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{unit}</div>
                     <div className="flex justify-between text-xs items-center">
                       <span className="text-gray-500 dark:text-gray-400">Target:</span>
                       <span className="font-medium text-green-600 dark:text-green-400">
@@ -225,43 +244,101 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                     </div>
                     <div className="flex justify-between text-xs items-center">
                       <span className="text-gray-500 dark:text-gray-400">Current:</span>
-                      {editingSection === `customers-factory-${stage.key}-current` ? (
-                        <>
-                          <input
-                            type="text"
-                            value={editingCurrent}
-                            onChange={(e) => setEditingCurrent(e.target.value)}
-                            className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                            autoFocus
-                          />
-                          <button
-                            onClick={handleSaveEdit}
-                            disabled={isSaving}
-                            className="flex items-center gap-1 px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            onClick={() => { setEditingSection(null); setEditingCurrent(''); }}
-                            disabled={isSaving}
-                            className="flex items-center gap-1 px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
-                          >
-                            ✕
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-medium text-blue-600 dark:text-blue-400">
-                            {currentValue || 'Not set'}
-                          </span>
-                          <EditButton onClick={() => handleEditClick(`customers-factory-${stage.key}-current`, data.stages?.[stage.key as keyof typeof data.stages]?.current)} className="!w-4 !h-4" />
-                        </>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {editingSection === `customers-factory-${stage.key}-current` ? (
+                          <>
+                            <input
+                              type="number"
+                              value={editingCurrent}
+                              onChange={(e) => setEditingCurrent(e.target.value)}
+                              className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                              autoFocus
+                              step="0.01"
+                            />
+                            <button
+                              onClick={handleSaveEdit}
+                              disabled={isSaving}
+                              className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
+                            >
+                              ✓
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={isSaving}
+                              className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <EditButton onClick={() => handleEditClick(`customers-factory-${stage.key}-current`, data.stages?.[stage.key as keyof typeof data.stages]?.current)} className="!w-4 !h-4" />
+                            <span className="font-medium text-blue-600 dark:text-blue-400">
+                              {currentValue || 'Not set'}
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{unit}</div>
+                    {stage.key === 'revenue' && (() => {
+                      const saleRate = leanViabilityData?.calculations?.conversion_rates?.acquisition_rate;
+                      const saleTarget = saleRate ? `${(saleRate * 100).toFixed(1)}%` : '';
+                      const saleCurrentData = data.stages?.revenue?.current;
+                      const saleCurrent = saleCurrentData ? `${((saleCurrentData.rate || 0) * 100).toFixed(1)}%` : 'Not set';
+                      return saleTarget ? (
+                        <>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Sale Conversion Rate</div>
+                          <div className="flex justify-between text-xs items-center">
+                            <span className="text-gray-500 dark:text-gray-400">Target:</span>
+                            <span className="font-medium text-green-600 dark:text-green-400">
+                              {saleTarget}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs items-center">
+                            <span className="text-gray-500 dark:text-gray-400">Current:</span>
+                            <div className="flex items-center gap-1">
+                              {editingSection === 'customers-factory-revenue-sale-current' ? (
+                                <>
+                                  <input
+                                    type="number"
+                                    value={editingCurrent}
+                                    onChange={(e) => setEditingCurrent(e.target.value)}
+                                    className="w-16 px-1 py-0 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                    autoFocus
+                                    step="0.01"
+                                  />
+                                  <button
+                                    onClick={handleSaveEdit}
+                                    disabled={isSaving}
+                                    className="px-1 py-0 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded"
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEdit}
+                                    disabled={isSaving}
+                                    className="px-1 py-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded"
+                                  >
+                                    ✕
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <EditButton onClick={() => handleEditClick('customers-factory-revenue-sale-current', data.stages?.revenue?.current)} className="!w-4 !h-4" />
+                                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                                    {saleCurrent}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      ) : null;
+                    })()}
                   </div>
                 ) : null;
               })()}
+            </>
             </button>
            </div>
          ))}
