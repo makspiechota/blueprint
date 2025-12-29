@@ -38,7 +38,7 @@ when:
 why:
    mission:
      action: "To provide"
-     service: "structured business knowledge management"
+     service: "structured business knowledge management. See [[north-star]] for vision details"
      beneficiary: "organizations implementing AI-agent based workflows"
    goals:
      - title: "To enable consistent AI agent performance"

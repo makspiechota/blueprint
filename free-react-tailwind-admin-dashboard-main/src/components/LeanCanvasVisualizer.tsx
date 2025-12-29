@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import ReactMarkdown from 'react-markdown';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import yaml from 'js-yaml';
-import { processDocLinks } from '../utils/docLinkProcessor';
 
 interface LeanCanvas {
   title?: string;
@@ -59,20 +56,9 @@ interface LeanCanvasVisualizerProps {
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) => {
   const { openChat } = useChat();
-  const navigate = useNavigate();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
-
-  const markdownComponents = {
-    a: ({ href, children }: { href?: string; children: React.ReactNode }) => {
-      if (href?.startsWith('misc/')) {
-        const file = href.split('/')[1];
-        return <a href="#" onClick={() => navigate(`/misc?file=${file}`)} className="text-blue-500 underline">{children}</a>;
-      }
-      return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">{children}</a>;
-    }
-  };
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
@@ -189,7 +175,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
                )}
                 {canvas.problem?.existing_alternatives && (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.problem.existing_alternatives)}</ReactMarkdown>
+                    <span dangerouslySetInnerHTML={{ __html: canvas.problem.existing_alternatives }} />
                   </div>
                 )}
              </div>
@@ -303,12 +289,12 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
              <div className="text-gray-600 dark:text-gray-300">
                 {canvas.unique_value_proposition?.single_clear_message && (
                   <div className="font-semibold mb-2 prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.unique_value_proposition.single_clear_message)}</ReactMarkdown>
+                    <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.single_clear_message }} />
                   </div>
                 )}
                 {canvas.unique_value_proposition?.high_level_concept && (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.unique_value_proposition.high_level_concept)}</ReactMarkdown>
+                    <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.high_level_concept }} />
                   </div>
                 )}
              </div>

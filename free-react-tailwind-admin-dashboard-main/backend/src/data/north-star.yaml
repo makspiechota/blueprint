@@ -5,7 +5,7 @@ title: 'BLUEPRINT: AI Context Management Platform'
 vision: >-
   BLUEPRINT: Structured business knowledge management platform using plain-text
   DSL, optimized for AI-agent based workflows and systematic development
-  practices
+  practices. See [[north-star]] for detailed vision document.
 problem: >-
   B2B SaaS companies struggle to organize and provide business context to AI
   agents, resulting in inconsistent outputs, manual overhead, and inability to

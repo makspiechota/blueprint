@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { processDocLinks } from '../utils/docLinkProcessor';
 
 interface BusinessData {
   northStar?: any;
@@ -23,6 +24,21 @@ export const useBusinessData = () => {
   return context;
 };
 
+// Recursively process all string values in an object to apply doc links
+const processObjectDocLinks = (obj: any): any => {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === 'string') return processDocLinks(obj);
+  if (Array.isArray(obj)) return obj.map(processObjectDocLinks);
+  if (typeof obj === 'object') {
+    const processed: any = {};
+    for (const key in obj) {
+      processed[key] = processObjectDocLinks(obj[key]);
+    }
+    return processed;
+  }
+  return obj;
+};
+
 const loadData = async () => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes] = await Promise.all([
@@ -34,12 +50,12 @@ const loadData = async () => {
       fetch('/api/yaml/policy-charter.yaml'),
     ]);
 
-    const northStar = northStarRes.ok ? (await northStarRes.json()).data : null;
-    const leanCanvas = leanCanvasRes.ok ? (await leanCanvasRes.json()).data : null;
-    const architecturalScope = architecturalScopeRes.ok ? (await architecturalScopeRes.json()).data : null;
-    const leanViability = leanViabilityRes.ok ? (await leanViabilityRes.json()).data : null;
-    const aaarrMetrics = aaarrMetricsRes.ok ? (await aaarrMetricsRes.json()).data : null;
-    const policyCharter = policyCharterRes.ok ? (await policyCharterRes.json()).data : null;
+    const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
+    const leanCanvas = leanCanvasRes.ok ? processObjectDocLinks((await leanCanvasRes.json()).data) : null;
+    const architecturalScope = architecturalScopeRes.ok ? processObjectDocLinks((await architecturalScopeRes.json()).data) : null;
+    const leanViability = leanViabilityRes.ok ? processObjectDocLinks((await leanViabilityRes.json()).data) : null;
+    const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
+    const policyCharter = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
 
     return {
       northStar,
@@ -107,13 +123,13 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
           };
 
           const dataKey = keyMap[filename as keyof typeof keyMap];
-          if (dataKey) {
-            setData(prev => ({
-              ...prev,
-              [dataKey]: updatedData
-            }));
-            console.log(`Updated ${dataKey} from WebSocket`);
-          }
+           if (dataKey) {
+             setData(prev => ({
+               ...prev,
+               [dataKey]: processObjectDocLinks(updatedData)
+             }));
+             console.log(`Updated ${dataKey} from WebSocket`);
+           }
         } else if (message.type === 'file_delete') {
           const { filename } = message;
 

@@ -197,9 +197,9 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
                {data.why.mission && (
                  <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-6 mb-6 border border-white border-opacity-20">
                    <h3 className="text-xl font-semibold mb-3 text-gray-900">Mission Statement</h3>
-                   <p className="text-lg leading-relaxed text-gray-800">
-                     {data.why.mission.action} {data.why.mission.service} for {data.why.mission.beneficiary}
-                   </p>
+                    <p className="text-lg leading-relaxed text-gray-800">
+                      {data.why.mission.action} <span dangerouslySetInnerHTML={{ __html: data.why.mission.service || '' }} /> for {data.why.mission.beneficiary}
+                    </p>
                  </div>
                )}
 
@@ -210,7 +210,9 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
                      {data.why.goals.map((goal, index) => (
                        <div key={index} className="bg-white bg-opacity-15 backdrop-blur-sm rounded-lg p-6 border border-white border-opacity-10">
                          <h4 className="font-semibold mb-3 text-lg text-gray-900">{goal.title}</h4>
-                         <p className="text-gray-700 leading-relaxed">{goal.description}</p>
+                          <div className="text-gray-700 leading-relaxed">
+                            <span dangerouslySetInnerHTML={{ __html: goal.description || '' }} />
+                          </div>
                        </div>
                      ))}
                    </div>

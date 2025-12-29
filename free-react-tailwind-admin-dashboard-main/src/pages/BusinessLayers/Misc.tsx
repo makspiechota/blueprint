@@ -185,9 +185,9 @@ const Misc: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown>{content}</ReactMarkdown>
-              </div>
+               <div className="prose prose-sm max-w-none">
+                 <ReactMarkdown>{content}</ReactMarkdown>
+               </div>
             )}
           </div>
         </div>

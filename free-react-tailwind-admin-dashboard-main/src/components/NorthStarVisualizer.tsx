@@ -132,11 +132,11 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                disabled={isSaving}
              />
-           ) : (
-             <p className="text-gray-600 dark:text-gray-300">
-               {data.vision || 'Loading...'}
-             </p>
-           )}
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                <span dangerouslySetInnerHTML={{ __html: data.vision || 'Loading...' }} />
+              </div>
+            )}
          </div>
 
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
@@ -185,11 +185,11 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                disabled={isSaving}
              />
-           ) : (
-             <p className="text-gray-600 dark:text-gray-300">
-               {data.problem || 'Loading...'}
-             </p>
-           )}
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                <span dangerouslySetInnerHTML={{ __html: data.problem || 'Loading...' }} />
+              </div>
+            )}
          </div>
 
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">
@@ -238,11 +238,11 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                disabled={isSaving}
              />
-           ) : (
-             <p className="text-gray-600 dark:text-gray-300">
-               {data.solution || 'Loading...'}
-             </p>
-           )}
+            ) : (
+              <div className="text-gray-600 dark:text-gray-300">
+                <span dangerouslySetInnerHTML={{ __html: data.solution || 'Loading...' }} />
+              </div>
+            )}
          </div>
       </div>
 
@@ -298,9 +298,11 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data }) => {
                      className="w-full h-24 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                      disabled={isSaving}
                    />
-                 ) : (
-                   <p className="text-gray-600 dark:text-gray-300">{goal.description}</p>
-                 )}
+                  ) : (
+                    <div className="text-gray-600 dark:text-gray-300">
+                      <span dangerouslySetInnerHTML={{ __html: goal.description }} />
+                    </div>
+                  )}
                </div>
              );
            }) || (
