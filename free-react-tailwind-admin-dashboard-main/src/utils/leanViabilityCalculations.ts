@@ -67,7 +67,7 @@ export interface LeanViability {
 /**
  * Calculate derived values based on input parameters for Lean Viability analysis
  */
-export const calculateLeanViabilityMetrics = (inputData: LeanViability): LeanViability => {
+export const calculateLeanViabilityMetrics = (inputData: LeanViability, leanCanvasData?: any): LeanViability => {
   const updatedData = { ...inputData };
 
   // Ensure calculations object exists
@@ -75,8 +75,12 @@ export const calculateLeanViabilityMetrics = (inputData: LeanViability): LeanVia
     updatedData.calculations = {};
   }
 
+  // Get Annual Revenue Target from Lean Canvas (primary source)
+  const annualRevenue = leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount;
+
+
+
   // Calculate Required Customers: Annual Revenue Target ÷ ARPU
-  const annualRevenue = updatedData.success_criteria?.annual_revenue?.amount;
   const arpu = updatedData.calculations.annual_revenue_per_customer?.amount;
 
   if (annualRevenue && arpu && arpu > 0) {

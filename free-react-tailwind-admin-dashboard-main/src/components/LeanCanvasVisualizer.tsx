@@ -6,6 +6,7 @@ import EditButton from './EditButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import yaml from 'js-yaml';
+import { processDocLinks } from '../utils/docLinkProcessor';
 
 interface LeanCanvas {
   title?: string;
@@ -30,6 +31,11 @@ interface LeanCanvas {
     early_adopters?: string;
   };
   key_metrics?: {
+    annual_revenue_3_years_target?: {
+      amount?: number;
+      currency?: string;
+      timeframe?: string;
+    };
     activities_to_measure?: string[];
   };
   channels?: {
@@ -41,10 +47,10 @@ interface LeanCanvas {
     hosting_costs?: string;
     people_costs?: string;
   };
-  revenue_streams?: {
-    revenue_model?: string;
-    lifetime_value?: string;
-  };
+    revenue_streams?: {
+      revenue_model?: string;
+      lifetime_value?: string;
+    };
 }
 
 interface LeanCanvasVisualizerProps {
@@ -183,7 +189,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
                )}
                 {canvas.problem?.existing_alternatives && (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{canvas.problem.existing_alternatives}</ReactMarkdown>
+                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.problem.existing_alternatives)}</ReactMarkdown>
                   </div>
                 )}
              </div>
@@ -297,12 +303,12 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
              <div className="text-gray-600 dark:text-gray-300">
                 {canvas.unique_value_proposition?.single_clear_message && (
                   <div className="font-semibold mb-2 prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.single_clear_message}</ReactMarkdown>
+                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.unique_value_proposition.single_clear_message)}</ReactMarkdown>
                   </div>
                 )}
                 {canvas.unique_value_proposition?.high_level_concept && (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown components={markdownComponents}>{canvas.unique_value_proposition.high_level_concept}</ReactMarkdown>
+                    <ReactMarkdown components={markdownComponents}>{processDocLinks(canvas.unique_value_proposition.high_level_concept)}</ReactMarkdown>
                   </div>
                 )}
              </div>
@@ -459,22 +465,31 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas }) =
                  )}
                </div>
              </div>
-            {editingSection === 'key_metrics' ? (
-              <textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                disabled={isSaving}
-              />
-            ) : (
-              <div className="text-gray-600 dark:text-gray-300">
-                {canvas.key_metrics?.activities_to_measure && (
-                  <ul className="list-disc list-inside">
-                    {canvas.key_metrics.activities_to_measure.map((item, idx) => <li key={idx}>{item}</li>)}
-                  </ul>
-                )}
-              </div>
-            )}
+             {editingSection === 'key_metrics' ? (
+               <textarea
+                 value={editedContent}
+                 onChange={(e) => setEditedContent(e.target.value)}
+                 className="w-full h-32 font-mono text-sm border border-gray-300 dark:border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                 disabled={isSaving}
+               />
+             ) : (
+               <div className="text-gray-600 dark:text-gray-300">
+                 {canvas.key_metrics?.annual_revenue_3_years_target && (
+                   <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                     <strong className="text-gray-900 dark:text-white">Annual Revenue 3 Years Target:</strong>
+                     <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                       ${canvas.key_metrics.annual_revenue_3_years_target.amount?.toLocaleString()} {canvas.key_metrics.annual_revenue_3_years_target.currency} in {canvas.key_metrics.annual_revenue_3_years_target.timeframe}
+                     </div>
+                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">This is a required, hardcoded metric for business viability analysis.</div>
+                   </div>
+                 )}
+                 {canvas.key_metrics?.activities_to_measure && (
+                   <ul className="list-disc list-inside">
+                     {canvas.key_metrics.activities_to_measure.map((item, idx) => <li key={idx}>{item}</li>)}
+                   </ul>
+                 )}
+               </div>
+             )}
          </div>
 
          <div className="col-span-3 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative">

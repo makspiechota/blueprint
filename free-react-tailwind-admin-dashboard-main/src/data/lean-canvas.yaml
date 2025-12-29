@@ -36,6 +36,10 @@ cost_structure:
   hosting_costs: "$150 per customer for platform maintenance and updates"
   people_costs: "$300 per customer for customer success and support"
 key_metrics:
+  annual_revenue_3_years_target:
+    amount: 750000
+    currency: "USD"
+    timeframe: "3 years"
   activities_to_measure:
     - "Blueprint creation completion rate (>80%)"
     - "AI integration success rate (>90%)"

@@ -56,6 +56,7 @@ interface LeanViability {
 
 interface LeanViabilityVisualizerProps {
   data: LeanViability;
+  leanCanvasData?: any;
 }
 
 // Hockey Stick Chart Component
@@ -168,7 +169,7 @@ const HockeyStickChart: React.FC<{ targetCustomers: number }> = ({ targetCustome
   );
 };
 
-const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data }) => {
+const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data, leanCanvasData }) => {
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
@@ -180,6 +181,14 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
     setLocalData(data);
   }, [data]);
 
+  // Recalculate when Lean Canvas data changes
+  React.useEffect(() => {
+    if (leanCanvasData) {
+      const calculatedData = calculateLeanViabilityMetrics(data, leanCanvasData);
+      setLocalData(calculatedData);
+    }
+  }, [leanCanvasData, data]);
+
   const handleChatClick = (resourceType: string, resourceData: any) => {
     openChat(resourceType, resourceData);
   };
@@ -187,9 +196,7 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
   const handleEditClick = (sectionKey: string, sectionData: any) => {
     setEditingSection(sectionKey);
     console.log('handleEditClick:', sectionKey, sectionData);
-    if (sectionKey === 'annual_revenue_target') {
-      setEditedContent((sectionData || 10000000).toString());
-    } else if (sectionKey === 'arpu') {
+    if (sectionKey === 'arpu') {
       setEditedContent((sectionData || 12000).toString());
     } else if (sectionKey === 'prospect_acquisition_rate') {
       setEditedContent((sectionData || 0.05).toString());
@@ -210,12 +217,7 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
       const updatedData = { ...data };
 
       // Handle different section types
-      if (editingSection === 'annual_revenue_target') {
-        const revenueAmount = parseFloat(editedContent);
-        if (!updatedData.success_criteria) updatedData.success_criteria = {};
-        if (!updatedData.success_criteria.annual_revenue) updatedData.success_criteria.annual_revenue = { currency: 'USD' };
-        updatedData.success_criteria.annual_revenue.amount = revenueAmount;
-      } else if (editingSection === 'arpu') {
+      if (editingSection === 'arpu') {
         const arpuAmount = parseFloat(editedContent);
         if (!updatedData.calculations) updatedData.calculations = {};
         if (!updatedData.calculations.annual_revenue_per_customer) updatedData.calculations.annual_revenue_per_customer = { currency: 'USD' };
@@ -248,7 +250,7 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
       }
 
       // Recalculate all dependent values
-      const calculatedData = calculateLeanViabilityMetrics(updatedData);
+      const calculatedData = calculateLeanViabilityMetrics(updatedData, leanCanvasData);
       console.log('Calculated data:', calculatedData);
       const yamlContent = yaml.dump(calculatedData);
       const result = await aiService.saveFileContent('src/data/lean-viability.yaml', yamlContent);
@@ -282,63 +284,28 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data 
         <span className="text-sm text-gray-500 dark:text-gray-400">Financial Analysis & Projections</span>
       </div>
 
-      {/* Key Financial Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-gray-600 dark:text-gray-400">Annual Revenue Target</div>
-                <div className="flex items-center gap-2">
-                  <EditButton onClick={() => handleEditClick('annual_revenue_target', localData.success_criteria?.annual_revenue?.amount)} />
+       {/* Primary Business Target */}
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+             <div className="flex items-center justify-between mb-3">
+               <div className="text-sm text-gray-600 dark:text-gray-400">Annual Revenue in 3 Years</div>
+               <div className="flex items-center gap-2">
                   <ChatButton
-                    resourceType="lean-viability-revenue"
-                    resourceData={{ title: 'Annual Revenue Target', content: localData.success_criteria?.annual_revenue }}
+                    resourceType="lean-canvas-key-metrics"
+                    resourceData={{ title: 'Annual Revenue 3 Years Target', content: leanCanvasData?.key_metrics?.annual_revenue_3_years_target }}
                     onClick={handleChatClick}
                     className="!relative !top-0 !right-0"
                   />
-                  {editingSection === 'annual_revenue_target' && (
-                   <>
-                     <button
-                       onClick={handleSaveEdit}
-                       disabled={isSaving}
-                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                     >
-                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                       </svg>
-                       {isSaving ? 'Saving...' : 'Save'}
-                     </button>
-                     <button
-                       onClick={handleCancelEdit}
-                       disabled={isSaving}
-                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
-                     >
-                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                       </svg>
-                       Cancel
-                     </button>
-                   </>
-                  )}
-                  </div>
-                </div>
-             {editingSection === 'annual_revenue_target' ? (
-               <input
-                 type="number"
-                 value={editedContent}
-                 onChange={(e) => setEditedContent(e.target.value)}
-                 className="w-full px-3 py-2 text-center text-2xl font-bold border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                 disabled={isSaving}
-                 placeholder="Enter revenue amount"
-               />
-             ) : (
-               <>
-                 <div className="text-3xl mb-3">💰</div>
-                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                   ${localData.success_criteria?.annual_revenue?.amount?.toLocaleString() || '10,000,000'}
-                 </div>
-               </>
-             )}
-           </div>
+               </div>
+             </div>
+             <div className="text-3xl mb-3">🎯</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ${leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount?.toLocaleString() || '750,000'}
+              </div>
+             <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+               From Lean Canvas
+             </div>
+          </div>
          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-gray-600 dark:text-gray-400">Required Customers</div>

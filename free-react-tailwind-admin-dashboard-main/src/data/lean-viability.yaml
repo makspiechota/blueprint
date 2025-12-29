@@ -7,10 +7,6 @@ time_horizon:
   duration: 3
   unit: "years"
 success_criteria:
-  annual_revenue:
-    amount: 750000
-    currency: "USD"
-    target_year: 3
 calculations:
   annual_revenue_per_customer:
     amount: 3000
