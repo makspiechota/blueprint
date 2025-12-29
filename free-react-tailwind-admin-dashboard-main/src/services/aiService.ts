@@ -1,4 +1,5 @@
 import { createOpencodeClient } from '@opencode-ai/sdk';
+import yaml from 'js-yaml';
 
 const API_BASE = 'http://localhost:3001';
 
