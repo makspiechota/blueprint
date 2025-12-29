@@ -287,17 +287,9 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data,
        {/* Primary Business Target */}
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
-             <div className="flex items-center justify-between mb-3">
-               <div className="text-sm text-gray-600 dark:text-gray-400">Annual Revenue in 3 Years</div>
-               <div className="flex items-center gap-2">
-                  <ChatButton
-                    resourceType="lean-canvas-key-metrics"
-                    resourceData={{ title: 'Annual Revenue 3 Years Target', content: leanCanvasData?.key_metrics?.annual_revenue_3_years_target }}
-                    onClick={handleChatClick}
-                    className="!relative !top-0 !right-0"
-                  />
-               </div>
-             </div>
+              <div className="mb-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Annual Revenue in 3 Years</div>
+              </div>
              <div className="text-3xl mb-3">🎯</div>
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 ${leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount?.toLocaleString() || '750,000'}
