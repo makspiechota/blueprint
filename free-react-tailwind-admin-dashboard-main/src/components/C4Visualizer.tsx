@@ -18,6 +18,28 @@ const C4Visualizer: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Handle Escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
+
+  // Toggle body class for hiding header
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.classList.add('c4-fullscreen');
+    } else {
+      document.body.classList.remove('c4-fullscreen');
+    }
+    return () => document.body.classList.remove('c4-fullscreen');
+  }, [isFullscreen]);
 
   // Fetch list of C4 files
   useEffect(() => {
@@ -100,7 +122,14 @@ const C4Visualizer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 140px)' }}>
+    <div
+      className={`flex flex-col bg-white dark:bg-gray-900 ${
+        isFullscreen
+          ? 'fixed inset-0 z-50'
+          : ''
+      }`}
+      style={{ height: isFullscreen ? '100vh' : 'calc(100vh - 140px)' }}
+    >
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-4">
@@ -120,6 +149,21 @@ const C4Visualizer: React.FC = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            title={isFullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen'}
+          >
+            {isFullscreen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            )}
+          </button>
           {editedContent !== content && (
             <>
               <span className="text-sm text-orange-500">Unsaved changes</span>

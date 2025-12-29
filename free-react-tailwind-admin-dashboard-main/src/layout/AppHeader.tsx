@@ -7,8 +7,22 @@ import { DocsIcon } from '../icons';
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+  // Hide header when C4 fullscreen is active
+  useEffect(() => {
+    const checkFullscreen = () => {
+      setIsHidden(document.body.classList.contains('c4-fullscreen'));
+    };
+
+    checkFullscreen();
+    const observer = new MutationObserver(checkFullscreen);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -38,6 +52,10 @@ const AppHeader: React.FC = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
