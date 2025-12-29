@@ -276,6 +276,167 @@ app.delete('/api/misc/:filename', (req, res) => {
 
 
 
+// ==================
+// C4 Architecture Files API
+// ==================
+
+// GET /api/c4/:productName - List all C4 files for a product
+app.get('/api/c4/:productName', (req, res) => {
+  try {
+    const { productName } = req.params;
+    const c4Dir = path.join(yamlDir, productName, 'c4');
+
+    if (!fs.existsSync(c4Dir)) {
+      // Create directory if it doesn't exist
+      fs.mkdirSync(c4Dir, { recursive: true });
+      return res.json({ files: [] });
+    }
+
+    const files = fs.readdirSync(c4Dir)
+      .filter(file => file.endsWith('.likec4') || file.endsWith('.c4'))
+      .map(file => ({
+        name: file,
+        path: `/api/c4/${productName}/${file}`
+      }));
+
+    res.json({ files });
+  } catch (error) {
+    console.error('Error listing C4 files:', error);
+    res.status(500).json({ error: 'Failed to list files' });
+  }
+});
+
+// GET /api/c4/:productName/:filename - Read a C4 file
+app.get('/api/c4/:productName/:filename', (req, res) => {
+  try {
+    const { productName, filename } = req.params;
+    const c4Dir = path.join(yamlDir, productName, 'c4');
+    const filePath = path.join(c4Dir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(c4Dir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    res.json({ filename, content });
+  } catch (error) {
+    console.error('Error reading C4 file:', error);
+    res.status(500).json({ error: 'Failed to read file' });
+  }
+});
+
+// PUT /api/c4/:productName/:filename - Update a C4 file
+app.put('/api/c4/:productName/:filename', (req, res) => {
+  try {
+    const { productName, filename } = req.params;
+    const { content } = req.body;
+
+    if (content === undefined) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const c4Dir = path.join(yamlDir, productName, 'c4');
+    const filePath = path.join(c4Dir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(c4Dir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(c4Dir)) {
+      fs.mkdirSync(c4Dir, { recursive: true });
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    res.json({ success: true, message: 'File updated successfully' });
+  } catch (error) {
+    console.error('Error writing C4 file:', error);
+    res.status(500).json({ error: 'Failed to write file' });
+  }
+});
+
+// POST /api/c4/:productName/:filename - Create a new C4 file
+app.post('/api/c4/:productName/:filename', (req, res) => {
+  try {
+    const { productName, filename } = req.params;
+    const { content } = req.body;
+
+    if (!filename.endsWith('.likec4') && !filename.endsWith('.c4')) {
+      return res.status(400).json({ error: 'Filename must end with .likec4 or .c4' });
+    }
+
+    const c4Dir = path.join(yamlDir, productName, 'c4');
+    const filePath = path.join(c4Dir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(c4Dir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(c4Dir)) {
+      fs.mkdirSync(c4Dir, { recursive: true });
+    }
+
+    if (fs.existsSync(filePath)) {
+      return res.status(409).json({ error: 'File already exists' });
+    }
+
+    fs.writeFileSync(filePath, content || '', 'utf8');
+    res.json({ success: true, message: 'File created successfully' });
+  } catch (error) {
+    console.error('Error creating C4 file:', error);
+    res.status(500).json({ error: 'Failed to create file' });
+  }
+});
+
+// DELETE /api/c4/:productName/:filename - Delete a C4 file
+app.delete('/api/c4/:productName/:filename', (req, res) => {
+  try {
+    const { productName, filename } = req.params;
+    const c4Dir = path.join(yamlDir, productName, 'c4');
+    const filePath = path.join(c4Dir, filename);
+
+    // Security: prevent directory traversal
+    if (!filePath.startsWith(c4Dir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    fs.unlinkSync(filePath);
+    res.json({ success: true, message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting C4 file:', error);
+    res.status(500).json({ error: 'Failed to delete file' });
+  }
+});
+
+// Serve schemas
+app.get('/schemas/:type.yaml', (req, res) => {
+  try {
+    const { type } = req.params;
+    const filePath = path.join(__dirname, 'src/schemas', `${type}.yaml`);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Schema not found' });
+    }
+
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error('Schema serve error:', error);
+    res.status(500).json({ error: 'Failed to serve schema' });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

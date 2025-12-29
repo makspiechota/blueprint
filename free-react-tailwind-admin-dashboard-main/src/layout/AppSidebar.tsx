@@ -62,6 +62,14 @@ const baseNavItems: NavItem[] = [
   },
 ];
 
+const baseSoftwareLayerItems: NavItem[] = [
+  {
+    icon: <BoxCubeIcon />,
+    name: "C4 Architecture",
+    path: "/c4",
+  },
+];
+
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const { productName } = useBusinessData();
@@ -69,6 +77,15 @@ const AppSidebar: React.FC = () => {
 
   const navItems = useMemo(() =>
     baseNavItems.map(item => ({
+      ...item,
+      path: item.path ? `/${productName}${item.path}` : undefined,
+      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
+    })),
+    [productName]
+  );
+
+  const softwareLayerItems = useMemo(() =>
+    baseSoftwareLayerItems.map(item => ({
       ...item,
       path: item.path ? `/${productName}${item.path}` : undefined,
       subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
@@ -310,6 +327,22 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(navItems, "main")}
+            </div>
+            <div className="mt-6">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Software Layers"
+                ) : (
+                  <HorizontaLDots className="size-6" />
+                )}
+              </h2>
+              {renderMenuItems(softwareLayerItems, "others")}
             </div>
           </div>
         </nav>
