@@ -58,9 +58,11 @@ interface AAARRData {
 
 interface CustomersFactoryVisualizerProps {
   data: AAARRData;
+  leanViabilityData?: any;
+  leanCanvasData?: any;
 }
 
-const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({ data }) => {
+const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({ data, leanViabilityData, leanCanvasData }) => {
   const { openChat } = useChat();
   const [selectedStage, setSelectedStage] = useState('acquisition');
 
@@ -167,10 +169,27 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
                  {stage.label}
                </span>
              </div>
-             <p className="text-xs text-gray-600 dark:text-gray-400">
-               {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
-             </p>
-           </button>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                {data.stages?.[stage.key as keyof typeof data.stages]?.stage_goal || 'Loading...'}
+              </p>
+              {(() => {
+                let goal = '';
+                if (stage.key === 'acquisition') {
+                  const rate = leanViabilityData?.calculations?.conversion_rates?.prospect_acquisition_rate;
+                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% prospect acquisition`;
+                } else if (stage.key === 'activation') {
+                  const rate = leanViabilityData?.calculations?.conversion_rates?.acquisition_rate;
+                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% conversion`;
+                } else if (stage.key === 'retention') {
+                  const rate = leanViabilityData?.calculations?.churn_rate?.monthly_rate;
+                  if (rate) goal = `Goal: ${(rate * 100).toFixed(1)}% monthly churn`;
+                } else if (stage.key === 'revenue') {
+                  const amount = leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount;
+                  if (amount) goal = `Goal: $${amount.toLocaleString()}`;
+                }
+                return goal ? <p className="text-xs text-green-600 dark:text-green-400">{goal}</p> : null;
+              })()}
+            </button>
            </div>
          ))}
       </div>

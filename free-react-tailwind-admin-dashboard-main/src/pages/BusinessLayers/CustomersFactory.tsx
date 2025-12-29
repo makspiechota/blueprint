@@ -3,7 +3,7 @@ import { useBusinessData } from "../../context/BusinessDataContext";
 import CustomersFactoryVisualizer from "../../components/CustomersFactoryVisualizer";
 
 export default function CustomersFactory() {
-  const { aaarrMetrics } = useBusinessData();
+  const { aaarrMetrics, leanViability, leanCanvas } = useBusinessData();
 
   return (
     <>
@@ -11,7 +11,7 @@ export default function CustomersFactory() {
         title="Customers Factory | Business Blueprint Dashboard"
         description="Customers Factory business layer visualization"
       />
-      <CustomersFactoryVisualizer data={aaarrMetrics || {}} />
+      <CustomersFactoryVisualizer data={aaarrMetrics || {}} leanViabilityData={leanViability} leanCanvasData={leanCanvas} />
     </>
   );
 }
