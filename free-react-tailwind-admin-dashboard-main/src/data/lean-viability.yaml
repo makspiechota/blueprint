@@ -6,52 +6,23 @@ lean_canvas_ref: "lean-canvas.yaml"
 time_horizon:
   duration: 3
   unit: "years"
-success_criteria:
 calculations:
   annual_revenue_per_customer:
     amount: 3000
     currency: "USD"
-    basis: "SaaS subscription for engineering teams (5-15 engineers)"
-  required_customers:
-    count: 250
-    formula: "Annual revenue target / Annual revenue per customer"
-  customer_acquisition_rate:
-    rate: 25
-    period: "month"
-    formula: "Required customers / (Time horizon in months)"
-  monthly_acquisition_target:
-    rate: 25
-    period: "month"
-    formula: "Customer acquisition rate adjusted for churn"
   customer_lifetime_value:
     years: 3
-    formula: "Annual revenue per customer * Customer lifetime"
   churn_rate:
     monthly_rate: 0.05
-    formula: "Industry average for SaaS support tools"
-  conversion_rate:
-    rate: 0.15
-    basis: "Website visitors to paying customers"
-  monthly_visitors:
-    rate: 166
-    period: "month"
-    formula: "Monthly acquisition target / Conversion rate"
-targets:
-  acquisition:
-    monthly_signups:
-      rate: 25
-      period: "month"
-  activation:
-    weekly_active_users:
-      rate: 20
-      period: "month"
-  retention:
-    monthly_churn_rate:
-      percentage: 5
-  referral:
-    viral_coefficient: 0.1
-  revenue:
-    arpu:
-      amount: 1000
-      currency: "USD"
-      period: "month"
+  conversion_rates:
+    prospect_acquisition_rate: 0.05
+    activation_rate: 0.1
+    acquisition_rate: 0.05
+  funnel_targets:
+    users_acquisition_target: 1000
+    users_target: 100
+    users_activation_target: 10
+  monthly_acquisition_target:
+    rate: 1
+  required_customers:
+    count: 250

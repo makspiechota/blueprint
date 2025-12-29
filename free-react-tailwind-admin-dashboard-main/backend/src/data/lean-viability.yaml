@@ -13,11 +13,11 @@ success_criteria:
     target_year: 3
 calculations:
   annual_revenue_per_customer:
-    amount: 1200
+    amount: 12000
     currency: USD
     basis: SaaS subscription for engineering teams (5-15 engineers)
   required_customers:
-    count: 84
+    count: 9
     formula: Annual revenue target / Annual revenue per customer
   customer_acquisition_rate:
     rate: 25
@@ -30,7 +30,7 @@ calculations:
   customer_lifetime_value:
     years: 10
     formula: Annual revenue per customer * Customer lifetime
-    amount: 12000
+    amount: 120000
     currency: USD
   churn_rate:
     monthly_rate: 0.008333333333333333
