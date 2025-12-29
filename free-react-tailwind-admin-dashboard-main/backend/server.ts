@@ -477,6 +477,23 @@ const broadcastUpdate = (filename, data) => {
   });
 };
 
+// Function to broadcast C4 file updates
+const broadcastC4Update = (productName, filename, content) => {
+  const message = JSON.stringify({
+    type: 'c4_update',
+    productName,
+    filename,
+    content,
+    timestamp: new Date().toISOString()
+  });
+
+  clients.forEach((client: any) => {
+    if (client.readyState === 1) {
+      client.send(message);
+    }
+  });
+};
+
 // File watcher for real-time updates when files are changed externally
 const watcher = chokidar.watch(yamlDir, {
   ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -487,12 +504,27 @@ const watcher = chokidar.watch(yamlDir, {
 watcher.on('change', (filePath) => {
   try {
     const filename = path.basename(filePath);
+
+    // Handle YAML files
     if (filename.endsWith('.yaml') || filename.endsWith('.yml')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = yaml.load(fileContent);
 
       console.log(`File ${filename} changed externally, broadcasting update`);
       broadcastUpdate(filename, data);
+    }
+
+    // Handle LikeC4 files
+    if (filename.endsWith('.likec4')) {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      // Extract productName from path: yamlDir/productName/c4/filename.likec4
+      const relativePath = path.relative(yamlDir, filePath);
+      const parts = relativePath.split(path.sep);
+      if (parts.length >= 3 && parts[1] === 'c4') {
+        const productName = parts[0];
+        console.log(`C4 file ${filename} changed externally, broadcasting update for ${productName}`);
+        broadcastC4Update(productName, filename, fileContent);
+      }
     }
   } catch (error) {
     console.error('Error processing file change:', error);
@@ -502,12 +534,26 @@ watcher.on('change', (filePath) => {
 watcher.on('add', (filePath) => {
   try {
     const filename = path.basename(filePath);
+
+    // Handle YAML files
     if (filename.endsWith('.yaml') || filename.endsWith('.yml')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = yaml.load(fileContent);
 
       console.log(`File ${filename} added, broadcasting update`);
       broadcastUpdate(filename, data);
+    }
+
+    // Handle LikeC4 files
+    if (filename.endsWith('.likec4')) {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const relativePath = path.relative(yamlDir, filePath);
+      const parts = relativePath.split(path.sep);
+      if (parts.length >= 3 && parts[1] === 'c4') {
+        const productName = parts[0];
+        console.log(`C4 file ${filename} added, broadcasting update for ${productName}`);
+        broadcastC4Update(productName, filename, fileContent);
+      }
     }
   } catch (error) {
     console.error('Error processing file add:', error);
@@ -516,6 +562,8 @@ watcher.on('add', (filePath) => {
 
 watcher.on('unlink', (filePath) => {
   const filename = path.basename(filePath);
+
+  // Handle YAML files
   if (filename.endsWith('.yaml') || filename.endsWith('.yml')) {
     console.log(`File ${filename} deleted, broadcasting removal`);
     const message = JSON.stringify({
@@ -529,6 +577,28 @@ watcher.on('unlink', (filePath) => {
         client.send(message);
       }
     });
+  }
+
+  // Handle LikeC4 files
+  if (filename.endsWith('.likec4')) {
+    const relativePath = path.relative(yamlDir, filePath);
+    const parts = relativePath.split(path.sep);
+    if (parts.length >= 3 && parts[1] === 'c4') {
+      const productName = parts[0];
+      console.log(`C4 file ${filename} deleted, broadcasting removal for ${productName}`);
+      const message = JSON.stringify({
+        type: 'c4_delete',
+        productName,
+        filename,
+        timestamp: new Date().toISOString()
+      });
+
+      clients.forEach((client: any) => {
+        if (client.readyState === 1) {
+          client.send(message);
+        }
+      });
+    }
   }
 });
 

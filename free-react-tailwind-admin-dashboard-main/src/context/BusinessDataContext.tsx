@@ -118,6 +118,18 @@ const loadData = async (productName: string) => {
   }
 };
 
+const WS_URL = 'ws://localhost:8080';
+
+// Map filenames to data keys
+const filenameToKey: Record<string, keyof BusinessData> = {
+  'north-star.yaml': 'northStar',
+  'lean-canvas.yaml': 'leanCanvas',
+  'architectural-scope.yaml': 'architecturalScope',
+  'lean-viability.yaml': 'leanViability',
+  'aaarr-metrics.yaml': 'aaarrMetrics',
+  'policy-charter.yaml': 'policyCharter',
+};
+
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [productName, setProductName] = useState('blueprint');
   const [data, setData] = useState<BusinessData>({
@@ -130,86 +142,85 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   });
   const [loading, setLoading] = useState(true);
 
+  const setProductNameSafe = (name: string) => {
+    if (name === 'blueprint' || name === 'software-factory') {
+      setProductName(name);
+    } else {
+      setProductName('blueprint');
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const loadedData = await loadData(productName);
-      setData({ ...loadedData, productName, setProductName });
+      setData({ ...loadedData, productName, setProductName: setProductNameSafe });
       setLoading(false);
     };
 
     fetchData();
+  }, [productName]);
 
-    // WebSocket connection for real-time updates
-    const ws = new WebSocket('ws://localhost:3001');
+  // WebSocket for real-time updates
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
+    const connect = () => {
+      ws = new WebSocket(WS_URL);
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'file_update') {
-          const { filename, data: updatedData } = message;
+      ws.onopen = () => {
+        console.log('WebSocket connected for business data updates');
+      };
 
-          // Map filename to data key
-          const keyMap = {
-            'north-star.yaml': 'northStar',
-            'lean-canvas.yaml': 'leanCanvas',
-            'architectural-scope.yaml': 'architecturalScope',
-            'lean-viability.yaml': 'leanViability',
-            'aaarr-metrics.yaml': 'aaarrMetrics',
-            'policy-charter.yaml': 'policyCharter',
-          };
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'file_update') {
+            const key = filenameToKey[message.filename];
+            if (key) {
+              console.log(`Updating ${key} from WebSocket`);
+              const processedData = processObjectDocLinks(message.data);
 
-          const dataKey = keyMap[filename as keyof typeof keyMap];
-           if (dataKey) {
-             setData(prev => ({
-               ...prev,
-               [dataKey]: processObjectDocLinks(updatedData)
-             }));
-             console.log(`Updated ${dataKey} from WebSocket`);
-           }
-        } else if (message.type === 'file_delete') {
-          const { filename } = message;
-
-          // Map filename to data key
-          const keyMap = {
-            'north-star.yaml': 'northStar',
-            'lean-canvas.yaml': 'leanCanvas',
-            'architectural-scope.yaml': 'architecturalScope',
-            'lean-viability.yaml': 'leanViability',
-            'aaarr-metrics.yaml': 'aaarrMetrics',
-            'policy-charter.yaml': 'policyCharter',
-          };
-
-          const dataKey = keyMap[filename as keyof typeof keyMap];
-          if (dataKey) {
-            setData(prev => ({
-              ...prev,
-              [dataKey]: null
-            }));
-            console.log(`Removed ${dataKey} from WebSocket`);
+              setData(prev => {
+                // Special handling for policy-charter to merge goals
+                if (key === 'policyCharter') {
+                  const merged = mergeGoalsIntoPolicyCharter(prev.architecturalScope, processedData);
+                  return { ...prev, [key]: merged };
+                }
+                // If architectural-scope changed, also re-merge policy-charter
+                if (key === 'architecturalScope' && prev.policyCharter) {
+                  const mergedPolicyCharter = mergeGoalsIntoPolicyCharter(processedData, prev.policyCharter);
+                  return { ...prev, [key]: processedData, policyCharter: mergedPolicyCharter };
+                }
+                return { ...prev, [key]: processedData };
+              });
+            }
           }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
         }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected, reconnecting in 3s...');
+        reconnectTimeout = setTimeout(connect, 3000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
     };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
+    connect();
 
     return () => {
-      ws.close();
+      clearTimeout(reconnectTimeout);
+      if (ws) {
+        ws.close();
+      }
     };
-  }, [productName]);
+  }, []);
 
   if (loading) {
     return (

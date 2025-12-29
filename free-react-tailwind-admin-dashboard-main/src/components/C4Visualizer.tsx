@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
 const API_BASE = 'http://localhost:3001';
+const WS_URL = 'ws://localhost:8080';
 
 interface C4File {
   name: string;
@@ -65,6 +66,95 @@ const C4Visualizer: React.FC = () => {
     };
     fetchFiles();
   }, [productName]);
+
+  // WebSocket for real-time updates
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout;
+    const currentProductName = productName || 'blueprint';
+
+    const connect = () => {
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        console.log('WebSocket connected for C4 updates');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+
+          // Handle C4 file updates
+          if (message.type === 'c4_update' && message.productName === currentProductName) {
+            console.log(`C4 file ${message.filename} updated via WebSocket`);
+
+            // Update the files list
+            setFiles(prev => {
+              const exists = prev.some(f => f.name === message.filename);
+              if (exists) {
+                return prev.map(f =>
+                  f.name === message.filename ? { ...f, content: message.content } : f
+                );
+              } else {
+                return [...prev, { name: message.filename, content: message.content }];
+              }
+            });
+
+            // Update content if this is the selected file and not currently being edited
+            setSelectedFile(currentSelected => {
+              if (currentSelected === message.filename) {
+                setContent(message.content);
+                setEditedContent(prev => {
+                  // Only update if user hasn't made changes
+                  if (prev === content) {
+                    return message.content;
+                  }
+                  return prev;
+                });
+              }
+              return currentSelected;
+            });
+          }
+
+          // Handle C4 file deletions
+          if (message.type === 'c4_delete' && message.productName === currentProductName) {
+            console.log(`C4 file ${message.filename} deleted via WebSocket`);
+            setFiles(prev => prev.filter(f => f.name !== message.filename));
+
+            // If deleted file was selected, clear selection
+            setSelectedFile(currentSelected => {
+              if (currentSelected === message.filename) {
+                setContent('');
+                setEditedContent('');
+                return null;
+              }
+              return currentSelected;
+            });
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected, reconnecting in 3s...');
+        reconnectTimeout = setTimeout(connect, 3000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+    };
+
+    connect();
+
+    return () => {
+      clearTimeout(reconnectTimeout);
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [productName, content]);
 
   const handleFileSelect = async (fileName: string) => {
     try {
