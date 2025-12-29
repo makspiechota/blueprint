@@ -72,7 +72,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
     const risks = charter.risks || [];
 
     // Create a tree structure to organize nodes
-    const treeStructure: Record<string, { tactics: any[]; policies: any[]; width: number }> = {};
+    const treeStructure: Record<string, { tactics: any[]; policies: any[]; risks: any[]; width: number }> = {};
 
     // Initialize goals in tree
     goals.forEach(goal => {
@@ -96,7 +96,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
     // Add risks to tree
     goals.forEach(goal => {
       const branch = treeStructure[goal.id];
-      branch.risks = risks.filter(r => r.mitigation.some(m => branch.policies.some(p => p.id === m)));
+      branch.risks = risks.filter(r => r.mitigation && r.mitigation.some(m => branch.policies.some(p => p.id === m)));
     });
 
     // Calculate widths for each goal branch
@@ -127,7 +127,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             <div className="node-content">
               <div className="node-type"><span>🎯</span> Goal</div>
               <div className="node-title">{goal.title}</div>
-              <div className="node-description">{goal.description}</div>
+              <div className="node-description" dangerouslySetInnerHTML={{ __html: goal.description || '' }} />
             </div>
           ),
           title: goal.title || 'Untitled Goal',
@@ -167,7 +167,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
               <div className="node-content">
                 <div className="node-type"><span>📝</span> Tactic</div>
                 <div className="node-title">{tactic.title}</div>
-                <div className="node-description">{tactic.description}</div>
+                <div className="node-description" dangerouslySetInnerHTML={{ __html: tactic.description || '' }} />
               </div>
             ),
             title: tactic.title || 'Untitled Tactic',
@@ -207,7 +207,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
                 <div className="node-content">
                   <div className="node-type"><span>☂️</span> Policy</div>
                   <div className="node-title">{policy.title}</div>
-                  <div className="node-description">{policy.rule}</div>
+                  <div className="node-description" dangerouslySetInnerHTML={{ __html: policy.rule || '' }} />
                 </div>
               ),
               title: policy.title || 'Untitled Policy',
@@ -241,7 +241,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
               label: (
                 <div className="node-content">
                   <div className="node-type"><span>⛈️</span> Risk</div>
-                  <div className="node-title">{risk.description}</div>
+                  <div className="node-title" dangerouslySetInnerHTML={{ __html: risk.description || '' }} />
                   <div className="node-description">P: {risk.probability} | I: {risk.impact}</div>
                 </div>
               ),
@@ -801,7 +801,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             {charter.tactics?.map((tactic, index) => (
               <div key={index} className="p-3 border border-green-200 dark:border-green-700 rounded-lg bg-green-50 dark:bg-green-900/20">
                 <h4 className="font-medium text-green-900 dark:text-green-100 mb-1">{tactic.title}</h4>
-                <p className="text-sm text-green-700 dark:text-green-300">{tactic.description}</p>
+                <p className="text-sm text-green-700 dark:text-green-300" dangerouslySetInnerHTML={{ __html: tactic.description || '' }} />
                 <div className="mt-2 flex flex-wrap gap-1">
                   {tactic.drives_policies?.map((policy, idx) => (
                     <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
@@ -824,7 +824,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             {charter.policies?.map((policy, index) => (
               <div key={index} className="p-3 border border-purple-200 dark:border-purple-700 rounded-lg bg-purple-50 dark:bg-purple-900/20">
                 <h4 className="font-medium text-purple-900 dark:text-purple-100 mb-1">{policy.title}</h4>
-                <p className="text-sm text-purple-700 dark:text-purple-300 mb-2">{policy.rule}</p>
+                <p className="text-sm text-purple-700 dark:text-purple-300 mb-2" dangerouslySetInnerHTML={{ __html: policy.rule || '' }} />
                 <div className="flex justify-between items-center">
                   <span className="text-xs bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
                     {policy.enforcement || 'Manual'}
@@ -848,7 +848,7 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
             {charter.risks?.map((risk, index) => (
               <div key={index} className="p-3 border border-red-200 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900/20">
                 <h4 className="font-medium text-red-900 dark:text-red-100 mb-1">
-                  Risk: <span>{risk.description}</span>
+                  Risk: <span dangerouslySetInnerHTML={{ __html: risk.description || '' }} />
                 </h4>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs text-red-700 dark:text-red-300">Probability: {risk.probability}</span>
