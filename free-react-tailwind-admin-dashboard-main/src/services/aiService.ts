@@ -217,6 +217,9 @@ class AIService {
 
   async generateLayer(resourceType: string, resourceData: any): Promise<{ success: boolean; message: string }> {
     try {
+      // Schema will be read by AI from path
+      const schemaType = resourceType.replace('generate-', '');
+
       // Initialize a new session for generation
       const session = await this.client.session.create({
         body: { title: `Generate ${resourceType}` },
@@ -233,24 +236,27 @@ class AIService {
       let prompt = '';
       const { productName, ...contextData } = resourceData;
 
+      const schemaPath = `src/schemas/${schemaType}.yaml`;
+      const schemaInstruction = `\n\nRead the schema from: ./${schemaPath}\n\nGenerate valid YAML that validates against this schema. Ensure all required fields are present and types match. Quote string values that contain colons, special characters, or start with numbers. Use proper YAML syntax. Output ONLY the YAML content, no explanations or additional text.`;
+
       switch (resourceType) {
         case 'generate-north-star':
-          prompt = `Generate a North Star YAML file for a business blueprint. Create a compelling vision, problem statement, solution, and strategic goals. Output only valid YAML.`;
+          prompt = `Generate a North Star YAML file for a business blueprint. Create a compelling vision, problem statement, solution, and strategic goals. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-lean-canvas':
-          prompt = `Generate a Lean Canvas YAML file based on the following North Star data: ${JSON.stringify(contextData, null, 2)}\n\nCreate a comprehensive lean canvas with problem, solution, key metrics (including annual_revenue_3_years_target), unfair advantage, customer segments, channels, cost structure, and revenue streams. Output only valid YAML.`;
+          prompt = `Generate a Lean Canvas YAML file based on the following North Star data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-architectural-scope':
-          prompt = `Generate an Architectural Scope YAML file based on the following Lean Canvas data: ${JSON.stringify(contextData, null, 2)}\n\nCreate a 5W (Why, What, How, Where, Who, When) architectural overview. Output only valid YAML.`;
+          prompt = `Generate an Architectural Scope YAML file based on the following Lean Canvas data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-lean-viability':
-          prompt = `Generate a Lean Viability YAML file based on the following Architectural Scope data: ${JSON.stringify(contextData, null, 2)}\n\nInclude time horizon, calculations for ARPU, required customers, conversion rates, funnel targets, etc. Output only valid YAML.`;
+          prompt = `Generate a Lean Viability YAML file based on the following Architectural Scope data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-customers-factory':
-          prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nCreate stages for acquisition, activation, retention, referral, revenue with goals and metrics. Output only valid YAML.`;
+          prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-policy-charter':
-          prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nInclude policies, tactics, and risk management. Output only valid YAML.`;
+          prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
           break;
         default:
           return { success: false, message: 'Unknown resource type' };
@@ -280,6 +286,14 @@ class AIService {
       }
 
       console.log('Generated YAML:', generatedYaml.substring(0, 200) + '...');
+
+      // Validate the YAML can be parsed
+      try {
+        yaml.load(generatedYaml);
+      } catch (error) {
+        console.error('Generated YAML is invalid:', error);
+        return { success: false, message: `Generated YAML is invalid: ${(error as Error).message}` };
+      }
 
       // Save the generated content
       let fileName = '';
