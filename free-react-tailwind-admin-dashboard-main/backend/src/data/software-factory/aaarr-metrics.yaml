@@ -1,87 +1,27 @@
 type: aaarr-metrics
-version: '1.0'
-last_updated: '2025-12-28'
-last_synced: '2025-12-28'
-title: BLUEPRINT Platform Customer Factory
-lean_viability_ref: lean-viability.yaml
-north_star_ref: north-star.yaml
+version: "1.0"
+last_updated: "2025-12-28"
+title: "BLUEPRINT Platform AAARR Metrics"
+lean_viability_ref: "lean-viability.yaml"
+north_star_ref: "north-star.yaml"
 stages:
   acquisition:
-    stage_goal: Attract engineering teams to try BLUEPRINT for AI context management
-    metrics:
-      - id: aaarr.acquisition.monthly-visitors
-        name: Website Visitors
-        description: Unique visitors to BLUEPRINT marketing and documentation pages
-        target:
-          rate: 1000
-          period: month
-        current:
-          rate: 300
-          period: month
-      - id: aaarr.acquisition.conversion-rate
-        name: Visitor to Trial Conversion
-        description: Percentage of visitors who sign up for free trial
-        target:
-          percentage: 8
-        current:
-          percentage: 5
+    stage_goal: "Achieve 25 customers acquired per month"
     current:
-      rate: 0.04
+      rate: 25
   activation:
-    stage_goal: Get engineering teams successfully using BLUEPRINT for AI workflows
-    metrics:
-      - id: aaarr.activation.first-blueprint
-        name: Blueprint Creation Rate
-        description: Teams that create their first complete blueprint within 30 days
-        target:
-          percentage: 80
-        current:
-          percentage: 60
-      - id: aaarr.activation.ai-integration
-        name: AI Agent Integration
-        description: Teams successfully connecting AI agents to BLUEPRINT context
-        target:
-          percentage: 70
-        current:
-          percentage: 40
+    stage_goal: "Achieve 10 activated users per month"
     current:
-      rate: 0.04
+      rate: 10
   retention:
-    stage_goal: Keep teams subscribed and expanding BLUEPRINT usage
-    metrics:
-      - id: aaarr.retention.monthly-churn
-        name: Monthly Churn Rate
-        description: Percentage of teams canceling BLUEPRINT subscription
-        target:
-          percentage: 5
-        current:
-          percentage: 8
+    stage_goal: "Maintain monthly churn rate below 1%"
     current:
-      rate: 0.02
-  referral:
-    stage_goal: Turn satisfied teams into BLUEPRINT advocates
-    metrics:
-      - id: aaarr.referral.net-promoter-score
-        name: Net Promoter Score
-        description: Team satisfaction and likelihood to recommend BLUEPRINT
-        target:
-          score: 60
-        current:
-          score: 45
+      rate: 0.0083
   revenue:
-    stage_goal: Generate sustainable recurring revenue from BLUEPRINT subscriptions
-    metrics:
-      - id: aaarr.revenue.monthly-recurring-revenue
-        name: Monthly Recurring Revenue
-        description: Total MRR from all BLUEPRINT subscribers
-        target:
-          amount: 6250
-          currency: USD
-          period: month
-        current:
-          amount: 3000
-          currency: USD
-          period: month
+    stage_goal: "Generate $12,000 annual revenue per customer"
     current:
-      amount: 0
-      currency: USD
+      amount: 12000
+  referral:
+    stage_goal: "Achieve prospect acquisition rate of 10%"
+    current:
+      score: 0.1

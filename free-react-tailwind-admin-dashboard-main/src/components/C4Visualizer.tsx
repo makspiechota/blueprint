@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
+import { useChat } from '../context/ChatContext';
+import { ChatIcon } from '../icons';
 
 const API_BASE = 'http://localhost:3001';
 const WS_URL = 'ws://localhost:8080';
@@ -11,6 +13,7 @@ interface C4File {
 
 const C4Visualizer: React.FC = () => {
   const { productName } = useParams<{ productName: string }>();
+  const { openChat } = useChat();
   const [files, setFiles] = useState<C4File[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [content, setContent] = useState<string>('');
@@ -20,6 +23,15 @@ const C4Visualizer: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleChatClick = () => {
+    const safeProductName = productName || 'blueprint';
+    openChat(`c4-model:${selectedFile}`, {
+      productName: safeProductName,
+      fileName: selectedFile,
+      content: editedContent
+    });
+  };
 
   // Handle Escape key to exit fullscreen
   useEffect(() => {
@@ -200,17 +212,6 @@ const C4Visualizer: React.FC = () => {
     setIsEditing(false);
   };
 
-  // Syntax highlighting helper (basic)
-  const highlightSyntax = (code: string) => {
-    return code
-      .replace(/(\/\/.*$)/gm, '<span class="text-gray-500">$1</span>') // comments
-      .replace(/\b(specification|model|views|view|element|style|include|exclude|title|description)\b/g, '<span class="text-purple-600 dark:text-purple-400 font-semibold">$1</span>') // keywords
-      .replace(/\b(actor|system|container|component|external)\b/g, '<span class="text-blue-600 dark:text-blue-400">$1</span>') // element types
-      .replace(/("[^"]*")/g, '<span class="text-green-600 dark:text-green-400">$1</span>') // strings
-      .replace(/(\{|\})/g, '<span class="text-yellow-600 dark:text-yellow-400">$1</span>') // braces
-      .replace(/(->)/g, '<span class="text-red-500">$1</span>'); // arrows
-  };
-
   return (
     <div
       className={`flex flex-col bg-white dark:bg-gray-900 ${
@@ -239,6 +240,14 @@ const C4Visualizer: React.FC = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleChatClick}
+            disabled={!selectedFile}
+            className="p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+            title="Chat with AI about C4 model"
+          >
+            <ChatIcon />
+          </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"

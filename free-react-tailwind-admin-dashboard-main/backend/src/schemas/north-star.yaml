@@ -1,0 +1,11 @@
+type: north-star
+productName: string
+version: string
+last_updated: string
+title: string
+vision: string
+problem: string
+solution: string
+strategic_goals:
+  - title: string
+    description: string

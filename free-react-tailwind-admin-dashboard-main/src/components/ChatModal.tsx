@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatMessage, ChatContext } from '../types/chat';
 import { aiService } from '../services/aiService';
+import { useBusinessData } from '../context/BusinessDataContext';
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
   resourceType,
   resourceData
 }) => {
+  const { productName } = useBusinessData();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,25 +31,30 @@ const ChatModal: React.FC<ChatModalProps> = ({
     // Map resource types to their corresponding blueprint files
     // Since we're running from the server at blueprint root, and files are in the subfolder
     if (resourceType.startsWith('north-star')) {
-      return 'src/data/north-star.yaml';
+      return `src/data/${productName}/north-star.yaml`;
     }
     if (resourceType.startsWith('lean-canvas')) {
-      return 'src/data/lean-canvas.yaml';
+      return `src/data/${productName}/lean-canvas.yaml`;
     }
     if (resourceType.startsWith('architectural-scope')) {
-      return 'src/data/architectural-scope.yaml';
+      return `src/data/${productName}/architectural-scope.yaml`;
     }
     if (resourceType.startsWith('lean-viability')) {
-      return 'src/data/lean-viability.yaml';
+      return `src/data/${productName}/lean-viability.yaml`;
     }
     if (resourceType.startsWith('aaarr-metrics') || resourceType.startsWith('customers-factory')) {
-      return 'src/data/aaarr-metrics.yaml';
+      return `src/data/${productName}/aaarr-metrics.yaml`;
     }
     if (resourceType.startsWith('policy-charter')) {
-      return 'src/data/policy-charter.yaml';
+      return `src/data/${productName}/policy-charter.yaml`;
+    }
+    if (resourceType.startsWith('c4-model')) {
+      // Extract filename from resourceType like "c4-model:blueprint.likec4"
+      const fileName = resourceType.split(':')[1] || 'blueprint.likec4';
+      return `src/data/${productName}/c4/${fileName}`;
     }
     // Default fallback
-    return `src/data/${resourceType}.yaml`;
+    return `src/data/${productName}/${resourceType}.yaml`;
   };
 
   const initializeSession = useCallback(async () => {
@@ -74,7 +81,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
       };
       setMessages([errorMessage]);
     }
-  }, [resourceType, resourceData, isInitialized]);
+  }, [resourceType, resourceData, isInitialized, productName]);
 
   useEffect(() => {
     scrollToBottom();

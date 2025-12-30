@@ -245,19 +245,19 @@ class AIService {
           prompt = `Generate a North Star YAML file for a business blueprint. Create a compelling vision, problem statement, solution, and strategic goals. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-lean-canvas':
-          prompt = `Generate a Lean Canvas YAML file based on the following North Star data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
+          prompt = `Generate a Lean Canvas YAML file based on the following North Star data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the North Star data. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-architectural-scope':
-          prompt = `Generate an Architectural Scope YAML file based on the following Lean Canvas data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
+          prompt = `Generate an Architectural Scope YAML file based on the following Lean Canvas data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Lean Canvas data. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-lean-viability':
-          prompt = `Generate a Lean Viability YAML file based on the following Architectural Scope data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
+          prompt = `Generate a Lean Viability YAML file based on the following Architectural Scope data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Architectural Scope data. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-customers-factory':
-          prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
+          prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Lean Viability data. Output only valid YAML.${schemaInstruction}`;
           break;
         case 'generate-policy-charter':
-          prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nOutput only valid YAML.${schemaInstruction}`;
+          prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Customers Factory data. Output only valid YAML.${schemaInstruction}`;
           break;
         default:
           return { success: false, message: 'Unknown resource type' };

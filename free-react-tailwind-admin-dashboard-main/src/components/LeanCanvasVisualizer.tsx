@@ -57,6 +57,7 @@ interface LeanCanvasVisualizerProps {
 }
 
 const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, productName = 'blueprint' }) => {
+  const safeProductName = productName === 'blueprint' || productName === 'software-factory' ? productName : 'blueprint';
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');

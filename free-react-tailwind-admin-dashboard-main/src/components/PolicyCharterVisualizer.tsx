@@ -14,6 +14,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import ChatButton from './ChatButton';
 import { useChat } from '../context/ChatContext';
+import { useBusinessData } from '../context/BusinessDataContext';
 
 
 
@@ -52,6 +53,7 @@ interface PolicyCharterVisualizerProps {
 
 const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ charter }) => {
   const { openChat } = useChat();
+  const { productName } = useBusinessData();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const nodeWidth = 250;
   const levelSpacing = 320;
@@ -629,13 +631,13 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
         `}</style>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          <button onClick={addTactic} className="px-3 py-2 bg-blue-200 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-sm hover:bg-blue-300 dark:hover:bg-blue-900/50">Add Tactic</button>
-          <button onClick={addPolicy} className="px-3 py-2 bg-green-200 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-sm hover:bg-green-300 dark:hover:bg-green-900/50">Add Policy</button>
-          <button onClick={addRisk} className="px-3 py-2 bg-purple-200 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-sm hover:bg-purple-300 dark:hover:bg-purple-900/50">Add Risk</button>
+          <button onClick={addTactic} className="px-3 py-2 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-white rounded text-sm hover:bg-blue-300 dark:hover:bg-blue-700">Add Tactic</button>
+          <button onClick={addPolicy} className="px-3 py-2 bg-green-200 dark:bg-green-800 text-green-800 dark:text-white rounded text-sm hover:bg-green-300 dark:hover:bg-green-700">Add Policy</button>
+          <button onClick={addRisk} className="px-3 py-2 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-white rounded text-sm hover:bg-purple-300 dark:hover:bg-purple-700">Add Risk</button>
           <button onClick={() => {
             // Build data and save
             const data = buildDataFromNodesAndEdges(nodes, edges);
-            fetch('/api/yaml/policy-charter.yaml', {
+            fetch(`/api/yaml/${productName}/policy-charter.yaml`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ data }),

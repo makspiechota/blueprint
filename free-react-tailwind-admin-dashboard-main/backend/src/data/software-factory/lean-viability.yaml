@@ -1,43 +1,44 @@
 type: lean-viability
-version: '1.0'
-last_updated: '2025-12-28'
-title: BLUEPRINT Platform Viability Analysis
-lean_canvas_ref: lean-canvas.yaml
+productName: BLUEPRINT Platform
+version: "1.0"
+last_updated: "2025-12-29"
+title: "BLUEPRINT Platform Lean Viability Analysis"
+lean_canvas_ref: "lean-canvas.yaml"
 calculations:
   annual_revenue_per_customer:
-    amount: 12000
+    amount: 1200
     currency: USD
-    basis: SaaS subscription for engineering teams (5-15 engineers)
+    basis: "SaaS subscription pricing for AI workflow platform"
   required_customers:
-    count: 63
-    formula: Annual revenue target / Annual revenue per customer
+    count: 500
+    formula: "Total target revenue / Annual revenue per customer"
   customer_acquisition_rate:
-    rate: 25
-    period: month
-    formula: Required customers / (Time horizon in months)
+    rate: 0.05
+    period: monthly
+    formula: "Target monthly acquisitions / Total potential customers"
   monthly_acquisition_target:
-    rate: 1
-    period: month
-    formula: Required customers × Monthly churn rate
+    rate: 25
+    period: monthly
+    formula: "Required customers / Customer acquisition period"
   customer_lifetime_value:
-    years: 10
-    formula: Annual revenue per customer * Customer lifetime
-    amount: 120000
+    years: 3
+    amount: 3600
     currency: USD
+    formula: "Annual revenue per customer * Customer lifetime in years"
   churn_rate:
-    monthly_rate: 0.008333333333333333
-    formula: 1 / (12 * Customer lifetime)
+    monthly_rate: 0.02
+    formula: "Monthly customer losses / Total active customers"
   conversion_rate:
     rate: 0.15
-    basis: Website visitors to paying customers
+    basis: "Visitor to paying customer conversion"
   monthly_visitors:
-    rate: 166
-    period: month
-    formula: Monthly acquisition target / Conversion rate
+    rate: 10000
+    period: monthly
+    formula: "Estimated traffic based on market size and marketing reach"
   conversion_rates:
-    prospect_acquisition_rate: 0.1
-    acquisition_rate: 0.1
+    prospect_acquisition_rate: 0.10
+    acquisition_rate: 0.20
   funnel_targets:
-    users_activation_target: 10
-    users_target: 100
-    users_acquisition_target: 1000
+    users_activation_target: 0.70
+    users_target: 2000
+    users_acquisition_target: 200

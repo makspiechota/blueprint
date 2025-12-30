@@ -17,6 +17,8 @@
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@likec4/core": "^1.46.4",
+    "@likec4/diagram": "^1.46.4",
     "@opencode-ai/sdk": "^1.0.203",
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/world": "^1.1.2",

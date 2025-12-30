@@ -1,0 +1,42 @@
+type: aaarr-metrics
+productName: string
+version: string
+last_updated: string
+title: string
+lean_viability_ref: string
+stages:
+  acquisition:
+    stage_goal: string
+    metrics:
+      - id: string
+        name: string
+        description: string
+        target: {}
+  activation:
+    stage_goal: string
+    metrics:
+      - id: string
+        name: string
+        description: string
+        target: {}
+  retention:
+    stage_goal: string
+    metrics:
+      - id: string
+        name: string
+        description: string
+        target: {}
+  referral:
+    stage_goal: string
+    metrics:
+      - id: string
+        name: string
+        description: string
+        target: {}
+  revenue:
+    stage_goal: string
+    metrics:
+      - id: string
+        name: string
+        description: string
+        target: {}

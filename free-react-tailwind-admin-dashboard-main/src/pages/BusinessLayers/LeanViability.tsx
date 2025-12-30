@@ -7,11 +7,12 @@ import LayerWrapper from "../../components/LayerWrapper";
 
 export default function LeanViability() {
   const { productName: urlProductName } = useParams<{ productName: string }>();
-  const { leanViability, setProductName, productName, leanCanvas } = useBusinessData();
+  const safeProductName = urlProductName || 'blueprint';
+  const { leanViability, setProductName, leanCanvas } = useBusinessData();
 
   useEffect(() => {
-    if (urlProductName) setProductName?.(urlProductName);
-  }, [urlProductName, setProductName]);
+    setProductName?.(safeProductName);
+  }, [safeProductName, setProductName]);
 
   return (
     <>
@@ -26,7 +27,7 @@ export default function LeanViability() {
         resourceType="generate-lean-viability"
         dependencies={['architecturalScope']}
       >
-        <LeanViabilityVisualizer data={leanViability} leanCanvasData={leanCanvas} />
+        <LeanViabilityVisualizer data={leanViability} leanCanvasData={leanCanvas} productName={safeProductName} />
       </LayerWrapper>
     </>
   );

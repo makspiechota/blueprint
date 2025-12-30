@@ -44,6 +44,14 @@ model {
     description "Engineering manager overseeing blueprint configuration"
   }
 
+  actor architect "Architect" {
+    description "Software architect designing system architecture"
+  }
+
+  actor businessAnalysts "Business Analysts" {
+    description "Business analysts defining requirements and processes"
+  }
+
   // External Systems
   external aiAgent "AI Agent" {
     description "Claude Code or other AI development assistant"
@@ -125,6 +133,8 @@ model {
   // Relationships
   developer -> blueprint.frontend "Uses to view and edit blueprints"
   teamLead -> blueprint.frontend "Configures business context"
+  architect -> blueprint.frontend "Designs and views system architecture"
+  businessAnalysts -> blueprint.frontend "Defines business requirements and models"
 
   blueprint.frontend -> blueprint.backend "REST API calls"
   blueprint.frontend -> blueprint.backend.websocket "Real-time updates"
@@ -146,13 +156,13 @@ views {
   view index of blueprint {
     title "Blueprint Platform - System Context"
     include *
-    include developer, teamLead, aiAgent, gitRepo
+    include developer, teamLead, architect, businessAnalysts, aiAgent, gitRepo
   }
 
   view containers of blueprint {
     title "Blueprint Platform - Containers"
     include blueprint, blueprint.*
-    include developer, teamLead, aiAgent
+    include developer, teamLead, architect, businessAnalysts, aiAgent
   }
 
   view frontendComponents of blueprint.frontend {

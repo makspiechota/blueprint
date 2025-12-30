@@ -143,11 +143,8 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [loading, setLoading] = useState(true);
 
   const setProductNameSafe = (name: string) => {
-    if (name === 'blueprint' || name === 'software-factory') {
-      setProductName(name);
-    } else {
-      setProductName('blueprint');
-    }
+    // Allow any product name
+    setProductName(name);
   };
 
   useEffect(() => {

@@ -58,6 +58,7 @@ interface LeanViability {
 interface LeanViabilityVisualizerProps {
   data: LeanViability;
   leanCanvasData?: any;
+  productName?: string;
 }
 
 // Hockey Stick Chart Component
@@ -170,7 +171,7 @@ const HockeyStickChart: React.FC<{ targetCustomers: number }> = ({ targetCustome
   );
 };
 
-const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data, leanCanvasData }) => {
+const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data, leanCanvasData, productName = 'blueprint' }) => {
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
@@ -256,7 +257,7 @@ const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data,
       // Convert HTML links back to [[doc-name]] syntax before saving
       const cleanedData = unprocessObjectDocLinks(calculatedData);
       const yamlContent = yaml.dump(cleanedData);
-      const result = await aiService.saveFileContent('src/data/lean-viability.yaml', yamlContent);
+      const result = await aiService.saveFileContent(`src/data/${productName}/lean-viability.yaml`, yamlContent);
 
        if (result.success) {
          // Update local data immediately for instant UI feedback

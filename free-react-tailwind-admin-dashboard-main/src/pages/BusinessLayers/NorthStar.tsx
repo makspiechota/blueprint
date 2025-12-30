@@ -7,7 +7,7 @@ import LayerWrapper from "../../components/LayerWrapper";
 
 export default function NorthStar() {
   const { productName: urlProductName } = useParams<{ productName: string }>();
-  const safeProductName = urlProductName === 'blueprint' || urlProductName === 'software-factory' ? urlProductName : 'blueprint';
+  const safeProductName = urlProductName || 'blueprint';
   const { northStar, setProductName } = useBusinessData();
 
   useEffect(() => {
