@@ -56,11 +56,6 @@ const baseNavItems: NavItem[] = [
     path: "/policy-charter",
   },
   {
-    icon: <DocsIcon />,
-    name: "Misc",
-    path: "/misc",
-  },
-  {
     icon: <ListIcon />,
     name: "Roadmap",
     path: "/roadmap",
@@ -72,6 +67,14 @@ const baseSoftwareLayerItems: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "C4 Architecture",
     path: "/c4",
+  },
+];
+
+const baseMiscItems: NavItem[] = [
+  {
+    icon: <DocsIcon />,
+    name: "Documents",
+    path: "/misc",
   },
 ];
 
@@ -91,6 +94,15 @@ const AppSidebar: React.FC = () => {
 
   const softwareLayerItems = useMemo(() =>
     baseSoftwareLayerItems.map(item => ({
+      ...item,
+      path: item.path ? `/${productName}${item.path}` : undefined,
+      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
+    })),
+    [productName]
+  );
+
+  const miscItems = useMemo(() =>
+    baseMiscItems.map(item => ({
       ...item,
       path: item.path ? `/${productName}${item.path}` : undefined,
       subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
@@ -348,6 +360,22 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(softwareLayerItems, "others")}
+            </div>
+            <div className="mt-6">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Misc"
+                ) : (
+                  <HorizontaLDots className="size-6" />
+                )}
+              </h2>
+              {renderMenuItems(miscItems, "others")}
             </div>
           </div>
         </nav>
