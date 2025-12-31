@@ -26,7 +26,7 @@ export default function CustomersFactory() {
         resourceType="generate-customers-factory"
         dependencies={['leanViability']}
       >
-        <CustomersFactoryVisualizer data={aaarrMetrics} leanViabilityData={leanViability} leanCanvasData={leanCanvas} />
+        <CustomersFactoryVisualizer data={aaarrMetrics} leanViabilityData={leanViability} leanCanvasData={leanCanvas} productName={productName} />
       </LayerWrapper>
     </>
   );

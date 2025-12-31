@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useParams } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import MDEditor from '@uiw/react-md-editor';
+import { useBusinessData } from '../../context/BusinessDataContext';
+import { aiService } from '../../services/aiService';
 
 const API_BASE = 'http://localhost:3001';
 
@@ -12,6 +14,14 @@ interface MiscFile {
 
 const Misc: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { productName: urlProductName } = useParams<{ productName: string }>();
+  const { setProductName } = useBusinessData();
+  const safeProductName = urlProductName || 'blueprint';
+
+  // Sync URL productName with context
+  useEffect(() => {
+    if (urlProductName) setProductName?.(urlProductName);
+  }, [urlProductName, setProductName]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [content, setContent] = useState<string>('');
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -20,6 +30,10 @@ const Misc: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNewDoc, setShowNewDoc] = useState<boolean>(false);
+  const [newDocName, setNewDocName] = useState<string>('');
+  const [newDocIdea, setNewDocIdea] = useState<string>('');
+  const [generating, setGenerating] = useState<boolean>(false);
 
   // Detect dark mode from .dark class on html/body
   useEffect(() => {
@@ -36,30 +50,31 @@ const Misc: React.FC = () => {
   }, []);
 
   // Fetch list of misc files from backend
+  const fetchFiles = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE}/api/misc/${safeProductName}`);
+      if (!response.ok) throw new Error('Failed to fetch files');
+      const data = await response.json();
+      setMiscFiles(data.files);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load files. Is the backend running?');
+      console.error('Error fetching misc files:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_BASE}/api/misc`);
-        if (!response.ok) throw new Error('Failed to fetch files');
-        const data = await response.json();
-        setMiscFiles(data.files);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load files. Is the backend running?');
-        console.error('Error fetching misc files:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchFiles();
-  }, []);
+  }, [safeProductName]);
 
   // Fetch file content from backend
   const handleFileClick = async (fileName: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/misc/${encodeURIComponent(fileName)}`);
+      const response = await fetch(`${API_BASE}/api/misc/${safeProductName}/${encodeURIComponent(fileName)}`);
       if (!response.ok) throw new Error('Failed to fetch file');
       const data = await response.json();
       setSelectedFile(fileName);
@@ -78,19 +93,46 @@ const Misc: React.FC = () => {
     if (!selectedFile) return;
     try {
       setSaving(true);
-      const response = await fetch(`${API_BASE}/api/misc/${encodeURIComponent(selectedFile)}`, {
-        method: 'PUT',
+      const isExisting = miscFiles.some(f => f.name === selectedFile);
+      const response = await fetch(`${API_BASE}/api/misc/${safeProductName}/${encodeURIComponent(selectedFile)}`, {
+        method: isExisting ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       });
       if (!response.ok) throw new Error('Failed to save file');
       setEditMode(false);
       setError(null);
+      fetchFiles(); // Refresh file list
     } catch (err) {
       setError('Failed to save file');
       console.error('Error saving file:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Generate new document
+  const handleGenerate = async () => {
+    if (!newDocName.trim() || !newDocIdea.trim()) return;
+    try {
+      setGenerating(true);
+      const result = await aiService.generateMisc(newDocIdea, safeProductName);
+      if (result.success) {
+        setContent(result.content);
+        setSelectedFile(`${newDocName}.md`);
+        setEditMode(true);
+        setShowNewDoc(false);
+        setNewDocName('');
+        setNewDocIdea('');
+        setError(null);
+      } else {
+        setError('Failed to generate document: ' + result.message);
+      }
+    } catch (err) {
+      setError('Failed to generate document');
+      console.error('Error generating document:', err);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -115,7 +157,57 @@ const Misc: React.FC = () => {
       {!selectedFile ? (
         // File list view
         <div>
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">Files</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold dark:text-white">Files</h2>
+            <button
+              onClick={() => setShowNewDoc(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Create New Document
+            </button>
+          </div>
+          {showNewDoc && (
+            <div className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-2 dark:text-white">Create New Document</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Document Name</label>
+                  <input
+                    type="text"
+                    value={newDocName}
+                    onChange={(e) => setNewDocName(e.target.value)}
+                    placeholder="e.g., project-plan"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Document Idea</label>
+                  <textarea
+                    value={newDocIdea}
+                    onChange={(e) => setNewDocIdea(e.target.value)}
+                    placeholder="Describe what the document should be about..."
+                    rows={4}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={generating || !newDocName.trim() || !newDocIdea.trim()}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+                  >
+                    {generating ? 'Generating...' : 'Generate with AI'}
+                  </button>
+                  <button
+                    onClick={() => setShowNewDoc(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {loading ? (
             <p className="text-gray-500 dark:text-gray-400">Loading files...</p>
           ) : miscFiles.length === 0 ? (

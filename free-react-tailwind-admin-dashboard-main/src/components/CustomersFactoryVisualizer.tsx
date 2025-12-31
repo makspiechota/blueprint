@@ -66,9 +66,10 @@ interface CustomersFactoryVisualizerProps {
   data: AAARRData;
   leanViabilityData?: any;
   leanCanvasData?: any;
+  productName?: string;
 }
 
-const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({ data, leanViabilityData, leanCanvasData }) => {
+const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({ data, leanViabilityData, leanCanvasData, productName = 'blueprint' }) => {
   const { openChat } = useChat();
   const [selectedStage, setSelectedStage] = useState('acquisition');
 
@@ -140,7 +141,7 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
       // Convert HTML links back to [[doc-name]] syntax before saving
       const cleanedData = unprocessObjectDocLinks(updatedData);
       const yamlContent = yaml.dump(cleanedData);
-      const result = await aiService.saveFileContent('src/data/aaarr-metrics.yaml', yamlContent);
+      const result = await aiService.saveFileContent(`src/data/${productName}/aaarr-metrics.yaml`, yamlContent);
 
       if (result.success) {
         setEditingSection(null);

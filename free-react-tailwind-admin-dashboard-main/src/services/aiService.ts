@@ -1,10 +1,10 @@
-import { createOpencodeClient } from '@opencode-ai/sdk';
-import yaml from 'js-yaml';
+import { createOpencodeClient } from "@opencode-ai/sdk";
+import yaml from "js-yaml";
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = "http://localhost:3001";
 
 export interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -23,14 +23,18 @@ export interface AIResponse {
 
 class AIService {
   private client = createOpencodeClient({
-    baseUrl: 'http://localhost:4097',
+    baseUrl: "http://localhost:4097",
   });
 
   private currentSessionId: string | null = null;
   private blueprintContent: string | null = null;
   private messageCount: number = 0;
 
-  async initializeSession(resourceType: string, resourcePath: string, blueprintData?: any): Promise<string> {
+  async initializeSession(
+    resourceType: string,
+    resourcePath: string,
+    blueprintData?: any
+  ): Promise<string> {
     try {
       // Create a new session for each chat
       const session = await this.client.session.create({
@@ -38,35 +42,51 @@ class AIService {
       });
 
       if (session.error || !session.data?.id) {
-        throw new Error('Failed to create session');
+        throw new Error("Failed to create session");
       }
 
-      this.currentSessionId = session.data.id;
-      console.log('Created OpenCode session:', this.currentSessionId);
+      this.currentSessionId = session.data.id.startsWith("ses-")
+        ? session.data.id
+        : "ses-" + session.data.id;
+      console.log("Created OpenCode session:", this.currentSessionId);
 
       // Use provided blueprint data if available, otherwise try to read file
       if (blueprintData) {
-        this.blueprintContent = typeof blueprintData === 'string' ? blueprintData : JSON.stringify(blueprintData, null, 2);
-        console.log('Using provided blueprint data, length:', this.blueprintContent.length);
+        this.blueprintContent =
+          typeof blueprintData === "string"
+            ? blueprintData
+            : JSON.stringify(blueprintData, null, 2);
+        console.log(
+          "Using provided blueprint data, length:",
+          this.blueprintContent.length
+        );
       } else {
         // Load the blueprint file content
-        console.log('Attempting to read file:', resourcePath);
+        console.log("Attempting to read file:", resourcePath);
         try {
           const content = await this.client.file.read({
             query: { path: resourcePath },
           });
 
-          console.log('File read response:', content);
+          console.log("File read response:", content);
 
           if (!content.error && content.data?.content) {
-            this.blueprintContent = content.data.content;
-            console.log('Loaded blueprint content for session, length:', this.blueprintContent.length);
+            const parts = resourcePath.split("/");
+            const prodName = parts[2]; // src/data/prodName/filename
+            this.blueprintContent = `You are discussing and editing the file for the ${prodName} product: ${resourcePath}\n\n${content.data.content}`;
+            console.log(
+              "Loaded blueprint content for session, length:",
+              this.blueprintContent.length
+            );
           } else {
             this.blueprintContent = null;
-            console.warn('Failed to load blueprint content, error:', content.error);
+            console.warn(
+              "Failed to load blueprint content, error:",
+              content.error
+            );
           }
         } catch (fileError) {
-          console.warn('File read failed, using empty context:', fileError);
+          console.warn("File read failed, using empty context:", fileError);
           this.blueprintContent = null;
         }
       }
@@ -74,27 +94,33 @@ class AIService {
       this.messageCount = 0;
       return this.currentSessionId;
     } catch (error) {
-      console.error('Session initialization error:', error);
+      console.error("Session initialization error:", error);
       throw error;
     }
   }
 
-  async sendMessage(message: string, context: ChatContext): Promise<AIResponse> {
+  async sendMessage(
+    message: string,
+    context: ChatContext
+  ): Promise<AIResponse> {
     if (!this.currentSessionId) {
-      throw new Error('No active session. Call initializeSession first.');
+      throw new Error("No active session. Call initializeSession first.");
     }
 
     try {
-      console.log('Sending message to session:', this.currentSessionId);
+      console.log("Sending message to session:", this.currentSessionId);
 
       // Include blueprint context only in the first message to avoid payload size issues
-      const blueprintContext = this.messageCount === 0 && this.blueprintContent ?
-        `Blueprint context (refer to this for all questions):\n${this.blueprintContent}\n\n` :
-        (this.blueprintContent ? 'Remember the blueprint context provided earlier.\n\n' : '');
+      const blueprintContext =
+        this.messageCount === 0 && this.blueprintContent
+          ? `Blueprint context (refer to this for all questions):\n${this.blueprintContent}\n\n`
+          : this.blueprintContent
+            ? "Remember the blueprint context provided earlier.\n\n"
+            : "";
 
       const fullPrompt = `${blueprintContext}User question: ${message}`;
       this.messageCount++;
-      console.log('Full prompt length:', fullPrompt.length);
+      console.log("Full prompt length:", fullPrompt.length);
 
       const result = await this.client.session.prompt({
         path: { id: this.currentSessionId },
@@ -104,20 +130,24 @@ class AIService {
         },
       });
 
-      console.log('API response received:', result);
+      console.log("API response received:", result);
 
       if (result.error) {
-        console.error('API returned error:', result.error);
+        console.error("API returned error:", result.error);
         // If session error, try to recreate session
-        if (result.error.toString().includes('session')) {
-          console.log('Session error, attempting to recreate session...');
+        if (result.error.toString().includes("session")) {
+          console.log("Session error, attempting to recreate session...");
           try {
             const newSession = await this.client.session.create({
-              body: { title: `Blueprint Chat: ${context.resourceType} (retry)` },
+              body: {
+                title: `Blueprint Chat: ${context.resourceType} (retry)`,
+              },
             });
             if (newSession.data?.id) {
-              this.currentSessionId = newSession.data.id;
-              console.log('Recreated session:', this.currentSessionId);
+              this.currentSessionId = newSession.data.id.startsWith("ses-")
+                ? newSession.data.id
+                : "ses-" + newSession.data.id;
+              console.log("Recreated session:", this.currentSessionId);
               // Retry the prompt with new session
               const retryResult = await this.client.session.prompt({
                 path: { id: this.currentSessionId },
@@ -127,38 +157,51 @@ class AIService {
                 },
               });
               if (!retryResult.error) {
-                const retryParts = (retryResult.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
-                const retryTextPart = retryParts.find(part => part.type === 'text');
+                const retryParts =
+                  (
+                    retryResult.data as {
+                      parts?: Array<{ type: string; text?: string }>;
+                    }
+                  )?.parts || [];
+                const retryTextPart = retryParts.find(
+                  (part) => part.type === "text"
+                );
                 return {
-                  message: retryTextPart?.text || 'Response received after retry',
-                  model: 'grok-code',
-                  context
+                  message:
+                    retryTextPart?.text || "Response received after retry",
+                  model: "grok-code",
+                  context,
                 };
               }
             }
           } catch (retryError) {
-            console.error('Retry failed:', retryError);
+            console.error("Retry failed:", retryError);
           }
         }
         throw new Error(`OpenCode API error: ${result.error}`);
       }
 
       // Extract the text part from the response
-      const parts = (result.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
-      console.log('Response parts:', parts.length, 'parts found');
+      const parts =
+        (result.data as { parts?: Array<{ type: string; text?: string }> })
+          ?.parts || [];
+      console.log("Response parts:", parts.length, "parts found");
 
-      const textPart = parts.find(part => part.type === 'text');
-      const responseMessage = textPart?.text || 'Response received';
+      const textPart = parts.find((part) => part.type === "text");
+      const responseMessage = textPart?.text || "Response received";
 
-      console.log('Extracted response message:', responseMessage.substring(0, 100) + '...');
+      console.log(
+        "Extracted response message:",
+        responseMessage.substring(0, 100) + "..."
+      );
 
       return {
         message: responseMessage,
-        model: 'grok-code',
-        context
+        model: "grok-code",
+        context,
       };
     } catch (error) {
-      console.error('Message send error:', error);
+      console.error("Message send error:", error);
       throw error;
     }
   }
@@ -170,56 +213,164 @@ class AIService {
   }
 
   // Helper to detect if a message contains modification intent
-  detectModificationIntent(message: string): { isModification: boolean; newContent?: string } {
+  detectModificationIntent(message: string): {
+    isModification: boolean;
+    newContent?: string;
+  } {
     const lowerMessage = message.toLowerCase();
 
     // Simple pattern matching for modification requests
-    if (lowerMessage.includes('update') || lowerMessage.includes('change') || lowerMessage.includes('modify')) {
+    if (
+      lowerMessage.includes("update") ||
+      lowerMessage.includes("change") ||
+      lowerMessage.includes("modify")
+    ) {
       // Try to extract the new content (this is very basic)
-      const contentMatch = message.match(/(?:to|with)\s*["']([^"']+)["']/i) ||
-                          message.match(/["']([^"']+)["']/);
+      const contentMatch =
+        message.match(/(?:to|with)\s*["']([^"']+)["']/i) ||
+        message.match(/["']([^"']+)["']/);
 
       return {
         isModification: true,
-        newContent: contentMatch ? contentMatch[1] : message
+        newContent: contentMatch ? contentMatch[1] : message,
       };
     }
 
     return { isModification: false };
   }
 
-  async saveFileContent(resourcePath: string, content: string): Promise<{ success: boolean; message: string }> {
+  async saveFileContent(
+    resourcePath: string,
+    content: string
+  ): Promise<{ success: boolean; message: string }> {
     try {
       // Extract productName and filename from resourcePath (e.g., "src/data/blueprint/north-star.yaml")
-      const parts = resourcePath.split('/');
+      const parts = resourcePath.split("/");
       const productName = parts[parts.length - 2];
       const filename = parts[parts.length - 1];
 
-      const response = await fetch(`${API_BASE}/api/yaml/${productName}/${filename}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: content }),
-      });
+      const response = await fetch(
+        `${API_BASE}/api/yaml/${productName}/${filename}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: content }),
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
-        return { success: false, message: error.error || 'Failed to save file' };
+        return {
+          success: false,
+          message: error.error || "Failed to save file",
+        };
       }
 
       const result = await response.json();
-      return { success: true, message: result.message || 'File saved successfully' };
+      return {
+        success: true,
+        message: result.message || "File saved successfully",
+      };
     } catch (error) {
-      console.error('Save file error:', error);
-      return { success: false, message: 'Network error while saving file' };
+      console.error("Save file error:", error);
+      return { success: false, message: "Network error while saving file" };
     }
   }
 
-  async generateLayer(resourceType: string, resourceData: any): Promise<{ success: boolean; message: string }> {
+  async generateMisc(
+    idea: string,
+    productName: string
+  ): Promise<{ success: boolean; content: string; message: string }> {
+    try {
+      // Create a new session for misc generation
+      const session = await this.client.session.create({
+        body: { title: `Generate Misc: ${idea.slice(0, 30)}` },
+      });
+
+      if (session.error || !session.data?.id) {
+        return {
+          success: false,
+          content: "",
+          message: "Failed to create generation session",
+        };
+      }
+
+      const sessionId = session.data.id;
+      console.log("Created misc generation session:", sessionId);
+
+      // Load blueprint context
+      const resourcePath = `src/data/${productName}/`;
+      console.log("Read blueprint from:", resourcePath);
+      // For misc, load all blueprint files or a summary
+      // For simplicity, load a few key files
+      const contextFiles = [
+        "north-star.yaml",
+        "lean-canvas.yaml",
+        "architectural-scope.yaml",
+      ];
+      let blueprintContext = "";
+      for (const file of contextFiles) {
+        try {
+          const content = await this.client.file.read({
+            query: { path: resourcePath + file },
+          });
+          if (content.data?.content) {
+            blueprintContext += `### ${file}\n${content.data.content}\n\n`;
+          }
+        } catch (e) {
+          // Ignore if file not found
+        }
+      }
+
+      // Generate the document
+      const fullPrompt = `${blueprintContext}Generate a comprehensive markdown document for the ${productName} product based on this idea: ${idea}. The document will be saved as src/data/${productName}/misc/${idea.slice(0, 20).replace(/[^a-zA-Z0-9]/g, "-")}.md. Make it detailed and useful. Output only the markdown content, no explanations.`;
+
+      const result = await this.client.session.prompt({
+        path: { id: sessionId },
+        body: {
+          model: { providerID: "opencode", modelID: "grok-code" },
+          parts: [{ type: "text", text: fullPrompt }],
+        },
+      });
+
+      if (result.error) {
+        return {
+          success: false,
+          content: "",
+          message: `OpenCode API error: ${result.error}`,
+        };
+      }
+
+      const parts =
+        (result.data as { parts?: Array<{ type: string; text?: string }> })
+          ?.parts || [];
+      const textPart = parts.find((part) => part.type === "text");
+      const generatedContent = textPart?.text || "";
+
+      return {
+        success: true,
+        content: generatedContent,
+        message: "Document generated successfully",
+      };
+    } catch (error) {
+      console.error("Generate misc error:", error);
+      return {
+        success: false,
+        content: "",
+        message: "Failed to generate document",
+      };
+    }
+  }
+
+  async generateLayer(
+    resourceType: string,
+    resourceData: any
+  ): Promise<{ success: boolean; message: string }> {
     try {
       // Schema will be read by AI from path
-      const schemaType = resourceType.replace('generate-', '');
+      const schemaType = resourceType.replace("generate-", "");
 
       // Initialize a new session for generation
       const session = await this.client.session.create({
@@ -227,40 +378,48 @@ class AIService {
       });
 
       if (session.error || !session.data?.id) {
-        return { success: false, message: 'Failed to create generation session' };
+        return {
+          success: false,
+          message: "Failed to create generation session",
+        };
       }
 
       const sessionId = session.data.id;
-      console.log('Created generation session:', sessionId);
+      console.log("Created generation session:", sessionId);
 
       // Prepare the generation prompt
-      let prompt = '';
+      let prompt = "";
       const { productName, ...contextData } = resourceData;
 
+      const prodName = resourceData.productName;
       const schemaPath = `src/schemas/${schemaType}.yaml`;
-      const schemaInstruction = `\n\nRead the schema from: ./${schemaPath}\n\nGenerate valid YAML that validates against this schema. Ensure all required fields are present and types match. Quote string values that contain colons, special characters, or start with numbers. Use proper YAML syntax. Output ONLY the YAML content, no explanations or additional text.`;
+      const yamlPath = `src/data/${prodName}/${schemaType}.yaml`;
+      const schemaInstruction = `\n\nYou are generating content for the ${prodName} product. The generated YAML will be saved to: ./${yamlPath}\n\nRead the schema from: ./${schemaPath}\n\nGenerate valid YAML that validates against this schema using the validate-yaml.cjs script. Ensure all required fields are present and types match. Quote string values that contain colons, special characters, or start with numbers. Use proper YAML syntax. The generated YAML must pass validation when run with: node validate-yaml.cjs <yaml-file> ${schemaPath}. Output ONLY the YAML content, no explanations or additional text.`;
 
       switch (resourceType) {
-        case 'generate-north-star':
-          prompt = `Generate a North Star YAML file for a business blueprint. Create a compelling vision, problem statement, solution, and strategic goals. Output only valid YAML.${schemaInstruction}`;
+        case "generate-north-star":
+          const businessDesc = contextData.businessDescription
+            ? ` based on this business description: ${contextData.businessDescription}`
+            : "";
+          prompt = `Generate a North Star YAML file for a business blueprint${businessDesc}. Create a compelling vision, problem statement, solution, and strategic goals. Output only valid YAML.${schemaInstruction}`;
           break;
-        case 'generate-lean-canvas':
+        case "generate-lean-canvas":
           prompt = `Generate a Lean Canvas YAML file based on the following North Star data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the North Star data. Output only valid YAML.${schemaInstruction}`;
           break;
-        case 'generate-architectural-scope':
+        case "generate-architectural-scope":
           prompt = `Generate an Architectural Scope YAML file based on the following Lean Canvas data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Lean Canvas data. Output only valid YAML.${schemaInstruction}`;
           break;
-        case 'generate-lean-viability':
+        case "generate-lean-viability":
           prompt = `Generate a Lean Viability YAML file based on the following Architectural Scope data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Architectural Scope data. Output only valid YAML.${schemaInstruction}`;
           break;
-        case 'generate-customers-factory':
+        case "generate-customers-factory":
           prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Lean Viability data. Output only valid YAML.${schemaInstruction}`;
           break;
-        case 'generate-policy-charter':
+        case "generate-policy-charter":
           prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Customers Factory data. Output only valid YAML.${schemaInstruction}`;
           break;
         default:
-          return { success: false, message: 'Unknown resource type' };
+          return { success: false, message: "Unknown resource type" };
       }
 
       // Send the generation prompt
@@ -273,38 +432,58 @@ class AIService {
       });
 
       if (result.error) {
-        console.error('Generation prompt error:', result.error);
-        return { success: false, message: `Generation failed: ${result.error}` };
+        console.error("Generation prompt error:", result.error);
+        return {
+          success: false,
+          message: `Generation failed: ${result.error}`,
+        };
       }
 
       // Extract the generated YAML
-      const parts = (result.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
-      const textPart = parts.find(part => part.type === 'text');
-      const generatedYaml = textPart?.text || '';
+      const parts =
+        (result.data as { parts?: Array<{ type: string; text?: string }> })
+          ?.parts || [];
+      const textPart = parts.find((part) => part.type === "text");
+      const generatedYaml = textPart?.text || "";
 
       if (!generatedYaml) {
-        return { success: false, message: 'No content generated' };
+        return { success: false, message: "No content generated" };
       }
 
-      console.log('Generated YAML:', generatedYaml.substring(0, 200) + '...');
+      console.log("Generated YAML:", generatedYaml.substring(0, 200) + "...");
 
       // Validate the YAML can be parsed
       try {
         yaml.load(generatedYaml);
       } catch (error) {
-        console.error('Generated YAML is invalid:', error);
-        return { success: false, message: `Generated YAML is invalid: ${(error as Error).message}` };
+        console.error("Generated YAML is invalid:", error);
+        return {
+          success: false,
+          message: `Generated YAML is invalid: ${(error as Error).message}`,
+        };
       }
 
       // Save the generated content
-      let fileName = '';
+      let fileName = "";
       switch (resourceType) {
-        case 'generate-north-star': fileName = 'north-star.yaml'; break;
-        case 'generate-lean-canvas': fileName = 'lean-canvas.yaml'; break;
-        case 'generate-architectural-scope': fileName = 'architectural-scope.yaml'; break;
-        case 'generate-lean-viability': fileName = 'lean-viability.yaml'; break;
-        case 'generate-customers-factory': fileName = 'aaarr-metrics.yaml'; break;
-        case 'generate-policy-charter': fileName = 'policy-charter.yaml'; break;
+        case "generate-north-star":
+          fileName = "north-star.yaml";
+          break;
+        case "generate-lean-canvas":
+          fileName = "lean-canvas.yaml";
+          break;
+        case "generate-architectural-scope":
+          fileName = "architectural-scope.yaml";
+          break;
+        case "generate-lean-viability":
+          fileName = "lean-viability.yaml";
+          break;
+        case "generate-customers-factory":
+          fileName = "aaarr-metrics.yaml";
+          break;
+        case "generate-policy-charter":
+          fileName = "policy-charter.yaml";
+          break;
       }
 
       const filePath = `src/data/${productName}/${fileName}`;
@@ -312,8 +491,11 @@ class AIService {
 
       return saveResult;
     } catch (error) {
-      console.error('Generate layer error:', error);
-      return { success: false, message: `Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}` };
+      console.error("Generate layer error:", error);
+      return {
+        success: false,
+        message: `Generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      };
     }
   }
 
@@ -323,14 +505,19 @@ class AIService {
     newContent: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      console.log('Attempting to modify file:', resourcePath, 'with content:', newContent);
+      console.log(
+        "Attempting to modify file:",
+        resourcePath,
+        "with content:",
+        newContent
+      );
 
       // For now, since file.write may not be available, let's use a different approach
       // We'll ask the AI to suggest the modification through the session
       if (!this.currentSessionId) {
         return {
           success: false,
-          message: 'No active session for modification'
+          message: "No active session for modification",
         };
       }
 
@@ -346,37 +533,40 @@ class AIService {
         });
 
         if (result.error) {
-          console.error('Modification prompt error:', result.error);
+          console.error("Modification prompt error:", result.error);
           return {
             success: false,
-            message: `Failed to request modification: ${result.error}`
+            message: `Failed to request modification: ${result.error}`,
           };
         }
 
         // Extract the response
-        const parts = (result.data as { parts?: Array<{ type: string; text?: string }> })?.parts || [];
-        const textPart = parts.find(part => part.type === 'text');
-        const responseMessage = textPart?.text || 'Modification request sent';
+        const parts =
+          (result.data as { parts?: Array<{ type: string; text?: string }> })
+            ?.parts || [];
+        const textPart = parts.find((part) => part.type === "text");
+        const responseMessage = textPart?.text || "Modification request sent";
 
         return {
           success: true,
-          message: responseMessage
+          message: responseMessage,
         };
       } catch (error) {
-        console.error('Modification request error:', error);
+        console.error("Modification request error:", error);
         return {
           success: false,
-          message: `Modification request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          message: `Modification request failed: ${error instanceof Error ? error.message : "Unknown error"}`,
         };
       }
     } catch (error) {
-      console.error('File modification error:', error);
+      console.error("File modification error:", error);
       return {
         success: false,
-        message: `File modification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `File modification failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   }
 }
 
 export const aiService = new AIService();
+

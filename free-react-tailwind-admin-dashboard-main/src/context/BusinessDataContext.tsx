@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { processDocLinks } from '../utils/docLinkProcessor';
 
 const API_BASE = 'http://localhost:3001';
@@ -132,6 +132,7 @@ const filenameToKey: Record<string, keyof BusinessData> = {
 
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [productName, setProductName] = useState('blueprint');
+  const productNameRef = useRef(productName);
   const [data, setData] = useState<BusinessData>({
     northStar: null,
     leanCanvas: null,
@@ -146,6 +147,10 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     // Allow any product name
     setProductName(name);
   };
+
+  useEffect(() => {
+    productNameRef.current = productName;
+  }, [productName]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,10 +178,10 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-          if (message.type === 'file_update') {
+          if (message.type === 'file_update' && message.productName === productNameRef.current) {
             const key = filenameToKey[message.filename];
             if (key) {
-              console.log(`Updating ${key} from WebSocket`);
+              console.log(`Updating ${key} from WebSocket for ${message.productName}`);
               const processedData = processObjectDocLinks(message.data);
 
               setData(prev => {

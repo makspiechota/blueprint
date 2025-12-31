@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const { execSync } = require('child_process');
 const WebSocketServer = require('ws');
 const chokidar = require('chokidar');
 
@@ -16,15 +17,12 @@ app.use(express.json());
 // Path to YAML files
 const yamlDir = path.join(process.cwd(), 'src', 'data');
 
-// Path to misc markdown files
-const miscDir = path.join(process.cwd(), 'src', 'data', 'misc');
+// Helper to get misc directory for a product
+const getMiscDir = (productName: string) => path.join(yamlDir, productName, 'misc');
 
 // Ensure directories exist
 if (!fs.existsSync(yamlDir)) {
   fs.mkdirSync(yamlDir, { recursive: true });
-}
-if (!fs.existsSync(miscDir)) {
-  fs.mkdirSync(miscDir, { recursive: true });
 }
 
 // CRUD Routes for YAML files
@@ -74,10 +72,22 @@ app.put('/api/yaml/:productName/:filename', (req, res) => {
       yamlContent = yaml.dump(data);
     }
 
+    // Validate YAML against schema
+    const tempFile = path.join(__dirname, 'temp.yaml');
+    fs.writeFileSync(tempFile, yamlContent, 'utf8');
+    const schemaFile = path.join(__dirname, 'src/schemas', filename);
+    try {
+      execSync(`node validate-yaml.cjs ${tempFile} ${schemaFile}`, { stdio: 'pipe' });
+    } catch (error) {
+      fs.unlinkSync(tempFile);
+      return res.status(400).json({ error: 'YAML validation failed: ' + (error.stderr?.toString() || error.message) });
+    }
+    fs.unlinkSync(tempFile);
+
     fs.writeFileSync(filePath, yamlContent, 'utf8');
 
     // Broadcast the update to all connected WebSocket clients
-    broadcastUpdate(filename, parsedData);
+    broadcastUpdate(filename, parsedData, productName);
 
     res.json({ success: true, message: 'File updated successfully' });
   } catch (error) {
@@ -103,6 +113,19 @@ app.post('/api/yaml/:productName/:filename', (req, res) => {
     }
 
     const yamlContent = yaml.dump(data);
+
+    // Validate YAML against schema
+    const tempFile = path.join(__dirname, 'temp.yaml');
+    fs.writeFileSync(tempFile, yamlContent, 'utf8');
+    const schemaFile = path.join(__dirname, 'src/schemas', filename);
+    try {
+      execSync(`node validate-yaml.cjs ${tempFile} ${schemaFile}`, { stdio: 'pipe' });
+    } catch (error) {
+      fs.unlinkSync(tempFile);
+      return res.status(400).json({ error: 'YAML validation failed: ' + (error.stderr?.toString() || error.message) });
+    }
+    fs.unlinkSync(tempFile);
+
     fs.writeFileSync(filePath, yamlContent, 'utf8');
 
     res.json({ success: true, message: 'File created successfully' });
@@ -157,14 +180,23 @@ app.get('/api/yaml/:productName', (req, res) => {
 // Misc Markdown Files API
 // ==================
 
-// GET /api/misc - List all misc markdown files
-app.get('/api/misc', (req, res) => {
+// GET /api/misc/:productName - List all misc markdown files for a product
+app.get('/api/misc/:productName', (req, res) => {
   try {
+    const { productName } = req.params;
+    const miscDir = getMiscDir(productName);
+
+    // Ensure directory exists
+    if (!fs.existsSync(miscDir)) {
+      fs.mkdirSync(miscDir, { recursive: true });
+      return res.json({ files: [] });
+    }
+
     const files = fs.readdirSync(miscDir)
       .filter(file => file.endsWith('.md'))
       .map(file => ({
         name: file,
-        path: `/api/misc/${encodeURIComponent(file)}`
+        path: `/api/misc/${productName}/${encodeURIComponent(file)}`
       }));
 
     res.json({ files });
@@ -174,10 +206,11 @@ app.get('/api/misc', (req, res) => {
   }
 });
 
-// GET /api/misc/:filename - Read a misc markdown file
-app.get('/api/misc/:filename', (req, res) => {
+// GET /api/misc/:productName/:filename - Read a misc markdown file
+app.get('/api/misc/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
+    const miscDir = getMiscDir(productName);
     const filePath = path.join(miscDir, filename);
 
     // Security: prevent directory traversal
@@ -197,21 +230,27 @@ app.get('/api/misc/:filename', (req, res) => {
   }
 });
 
-// PUT /api/misc/:filename - Update a misc markdown file
-app.put('/api/misc/:filename', (req, res) => {
+// PUT /api/misc/:productName/:filename - Update a misc markdown file
+app.put('/api/misc/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
     const { content } = req.body;
 
     if (content === undefined) {
       return res.status(400).json({ error: 'Content is required' });
     }
 
+    const miscDir = getMiscDir(productName);
     const filePath = path.join(miscDir, filename);
 
     // Security: prevent directory traversal
     if (!filePath.startsWith(miscDir)) {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(miscDir)) {
+      fs.mkdirSync(miscDir, { recursive: true });
     }
 
     fs.writeFileSync(filePath, content, 'utf8');
@@ -222,21 +261,27 @@ app.put('/api/misc/:filename', (req, res) => {
   }
 });
 
-// POST /api/misc/:filename - Create a new misc markdown file
-app.post('/api/misc/:filename', (req, res) => {
+// POST /api/misc/:productName/:filename - Create a new misc markdown file
+app.post('/api/misc/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
     const { content } = req.body;
 
     if (!filename.endsWith('.md')) {
       return res.status(400).json({ error: 'Filename must end with .md' });
     }
 
+    const miscDir = getMiscDir(productName);
     const filePath = path.join(miscDir, filename);
 
     // Security: prevent directory traversal
     if (!filePath.startsWith(miscDir)) {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(miscDir)) {
+      fs.mkdirSync(miscDir, { recursive: true });
     }
 
     if (fs.existsSync(filePath)) {
@@ -251,10 +296,11 @@ app.post('/api/misc/:filename', (req, res) => {
   }
 });
 
-// DELETE /api/misc/:filename - Delete a misc markdown file
-app.delete('/api/misc/:filename', (req, res) => {
+// DELETE /api/misc/:productName/:filename - Delete a misc markdown file
+app.delete('/api/misc/:productName/:filename', (req, res) => {
   try {
-    const { filename } = req.params;
+    const { productName, filename } = req.params;
+    const miscDir = getMiscDir(productName);
     const filePath = path.join(miscDir, filename);
 
     // Security: prevent directory traversal
@@ -470,16 +516,17 @@ wss.on('connection', (ws) => {
 });
 
 // Function to broadcast updates to all connected clients
-const broadcastUpdate = (filename, data) => {
+const broadcastUpdate = (filename, data, productName) => {
   const message = JSON.stringify({
     type: 'file_update',
     filename,
     data,
+    productName,
     timestamp: new Date().toISOString()
   });
 
   clients.forEach((client: any) => {
-    if (client.readyState === 1) { // OPEN state
+    if (client.readyState === 1) {
       client.send(message);
     }
   });
@@ -512,14 +559,17 @@ const watcher = chokidar.watch(yamlDir, {
 watcher.on('change', (filePath) => {
   try {
     const filename = path.basename(filePath);
+    const relativePath = path.relative(yamlDir, filePath);
+    const parts = relativePath.split(path.sep);
+    const productName = parts[0];
 
     // Handle YAML files
     if (filename.endsWith('.yaml') || filename.endsWith('.yml')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = yaml.load(fileContent);
 
-      console.log(`File ${filename} changed externally, broadcasting update`);
-      broadcastUpdate(filename, data);
+      console.log(`File ${filename} changed externally for ${productName}, broadcasting update`);
+      broadcastUpdate(filename, data, productName);
     }
 
     // Handle LikeC4 files
@@ -542,14 +592,17 @@ watcher.on('change', (filePath) => {
 watcher.on('add', (filePath) => {
   try {
     const filename = path.basename(filePath);
+    const relativePath = path.relative(yamlDir, filePath);
+    const parts = relativePath.split(path.sep);
+    const productName = parts[0];
 
     // Handle YAML files
     if (filename.endsWith('.yaml') || filename.endsWith('.yml')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
       const data = yaml.load(fileContent);
 
-      console.log(`File ${filename} added, broadcasting update`);
-      broadcastUpdate(filename, data);
+      console.log(`File ${filename} added for ${productName}, broadcasting update`);
+      broadcastUpdate(filename, data, productName);
     }
 
     // Handle LikeC4 files

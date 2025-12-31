@@ -34,6 +34,7 @@ const LayerWrapper: React.FC<LayerWrapperProps> = ({
         description={description}
         resourceType={resourceType}
         resourceData={{ ...dependencyData, productName }}
+        showBusinessDescription={layerKey === 'northStar'}
       />
     );
   }

@@ -43,9 +43,10 @@ interface ArchitecturalScopeData {
 
 interface ArchitecturalScopeVisualizerProps {
   data: ArchitecturalScopeData;
+  productName?: string;
 }
 
-const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> = ({ data }) => {
+const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> = ({ data, productName = 'blueprint' }) => {
   const { openChat } = useChat();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
@@ -72,7 +73,7 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
       // Convert HTML links back to [[doc-name]] syntax before saving
       const cleanedData = unprocessObjectDocLinks(updatedData);
       const yamlContent = yaml.dump(cleanedData);
-      const result = await aiService.saveFileContent('src/data/architectural-scope.yaml', yamlContent);
+      const result = await aiService.saveFileContent(`src/data/${productName}/architectural-scope.yaml`, yamlContent);
 
       if (result.success) {
         setEditingSection(null);

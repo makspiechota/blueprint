@@ -26,7 +26,7 @@ export default function ArchitecturalScope() {
         resourceType="generate-architectural-scope"
         dependencies={['leanCanvas']}
       >
-        <ArchitecturalScopeVisualizer data={architecturalScope} />
+        <ArchitecturalScopeVisualizer data={architecturalScope} productName={productName} />
       </LayerWrapper>
     </>
   );

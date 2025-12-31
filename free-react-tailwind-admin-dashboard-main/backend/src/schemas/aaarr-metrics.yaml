@@ -11,32 +11,62 @@ stages:
       - id: string
         name: string
         description: string
-        target: {}
+        target:
+          rate?: number
+          period?: string
+          percentage?: number
+          count?: number
+          amount?: number
+          currency?: string
   activation:
     stage_goal: string
     metrics:
       - id: string
         name: string
         description: string
-        target: {}
+        target:
+          rate?: number
+          period?: string
+          percentage?: number
+          count?: number
+          amount?: number
+          currency?: string
   retention:
     stage_goal: string
     metrics:
       - id: string
         name: string
         description: string
-        target: {}
+        target:
+          rate?: number
+          period?: string
+          percentage?: number
+          count?: number
+          amount?: number
+          currency?: string
   referral:
     stage_goal: string
     metrics:
       - id: string
         name: string
         description: string
-        target: {}
+        target:
+          rate?: number
+          period?: string
+          percentage?: number
+          count?: number
+          amount?: number
+          currency?: string
   revenue:
     stage_goal: string
     metrics:
       - id: string
         name: string
         description: string
-        target: {}
+        target:
+          rate?: number
+          period?: string
+          percentage?: number
+          count?: number
+          amount?: number
+          currency?: string

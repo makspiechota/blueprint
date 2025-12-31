@@ -33,7 +33,5 @@ key_metrics:
     amount: number
     currency: string
     timeframe: string
-  activities_to_measure:
-    - string
 unfair_advantage:
   cant_be_copied: string

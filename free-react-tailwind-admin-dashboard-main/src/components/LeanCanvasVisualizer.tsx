@@ -171,18 +171,21 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, pro
                 disabled={isSaving}
               />
             ) : (
-             <div className="text-gray-600 dark:text-gray-300">
-               {canvas.problem?.top_3_problems && (
-                 <ul className="list-disc list-inside mb-3">
-                   {canvas.problem.top_3_problems.map((item, idx) => <li key={idx}>{item}</li>)}
-                 </ul>
-               )}
-                {canvas.problem?.existing_alternatives && (
-                  <div className="prose prose-sm max-w-none">
-                    <span dangerouslySetInnerHTML={{ __html: canvas.problem.existing_alternatives }} />
-                  </div>
+              <div className="text-gray-600 dark:text-gray-300">
+                {canvas.problem?.top_3_problems && (
+                  <ul className="list-disc list-inside mb-3">
+                    {canvas.problem.top_3_problems.map((item, idx) => <li key={idx}>{item}</li>)}
+                  </ul>
                 )}
-             </div>
+                 {canvas.problem?.existing_alternatives && (
+                   <div>
+                     <strong>Existing Alternatives:</strong>
+                     <div className="prose prose-sm max-w-none mt-1">
+                       <span dangerouslySetInnerHTML={{ __html: canvas.problem.existing_alternatives }} />
+                     </div>
+                   </div>
+                 )}
+              </div>
            )}
          </div>
 
@@ -290,18 +293,24 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, pro
                disabled={isSaving}
              />
            ) : (
-             <div className="text-gray-600 dark:text-gray-300">
-                {canvas.unique_value_proposition?.single_clear_message && (
-                  <div className="font-semibold mb-2 prose prose-sm max-w-none">
-                    <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.single_clear_message }} />
-                  </div>
-                )}
-                {canvas.unique_value_proposition?.high_level_concept && (
-                  <div className="prose prose-sm max-w-none">
-                    <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.high_level_concept }} />
-                  </div>
-                )}
-             </div>
+              <div className="text-gray-600 dark:text-gray-300">
+                 {canvas.unique_value_proposition?.single_clear_message && (
+                   <div className="mb-2">
+                     <strong>Single Clear Message:</strong>
+                     <div className="prose prose-sm max-w-none mt-1">
+                       <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.single_clear_message }} />
+                     </div>
+                   </div>
+                 )}
+                 {canvas.unique_value_proposition?.high_level_concept && (
+                   <div>
+                     <strong>High Level Concept:</strong>
+                     <div className="prose prose-sm max-w-none mt-1">
+                       <span dangerouslySetInnerHTML={{ __html: canvas.unique_value_proposition.high_level_concept }} />
+                     </div>
+                   </div>
+                 )}
+              </div>
            )}
         </div>
 
