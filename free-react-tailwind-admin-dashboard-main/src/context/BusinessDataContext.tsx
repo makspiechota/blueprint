@@ -13,6 +13,7 @@ interface BusinessData {
   aaarrMetrics?: any;
   policyCharter?: any;
   roadmap?: any;
+  reloadRoadmap?: () => Promise<void>;
 }
 
 const BusinessDataContext = createContext<BusinessData>({
@@ -25,6 +26,7 @@ const BusinessDataContext = createContext<BusinessData>({
   aaarrMetrics: null,
   policyCharter: null,
   roadmap: null,
+  reloadRoadmap: async () => {},
 });
 
 export const useBusinessData = () => {
@@ -155,6 +157,18 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setProductName(name);
   };
 
+  const reloadRoadmap = async () => {
+    try {
+      const roadmapRes = await fetch(`${API_BASE}/api/roadmap/${productNameRef.current}`);
+      if (roadmapRes.ok) {
+        const roadmap = (await roadmapRes.json()).data;
+        setData(prev => ({ ...prev, roadmap }));
+      }
+    } catch (error) {
+      console.error('Failed to reload roadmap:', error);
+    }
+  };
+
   useEffect(() => {
     productNameRef.current = productName;
   }, [productName]);
@@ -163,7 +177,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const fetchData = async () => {
       setLoading(true);
       const loadedData = await loadData(productName);
-      setData({ ...loadedData, productName, setProductName: setProductNameSafe });
+      setData({ ...loadedData, productName, setProductName: setProductNameSafe, reloadRoadmap });
       setLoading(false);
     };
 

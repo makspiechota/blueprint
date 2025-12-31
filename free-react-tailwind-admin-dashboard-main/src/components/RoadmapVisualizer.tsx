@@ -221,8 +221,8 @@ const TreeNode: React.FC<{
 
 const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
   const { openChat } = useChat();
-  const { productName } = useBusinessData();
-  const [viewMode, setViewMode] = useState<ViewMode>('graph');
+  const { productName, reloadRoadmap } = useBusinessData();
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedListItem, setSelectedListItem] = useState<TreeItem | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['roadmap-root']));
@@ -856,6 +856,11 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
         throw new Error('Failed to save roadmap');
       }
 
+      // Reload roadmap data to refresh the UI
+      if (reloadRoadmap) {
+        await reloadRoadmap();
+      }
+
       alert('Roadmap saved successfully!');
     } catch (error) {
       console.error('Error saving roadmap:', error);
@@ -879,19 +884,6 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
           <button
-            onClick={() => setViewMode('graph')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              viewMode === 'graph'
-                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-            Graph
-          </button>
-          <button
             onClick={() => setViewMode('list')}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewMode === 'list'
@@ -903,6 +895,19 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
             List
+          </button>
+          <button
+            onClick={() => setViewMode('graph')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === 'graph'
+                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            Graph
           </button>
         </div>
         <button
