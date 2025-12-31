@@ -60,6 +60,11 @@ const baseNavItems: NavItem[] = [
     name: "Misc",
     path: "/misc",
   },
+  {
+    icon: <ListIcon />,
+    name: "Roadmap",
+    path: "/roadmap",
+  },
 ];
 
 const baseSoftwareLayerItems: NavItem[] = [

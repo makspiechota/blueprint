@@ -1,0 +1,25 @@
+type: user-story
+id: create-lean-canvas
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Create Lean Canvas
+description: |
+  As a product manager,
+  I want to create a lean canvas blueprint through the web interface,
+  So that I can document my business model in a structured, AI-readable format.
+status: in_progress
+story_points: 8
+tasks:
+  - id: implement-lean-canvas-form
+    name: Implement Lean Canvas Form Component
+    path: ./implement-lean-canvas-form.yaml
+  - id: add-validation-schema
+    name: Add JSON Schema Validation
+    path: ./add-validation-schema.yaml
+  - id: create-api-endpoint
+    name: Create Save API Endpoint
+    path: ./create-api-endpoint.yaml
+  - id: write-integration-tests
+    name: Write Integration Tests
+    path: ./write-integration-tests.yaml

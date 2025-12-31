@@ -11,6 +11,7 @@ import LeanViability from "./pages/BusinessLayers/LeanViability";
 import CustomersFactory from "./pages/BusinessLayers/CustomersFactory";
 import PolicyCharter from "./pages/BusinessLayers/PolicyCharter";
 import Misc from "./pages/BusinessLayers/Misc";
+import Roadmap from "./pages/BusinessLayers/Roadmap";
 import C4 from "./pages/SoftwareLayers/C4";
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/:productName/customer-factory" element={<CustomersFactory />} />
             <Route path="/:productName/policy-charter" element={<PolicyCharter />} />
             <Route path="/:productName/misc" element={<Misc />} />
+            <Route path="/:productName/roadmap" element={<Roadmap />} />
             {/* Software Layers */}
             <Route path="/:productName/c4" element={<C4 />} />
           </Route>

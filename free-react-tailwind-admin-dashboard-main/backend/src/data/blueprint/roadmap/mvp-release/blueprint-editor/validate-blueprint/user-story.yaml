@@ -1,0 +1,10 @@
+type: user-story
+id: validate-blueprint
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Validate Blueprint
+description: As a developer, I want to validate blueprint syntax and references
+status: planned
+story_points: 8
+tasks: []

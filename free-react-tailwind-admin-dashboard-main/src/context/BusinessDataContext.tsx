@@ -12,6 +12,7 @@ interface BusinessData {
   leanViability?: any;
   aaarrMetrics?: any;
   policyCharter?: any;
+  roadmap?: any;
 }
 
 const BusinessDataContext = createContext<BusinessData>({
@@ -23,6 +24,7 @@ const BusinessDataContext = createContext<BusinessData>({
   leanViability: null,
   aaarrMetrics: null,
   policyCharter: null,
+  roadmap: null,
 });
 
 export const useBusinessData = () => {
@@ -78,13 +80,14 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
 
 const loadData = async (productName: string) => {
   try {
-    const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes] = await Promise.all([
+    const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes] = await Promise.all([
       fetch(`${API_BASE}/api/yaml/${productName}/north-star.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/lean-canvas.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/architectural-scope.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/lean-viability.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/aaarr-metrics.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/policy-charter.yaml`),
+      fetch(`${API_BASE}/api/roadmap/${productName}`),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
@@ -93,6 +96,7 @@ const loadData = async (productName: string) => {
     const leanViability = leanViabilityRes.ok ? processObjectDocLinks((await leanViabilityRes.json()).data) : null;
     const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
     const policyCharterRaw = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
+    const roadmap = roadmapRes.ok ? (await roadmapRes.json()).data : null;
 
     // Merge goals from architectural-scope into policy-charter
     const policyCharter = mergeGoalsIntoPolicyCharter(architecturalScope, policyCharterRaw);
@@ -104,6 +108,7 @@ const loadData = async (productName: string) => {
       leanViability,
       aaarrMetrics,
       policyCharter,
+      roadmap,
     };
   } catch (error) {
     console.error('Failed to load data from backend:', error);
@@ -114,6 +119,7 @@ const loadData = async (productName: string) => {
       leanViability: null,
       aaarrMetrics: null,
       policyCharter: null,
+      roadmap: null,
     };
   }
 };
@@ -140,6 +146,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     leanViability: null,
     aaarrMetrics: null,
     policyCharter: null,
+    roadmap: null,
   });
   const [loading, setLoading] = useState(true);
 

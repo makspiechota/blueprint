@@ -1,0 +1,37 @@
+type: roadmap
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+title: Blueprint Product Roadmap
+description: >
+  Strategic roadmap for the Blueprint SaaS platform development.
+
+  This roadmap defines epics, features, user stories, and AI-executable tasks
+
+  in a hierarchical structure optimized for both human planning and AI
+  execution.
+epics:
+  - id: mvp-release
+    name: MVP Release
+    description: |
+      Core functionality required for initial market launch.
+      This epic encompasses all essential features needed to deliver
+      a minimum viable product to early adopters.
+    status: in_progress
+    target_quarter: Q1-2026
+    path: ./mvp-release/epic.yaml
+  - id: enterprise-features
+    name: Enterprise Features
+    description: |
+      Advanced capabilities designed for enterprise customers.
+      Includes team collaboration, SSO, audit logging, and
+      advanced access control features.
+    status: planned
+    target_quarter: Q2-2026
+    path: ./enterprise-features/epic.yaml
+  - id: ai-integration
+    name: AI Integration Enhancements
+    description: Deep AI agent integration and automation features
+    status: planned
+    target_quarter: Q3-2026
+    path: ./ai-integration/epic.yaml
