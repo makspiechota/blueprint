@@ -53,6 +53,11 @@ const ChatModal: React.FC<ChatModalProps> = ({
       const fileName = resourceType.split(':')[1] || 'blueprint.likec4';
       return `src/data/${productName}/c4/${fileName}`;
     }
+    if (resourceType.startsWith('misc-')) {
+      // Extract filename from resourceType like "misc-north-star.md"
+      const fileName = resourceType.replace('misc-', '');
+      return `src/data/misc/${fileName}`;
+    }
     // Default fallback
     return `src/data/${productName}/${resourceType}.yaml`;
   };

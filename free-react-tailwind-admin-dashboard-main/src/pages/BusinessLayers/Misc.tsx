@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import MDEditor from '@uiw/react-md-editor';
 import { useBusinessData } from '../../context/BusinessDataContext';
 import { aiService } from '../../services/aiService';
+import ChatButton from '../../components/ChatButton';
+import { useChat } from '../../context/ChatContext';
 
 const API_BASE = 'http://localhost:3001';
 
@@ -16,6 +18,7 @@ const Misc: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { productName: urlProductName } = useParams<{ productName: string }>();
   const { setProductName } = useBusinessData();
+  const { openChat } = useChat();
   const safeProductName = urlProductName || 'blueprint';
 
   // Sync URL productName with context
@@ -136,6 +139,11 @@ const Misc: React.FC = () => {
     }
   };
 
+  // Handle chat click for misc documents
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
   // Handle URL parameter for direct file access
   useEffect(() => {
     const file = searchParams.get('file');
@@ -245,23 +253,29 @@ const Misc: React.FC = () => {
               </button>
               <h2 className="text-lg font-semibold dark:text-white">{selectedFile}</h2>
             </div>
-            <div className="flex items-center gap-2">
-              {editMode && (
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
-                >
-                  {saving ? 'Saving...' : 'Save'}
-                </button>
-              )}
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                {editMode ? 'Cancel' : 'Edit'}
-              </button>
-            </div>
+             <div className="flex items-center gap-2">
+               {editMode && (
+                 <button
+                   onClick={handleSave}
+                   disabled={saving}
+                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+                 >
+                   {saving ? 'Saving...' : 'Save'}
+                 </button>
+               )}
+               <ChatButton
+                 resourceType={`misc-${selectedFile?.replace('.md', '')}`}
+                 resourceData={{ title: selectedFile || 'Misc Document', content }}
+                 onClick={handleChatClick}
+                 className="!relative !top-0 !right-0"
+               />
+               <button
+                 onClick={() => setEditMode(!editMode)}
+                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+               >
+                 {editMode ? 'Cancel' : 'Edit'}
+               </button>
+             </div>
           </div>
           <div className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 overflow-auto">
             {loading ? (

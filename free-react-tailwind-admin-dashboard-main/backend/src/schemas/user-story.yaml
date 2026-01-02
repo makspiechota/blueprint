@@ -1,0 +1,13 @@
+type: user-story
+id: string
+productName: string
+version: string
+last_updated: string
+name: string
+description: string
+status: string
+story_points: number
+tasks:
+  - id: string
+    name: string
+    path: string

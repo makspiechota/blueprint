@@ -541,7 +541,7 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, pro
               <div className="text-gray-600 dark:text-gray-300">
                 {canvas.channels?.path_to_customers && (
                   <ul className="list-disc list-inside">
-                    {canvas.channels.path_to_customers.map((item, idx) => <li key={idx}>{item}</li>)}
+                    {canvas.channels.path_to_customers.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{ __html: item }} />)}
                   </ul>
                 )}
               </div>

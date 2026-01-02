@@ -45,17 +45,25 @@ class AIService {
         throw new Error("Failed to create session");
       }
 
-      this.currentSessionId = session.data.id.startsWith("ses-")
+      this.currentSessionId = session.data.id.startsWith("ses-") || session.data.id.startsWith("ses_")
         ? session.data.id
         : "ses-" + session.data.id;
       console.log("Created OpenCode session:", this.currentSessionId);
 
       // Use provided blueprint data if available, otherwise try to read file
       if (blueprintData) {
-        this.blueprintContent =
-          typeof blueprintData === "string"
-            ? blueprintData
-            : JSON.stringify(blueprintData, null, 2);
+        const content = typeof blueprintData === "string"
+          ? blueprintData
+          : JSON.stringify(blueprintData, null, 2);
+
+        // For misc documents, provide more specific instructions
+        if (resourcePath.startsWith("src/data/misc/")) {
+          const filename = resourcePath.split("/").pop() || "document";
+          this.blueprintContent = `You are discussing and editing ONLY the document at: ${resourcePath}\n\nThis is a markdown document (${filename}) containing business strategy or documentation. You should:\n- Discuss the content of this document\n- Suggest modifications to improve or update this document\n- Help refine the ideas and content within this document\n- NOT implement any systems or code elsewhere\n- NOT create new files or projects\n- Focus only on discussing and improving this specific document\n\nDocument content:\n${content}`;
+        } else {
+          this.blueprintContent = content;
+        }
+
         console.log(
           "Using provided blueprint data, length:",
           this.blueprintContent.length
@@ -70,21 +78,23 @@ class AIService {
 
           console.log("File read response:", content);
 
-          if (!content.error && content.data?.content) {
-            const parts = resourcePath.split("/");
-            const prodName = parts[2]; // src/data/prodName/filename
-            this.blueprintContent = `You are discussing and editing the file for the ${prodName} product: ${resourcePath}\n\n${content.data.content}`;
-            console.log(
-              "Loaded blueprint content for session, length:",
-              this.blueprintContent.length
-            );
-          } else {
-            this.blueprintContent = null;
-            console.warn(
-              "Failed to load blueprint content, error:",
-              content.error
-            );
-          }
+           if (!content.error && content.data?.content) {
+             const parts = resourcePath.split("/");
+             const prodName = parts[2]; // src/data/prodName/filename
+
+             // For misc documents, provide more specific instructions
+             if (resourcePath.startsWith("src/data/misc/")) {
+               const filename = parts[parts.length - 1];
+               this.blueprintContent = `You are discussing and editing ONLY the document at: ${resourcePath}\n\nThis is a markdown document (${filename}) containing business strategy or documentation. You should:\n- Discuss the content of this document\n- Suggest modifications to improve or update this document\n- Help refine the ideas and content within this document\n- NOT implement any systems or code elsewhere\n- NOT create new files or projects\n- Focus only on discussing and improving this specific document\n\nDocument content:\n${content.data.content}`;
+             } else {
+               this.blueprintContent = `You are discussing and editing the file for the ${prodName} product: ${resourcePath}\n\n${content.data.content}`;
+             }
+
+             console.log(
+               "Loaded blueprint content for session, length:",
+               this.blueprintContent.length
+             );
+           }
         } catch (fileError) {
           console.warn("File read failed, using empty context:", fileError);
           this.blueprintContent = null;
@@ -144,7 +154,7 @@ class AIService {
               },
             });
             if (newSession.data?.id) {
-              this.currentSessionId = newSession.data.id.startsWith("ses-")
+              this.currentSessionId = newSession.data.id.startsWith("ses-") || newSession.data.id.startsWith("ses_")
                 ? newSession.data.id
                 : "ses-" + newSession.data.id;
               console.log("Recreated session:", this.currentSessionId);

@@ -8,7 +8,7 @@ description: |
   As a product manager,
   I want to create a lean canvas blueprint through the web interface,
   So that I can document my business model in a structured, AI-readable format.
-status: in_progress
+status: completed
 story_points: 8
 tasks:
   - id: implement-lean-canvas-form
