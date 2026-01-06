@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
@@ -140,7 +141,10 @@ const ArchitecturalScopeVisualizer: React.FC<ArchitecturalScopeVisualizerProps> 
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{data.title || 'Architectural Scope'}</h1>
-        <span className="text-sm text-gray-500 dark:text-gray-400">5W Solution Architecture</span>
+        <div className="flex items-center gap-2">
+          <DownloadButton data={data} filename={`architectural-scope-${productName}.yaml`} />
+          <span className="text-sm text-gray-500 dark:text-gray-400">5W Solution Architecture</span>
+        </div>
       </div>
 
       {/* WHY - Mission & Goals (Featured at top) */}

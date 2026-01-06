@@ -1,7 +1,89 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { useChat } from '../context/ChatContext';
 import { ChatIcon } from '../icons';
+import DownloadButton from './DownloadButton';
+
+// Import LikeC4 diagram components with model provider
+import { LikeC4Diagram, LikeC4ModelProvider } from '@likec4/diagram';
+import { LikeC4Model } from '@likec4/core/model';
+import { createRoot } from 'react-dom/client';
+
+// @ts-ignore - CSS import for shadow DOM injection
+import likec4Styles from '@likec4/diagram/styles.css?inline';
+
+// WeakMap to track roots by container element - persists across React Strict Mode remounts
+const rootsMap = new WeakMap<HTMLElement, ReturnType<typeof createRoot>>();
+
+// Shadow DOM wrapper to isolate LikeC4 styles from the rest of the app
+interface ShadowDiagramProps {
+  view: any;
+  layoutedModel: any;
+  onNavigateTo: (viewId: string) => void;
+}
+
+const ShadowDiagram: React.FC<ShadowDiagramProps> = ({ view, layoutedModel, onNavigateTo }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mountPointRef = useRef<HTMLDivElement | null>(null);
+
+  // Initialize shadow DOM and render
+  useEffect(() => {
+    if (!containerRef.current || !view || !layoutedModel) return;
+
+    // Create shadow root if it doesn't exist
+    let shadowRoot = containerRef.current.shadowRoot;
+    if (!shadowRoot) {
+      shadowRoot = containerRef.current.attachShadow({ mode: 'open' });
+
+      // Inject styles into shadow DOM
+      const styleEl = document.createElement('style');
+      styleEl.textContent = likec4Styles;
+      shadowRoot.appendChild(styleEl);
+
+      // Create mount point
+      const mountPoint = document.createElement('div');
+      mountPoint.style.width = '100%';
+      mountPoint.style.height = '100%';
+      shadowRoot.appendChild(mountPoint);
+      mountPointRef.current = mountPoint;
+    } else {
+      // Shadow root exists, find the mount point
+      const existingMountPoint = shadowRoot.querySelector('div');
+      if (existingMountPoint) {
+        mountPointRef.current = existingMountPoint as HTMLDivElement;
+      }
+    }
+
+    if (!mountPointRef.current) return;
+
+    // Get or create root using WeakMap to avoid duplicate createRoot calls
+    let root = rootsMap.get(mountPointRef.current);
+    if (!root) {
+      root = createRoot(mountPointRef.current);
+      rootsMap.set(mountPointRef.current, root);
+    }
+
+    // Render the diagram with model provider
+    root.render(
+      <LikeC4ModelProvider likec4model={layoutedModel}>
+        <LikeC4Diagram
+          view={view}
+          pannable
+          zoomable
+          controls
+          fitView
+          onNavigateTo={onNavigateTo}
+        />
+      </LikeC4ModelProvider>
+    );
+
+    return () => {
+      // Don't unmount - let WeakMap manage it
+    };
+  }, [view, layoutedModel, onNavigateTo]);
+
+  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+};
 
 const API_BASE = 'http://localhost:3001';
 const WS_URL = 'ws://localhost:8080';
@@ -9,6 +91,12 @@ const WS_URL = 'ws://localhost:8080';
 interface C4File {
   name: string;
   content: string;
+}
+
+interface ViewInfo {
+  id: string;
+  title: string;
+  description?: string;
 }
 
 const C4Visualizer: React.FC = () => {
@@ -23,6 +111,25 @@ const C4Visualizer: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // LikeC4 views state
+  const [viewsData, setViewsData] = useState<Record<string, any>>({});
+  const [modelData, setModelData] = useState<any>(null);
+  const [viewsList, setViewsList] = useState<ViewInfo[]>([]);
+  const [selectedViewId, setSelectedViewId] = useState<string>('index');
+  const [modelError, setModelError] = useState<string | null>(null);
+  const [modelLoading, setModelLoading] = useState(false);
+
+  // Create the layouted model from model data
+  const layoutedModel = useMemo(() => {
+    if (!modelData) return null;
+    try {
+      return LikeC4Model.create(modelData);
+    } catch (err) {
+      console.error('Error creating layouted model:', err);
+      return null;
+    }
+  }, [modelData]);
 
   const handleChatClick = () => {
     const safeProductName = productName || 'blueprint';
@@ -54,6 +161,53 @@ const C4Visualizer: React.FC = () => {
     return () => document.body.classList.remove('c4-fullscreen');
   }, [isFullscreen]);
 
+  // Fetch layouted views from backend
+  const fetchModel = useCallback(async () => {
+    const safeProductName = productName || 'blueprint';
+    try {
+      setModelLoading(true);
+      setModelError(null);
+
+      const response = await fetch(`${API_BASE}/api/c4-model/${safeProductName}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch C4 model');
+      }
+
+      const data = await response.json();
+      if (data.success && data.modelData) {
+        // Store views data for rendering
+        setViewsData(data.modelData.views || {});
+
+        // Store the full model $data for LikeC4Model.create()
+        setModelData(data.modelData);
+
+        // Extract views list for the selector
+        const views = data.modelData.views || {};
+        const list = Object.entries(views).map(([id, view]: [string, any]) => ({
+          id,
+          title: view.title || id,
+          description: view.description
+        }));
+        setViewsList(list);
+
+        // Select first view if current selection is invalid
+        if (list.length > 0 && !list.find(v => v.id === selectedViewId)) {
+          setSelectedViewId(list[0].id);
+        }
+
+        if (data.errors && data.errors.length > 0) {
+          console.warn('C4 model has validation warnings:', data.errors);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching C4 model:', err);
+      setModelError(err instanceof Error ? err.message : 'Failed to load C4 model');
+    } finally {
+      setModelLoading(false);
+    }
+  }, [productName, selectedViewId]);
+
   // Fetch list of C4 files
   useEffect(() => {
     const fetchFiles = async () => {
@@ -78,6 +232,11 @@ const C4Visualizer: React.FC = () => {
     };
     fetchFiles();
   }, [productName]);
+
+  // Fetch model when product changes
+  useEffect(() => {
+    fetchModel();
+  }, [fetchModel]);
 
   // Refs for WebSocket to avoid stale closures
   const selectedFileRef = useRef(selectedFile);
@@ -129,6 +288,9 @@ const C4Visualizer: React.FC = () => {
               setContent(message.content);
               setEditedContent(message.content);
             }
+
+            // Refresh the layouted model
+            fetchModel();
           }
 
           // Handle C4 file deletions
@@ -142,6 +304,9 @@ const C4Visualizer: React.FC = () => {
               setContent('');
               setEditedContent('');
             }
+
+            // Refresh the layouted model
+            fetchModel();
           }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
@@ -166,7 +331,7 @@ const C4Visualizer: React.FC = () => {
         ws.close();
       }
     };
-  }, [productName]);
+  }, [productName, fetchModel]);
 
   const handleFileSelect = async (fileName: string) => {
     try {
@@ -199,6 +364,9 @@ const C4Visualizer: React.FC = () => {
       setContent(editedContent);
       setIsEditing(false);
       setError(null);
+
+      // Refresh the model after saving
+      await fetchModel();
     } catch (err) {
       setError('Failed to save file');
       console.error('Error saving file:', err);
@@ -224,7 +392,8 @@ const C4Visualizer: React.FC = () => {
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold dark:text-white">C4 Architecture Model</h1>
+          <h1 className="text-2xl font-bold dark:text-white">AI-Generated Architecture based on the BLUEPRINT's higher layers</h1>
+          <DownloadButton data={{ content }} filename={`c4-${selectedFile || 'diagram'}-${productName}.yaml`} />
           {files.length > 1 && (
             <select
               value={selectedFile || ''}
@@ -234,6 +403,19 @@ const C4Visualizer: React.FC = () => {
               {files.map((file) => (
                 <option key={file.name} value={file.name}>
                   {file.name}
+                </option>
+              ))}
+            </select>
+          )}
+          {viewsList.length > 0 && (
+            <select
+              value={selectedViewId}
+              onChange={(e) => setSelectedViewId(e.target.value)}
+              className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-white"
+            >
+              {viewsList.map((view) => (
+                <option key={view.id} value={view.id}>
+                  {view.title}
                 </option>
               ))}
             </select>
@@ -293,8 +475,8 @@ const C4Visualizer: React.FC = () => {
 
       {/* Main Content - Split Screen */}
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Left: Code Editor */}
-        <div className="w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0">
+        {/* Left: Code Editor - Hidden for now */}
+        <div className="w-0 flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0 overflow-hidden">
           <div className="flex-shrink-0 p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
               {selectedFile || 'No file selected'} - LikeC4 DSL
@@ -318,56 +500,81 @@ const C4Visualizer: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Preview Panel */}
-        <div className="w-1/2 flex flex-col min-h-0">
+        {/* Right: LikeC4 Diagram Panel */}
+        <div className="w-full flex flex-col min-h-0">
           <div className="flex-shrink-0 p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              Live Preview (LikeC4 Server)
+              Architecture Diagrams {selectedViewId && `- ${viewsList.find(v => v.id === selectedViewId)?.title || selectedViewId}`}
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Run: <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">npx likec4 start ./backend/src/data/blueprint/c4 --port 4000</code>
-              </span>
               <button
-                onClick={() => window.open('http://localhost:4000', '_blank')}
-                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => fetchModel()}
+                disabled={modelLoading}
+                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
               >
-                Open in New Tab
+                {modelLoading ? 'Refreshing...' : 'Refresh'}
               </button>
             </div>
           </div>
-          <div className="flex-1 bg-white dark:bg-gray-800 relative min-h-0">
-            <iframe
-              src="http://localhost:4000"
-              className="absolute inset-0 w-full h-full border-0"
-              title="LikeC4 Preview"
-              onError={() => console.log('LikeC4 server not running')}
-            />
-            {/* Fallback message if iframe doesn't load */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 pointer-events-none opacity-0 hover:opacity-0" id="iframe-fallback">
-              <div className="text-center p-8 pointer-events-auto">
-                <div className="text-6xl mb-4">📊</div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  LikeC4 Server Not Running
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Start the LikeC4 dev server to see the live diagram preview:
-                </p>
-                <code className="block p-3 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-200 mb-4">
-                  npx likec4 start ./backend/src/data/blueprint/c4 --port 4000
-                </code>
-                <div className="flex gap-2 justify-center">
+          <div className="flex-1 bg-white dark:bg-gray-800 relative min-h-0 overflow-hidden">
+            {modelLoading && Object.keys(viewsData).length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400">Loading C4 model...</p>
+                </div>
+              </div>
+            ) : modelError ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center p-8 max-w-md">
+                  <div className="text-6xl mb-4">⚠️</div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    Failed to Load C4 Model
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {modelError}
+                  </p>
+                  <button
+                    onClick={() => fetchModel()}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            ) : layoutedModel && viewsData[selectedViewId] ? (
+               <div className="absolute inset-0">
+                 <ShadowDiagram
+                   view={viewsData[selectedViewId]}
+                   layoutedModel={layoutedModel}
+                   onNavigateTo={(viewId: string) => {
+                     if (viewsData[viewId]) {
+                       setSelectedViewId(viewId);
+                     }
+                   }}
+                 />
+               </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div className="text-6xl mb-4">📊</div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    No C4 Model Found
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Create a .likec4 file in the {productName || 'blueprint'}/c4 directory to get started.
+                  </p>
                   <a
-                    href="https://likec4.dev/playground/"
+                    href="https://likec4.dev/docs/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm inline-block"
                   >
-                    Use Online Playground Instead
+                    View LikeC4 Documentation
                   </a>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

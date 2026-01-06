@@ -1,0 +1,45 @@
+type: epic
+id: new-1767354443570
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-06'
+name: Strategic Domain Driven Design Layers
+status: planned
+features:
+  - id: new-1767354451091
+    name: Subdomains
+    description: >-
+      1. AI-Generated Business'es Subdomains based on the previous business'es
+      Blueprint Layers analysis
+
+      2. Visualize the Layer
+
+      3. Enable manual modifications
+    status: planned
+    path: ./new-1767354451091/feature.yaml
+  - id: new-1767354572088
+    name: Bounded Contexts
+    description: >-
+      1. AI-Generated Business'es Bounded Contexts based on the previous
+      business'es Blueprint Layers analysis
+
+      2. Visualize the Layer
+
+      3. Enable manual modifications
+    status: planned
+    path: ./new-1767354572088/feature.yaml
+  - id: new-1767354673646
+    name: Contexts Map
+    description: >-
+      1. AI-Generated Business'es Contexts Map based on the previous business'es
+      Blueprint Layers analysis
+
+      2. Visualize the Layer
+
+      3. Enable manual modifications
+    status: planned
+    path: ./new-1767354673646/feature.yaml
+  - id: new-1767700885729
+    name: Event Storming
+    status: planned
+    path: ./new-1767700885729/feature.yaml

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
@@ -81,9 +82,12 @@ const NorthStarVisualizer: React.FC<NorthStarVisualizerProps> = ({ data, product
   return (
     <div className="north-star-visualizer">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {data.title || 'North Star'}
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {data.title || 'North Star'}
+          </h2>
+          <DownloadButton data={data} filename={`north-star-${productName}.yaml`} />
+        </div>
         <span className="text-sm text-gray-500 dark:text-gray-400">
           {data.title}
         </span>

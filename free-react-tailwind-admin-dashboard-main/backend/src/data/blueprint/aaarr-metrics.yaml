@@ -12,24 +12,13 @@ stages:
         name: Monthly Website Visitors
         description: Target monthly visitors required for customer acquisition funnel
         target:
-          rate: 166
+          rate: 2000/
           period: month
       - id: aaarr.acquisition.conversion-rate
-        name: Visitor to Customer Conversion Rate
+        name: Visitor to Registered User Conversion Rate
         description: Percentage of website visitors converting to paying customers
         target:
-          percentage: 15
-      - id: aaarr.acquisition.customer-acquisition-rate
-        name: Monthly Customer Acquisition Rate
-        description: Target number of new customers acquired per month
-        target:
-          rate: 25
-          period: month
-      - id: aaarr.acquisition.users-acquisition-target
-        name: Users Acquisition Target
-        description: Target number of users in acquisition funnel
-        target:
-          count: 1000
+          percentage: 10
   activation:
     stage_goal: Activate acquired customers to become active product users
     metrics:
@@ -37,33 +26,12 @@ stages:
         name: Users Target
         description: Target number of activated users
         target:
-          count: 100
-      - id: aaarr.activation.users-activation-target
-        name: Users Activation Target
-        description: Target number of fully activated users
-        target:
-          count: 10
+          rate: 20/
+          period: month
   retention:
     stage_goal: Retain customers through excellent service and value delivery
-    metrics:
-      - id: aaarr.retention.churn-rate
-        name: Monthly Churn Rate
-        description: Target monthly percentage of customers churning
-        target:
-          percentage: 0.8333
   referral:
     stage_goal: Grow customer base through referrals and word-of-mouth
-    metrics:
-      - id: aaarr.referral.prospect-acquisition-rate
-        name: Prospect Acquisition Rate
-        description: Rate of acquiring new prospects through referrals
-        target:
-          percentage: 10
-      - id: aaarr.referral.acquisition-rate
-        name: Acquisition Rate
-        description: Overall acquisition rate including referrals
-        target:
-          percentage: 10
   revenue:
     stage_goal: Generate recurring revenue from customer subscriptions
     metrics:
@@ -77,17 +45,17 @@ stages:
         name: Customer Lifetime Value
         description: Target lifetime value of each customer
         target:
-          amount: 120000
+          amount: 60000
           currency: USD
       - id: aaarr.revenue.required-customers
         name: Required Customers
         description: Total number of customers needed to reach revenue targets
         target:
-          count: 63
+          count: 84
       - id: aaarr.revenue.monthly-recurring-revenue
         name: Monthly Recurring Revenue
         description: Target monthly recurring revenue
         target:
-          amount: 63000
+          amount: 84000
           currency: USD
           period: month

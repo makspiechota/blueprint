@@ -1,0 +1,12 @@
+type: roadmap
+productName: string
+version: string
+last_updated: string
+title: string
+description: string
+epics:
+  - id: string
+    name: string
+    status: string
+    target_quarter: string
+    path: string

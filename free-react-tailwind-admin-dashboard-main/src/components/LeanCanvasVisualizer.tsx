@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
@@ -117,7 +118,10 @@ const LeanCanvasVisualizer: React.FC<LeanCanvasVisualizerProps> = ({ canvas, pro
   return (
     <div className="w-full p-6">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{canvas.title}</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{canvas.title}</h1>
+          <DownloadButton data={canvas} filename={`lean-canvas-${productName}.yaml`} />
+        </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
           Version {canvas.version} • Last updated: {canvas.last_updated}
         </div>

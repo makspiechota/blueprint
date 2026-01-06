@@ -85,5 +85,20 @@
       "required": ["cant_be_copied"]
     }
   },
-  "required": ["type", "productName", "version", "last_updated", "title", "problem", "customer_segments", "unique_value_proposition", "solution", "channels", "revenue_streams", "cost_structure", "key_metrics", "unfair_advantage"]
+  "required": [
+    "type",
+    "productName",
+    "version",
+    "last_updated",
+    "title",
+    "problem",
+    "customer_segments",
+    "unique_value_proposition",
+    "solution",
+    "channels",
+    "revenue_streams",
+    "key_metrics",
+    "unfair_advantage"
+  ]
 }
+

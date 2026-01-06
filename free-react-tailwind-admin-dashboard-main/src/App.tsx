@@ -12,6 +12,7 @@ import CustomersFactory from "./pages/BusinessLayers/CustomersFactory";
 import PolicyCharter from "./pages/BusinessLayers/PolicyCharter";
 import Misc from "./pages/BusinessLayers/Misc";
 import Roadmap from "./pages/BusinessLayers/Roadmap";
+import ComingSoon from "./pages/BusinessLayers/ComingSoon";
 import C4 from "./pages/SoftwareLayers/C4";
 
 export default function App() {
@@ -31,9 +32,17 @@ export default function App() {
             <Route path="/:productName/customer-factory" element={<CustomersFactory />} />
             <Route path="/:productName/policy-charter" element={<PolicyCharter />} />
             <Route path="/:productName/misc" element={<Misc />} />
-            <Route path="/:productName/roadmap" element={<Roadmap />} />
-            {/* Software Layers */}
-            <Route path="/:productName/c4" element={<C4 />} />
+             <Route path="/:productName/roadmap" element={<Roadmap />} />
+             <Route path="/:productName/backlog" element={<ComingSoon />} />
+              <Route path="/:productName/subdomains" element={<ComingSoon />} />
+              <Route path="/:productName/bounded-contexts" element={<ComingSoon />} />
+              <Route path="/:productName/contexts-map" element={<ComingSoon />} />
+              <Route path="/:productName/event-storming" element={<ComingSoon />} />
+              {/* Software Layers */}
+              <Route path="/:productName/c4" element={<C4 />} />
+              <Route path="/:productName/terraform" element={<ComingSoon />} />
+              <Route path="/:productName/tripwire" element={<ComingSoon />} />
+             <Route path="/:productName/c4" element={<C4 />} />
           </Route>
 
           {/* Fallback Route */}

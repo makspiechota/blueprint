@@ -3,15 +3,20 @@ import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
-  BoxCubeIcon,
-  CheckCircleIcon,
+  BoxIcon,
   ChevronDownIcon,
   DocsIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
+  DollarLineIcon,
   PieChartIcon,
   ShootingStarIcon,
+  TableIcon,
+  TaskIcon,
+  AngleUpIcon,
+  FileIcon,
+  ListIcon,
+  PencilIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useBusinessData } from "../context/BusinessDataContext";
@@ -21,7 +26,14 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  comingSoon?: boolean;
+  subItems?: {
+    name: string;
+    path: string;
+    pro?: boolean;
+    new?: boolean;
+    comingSoon?: boolean;
+  }[];
 };
 
 const baseNavItems: NavItem[] = [
@@ -31,12 +43,12 @@ const baseNavItems: NavItem[] = [
     path: "/north-star",
   },
   {
-    icon: <ListIcon />,
+    icon: <GridIcon />,
     name: "Lean Canvas",
     path: "/lean-canvas",
   },
   {
-    icon: <GridIcon />,
+    icon: <DollarLineIcon />,
     name: "Lean Viability",
     path: "/lean-viability",
   },
@@ -46,27 +58,75 @@ const baseNavItems: NavItem[] = [
     path: "/customer-factory",
   },
   {
-    icon: <BoxCubeIcon />,
+    icon: <AngleUpIcon />,
     name: "Architectural Scope",
     path: "/architectural-scope",
   },
   {
-    icon: <CheckCircleIcon />,
+    icon: <FileIcon />,
     name: "Policy Charter",
     path: "/policy-charter",
   },
   {
-    icon: <ListIcon />,
+    icon: <TableIcon />,
     name: "Roadmap",
     path: "/roadmap",
+  },
+  {
+    icon: <TaskIcon />,
+    name: "Backlog",
+    path: "/backlog",
+    comingSoon: true,
   },
 ];
 
 const baseSoftwareLayerItems: NavItem[] = [
   {
-    icon: <BoxCubeIcon />,
+    icon: <BoxIcon />,
     name: "C4 Architecture",
     path: "/c4",
+  },
+  {
+    icon: <BoxIcon />,
+    name: "Terraform",
+    path: "/terraform",
+    comingSoon: true,
+  },
+];
+
+const baseDDDLayersItems: NavItem[] = [
+  {
+    icon: <ListIcon />,
+    name: "Subdomains",
+    path: "/subdomains",
+    comingSoon: true,
+  },
+  {
+    icon: <BoxIcon />,
+    name: "Bounded Contexts",
+    path: "/bounded-contexts",
+    comingSoon: true,
+  },
+  {
+    icon: <TableIcon />,
+    name: "Contexts Map",
+    path: "/contexts-map",
+    comingSoon: true,
+  },
+  {
+    icon: <GridIcon />,
+    name: "Event Storming",
+    path: "/event-storming",
+    comingSoon: true,
+  },
+];
+
+const baseEducationalLayersItems: NavItem[] = [
+  {
+    icon: <PencilIcon />,
+    name: "Tripwire",
+    path: "/tripwire",
+    comingSoon: true,
   },
 ];
 
@@ -83,30 +143,68 @@ const AppSidebar: React.FC = () => {
   const { productName } = useBusinessData();
   const location = useLocation();
 
-  const navItems = useMemo(() =>
-    baseNavItems.map(item => ({
-      ...item,
-      path: item.path ? `/${productName}${item.path}` : undefined,
-      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
-    })),
+  const navItems = useMemo(
+    () =>
+      baseNavItems.map((item) => ({
+        ...item,
+        path: item.path ? `/${productName}${item.path}` : undefined,
+        subItems: item.subItems?.map((sub) => ({
+          ...sub,
+          path: sub.path ? `/${productName}${sub.path}` : sub.path,
+        })),
+      })),
     [productName]
   );
 
-  const softwareLayerItems = useMemo(() =>
-    baseSoftwareLayerItems.map(item => ({
-      ...item,
-      path: item.path ? `/${productName}${item.path}` : undefined,
-      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
-    })),
+  const softwareLayerItems = useMemo(
+    () =>
+      baseSoftwareLayerItems.map((item) => ({
+        ...item,
+        path: item.path ? `/${productName}${item.path}` : undefined,
+        subItems: item.subItems?.map((sub) => ({
+          ...sub,
+          path: sub.path ? `/${productName}${sub.path}` : sub.path,
+        })),
+      })),
     [productName]
   );
 
-  const miscItems = useMemo(() =>
-    baseMiscItems.map(item => ({
-      ...item,
-      path: item.path ? `/${productName}${item.path}` : undefined,
-      subItems: item.subItems?.map(sub => ({ ...sub, path: sub.path ? `/${productName}${sub.path}` : sub.path }))
-    })),
+  const dddLayerItems = useMemo(
+    () =>
+      baseDDDLayersItems.map((item) => ({
+        ...item,
+        path: item.path ? `/${productName}${item.path}` : undefined,
+        subItems: item.subItems?.map((sub) => ({
+          ...sub,
+          path: sub.path ? `/${productName}${sub.path}` : sub.path,
+        })),
+      })),
+    [productName]
+  );
+
+  const educationalLayerItems = useMemo(
+    () =>
+      baseEducationalLayersItems.map((item) => ({
+        ...item,
+        path: item.path ? `/${productName}${item.path}` : undefined,
+        subItems: item.subItems?.map((sub) => ({
+          ...sub,
+          path: sub.path ? `/${productName}${sub.path}` : sub.path,
+        })),
+      })),
+    [productName]
+  );
+
+  const miscItems = useMemo(
+    () =>
+      baseMiscItems.map((item) => ({
+        ...item,
+        path: item.path ? `/${productName}${item.path}` : undefined,
+        subItems: item.subItems?.map((sub) => ({
+          ...sub,
+          path: sub.path ? `/${productName}${sub.path}` : sub.path,
+        })),
+      })),
     [productName]
   );
 
@@ -232,6 +330,18 @@ const AppSidebar: React.FC = () => {
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <span className="menu-item-text">{nav.name}</span>
                 )}
+                {nav.comingSoon &&
+                  (isExpanded || isHovered || isMobileOpen) && (
+                    <span
+                      className={`ml-auto ${
+                        isActive(nav.path)
+                          ? "menu-dropdown-badge-active"
+                          : "menu-dropdown-badge-inactive"
+                      } menu-dropdown-badge`}
+                    >
+                      COMING SOON
+                    </span>
+                  )}
               </Link>
             )
           )}
@@ -283,6 +393,17 @@ const AppSidebar: React.FC = () => {
                             pro
                           </span>
                         )}
+                        {subItem.comingSoon && (
+                          <span
+                            className={`ml-auto ${
+                              isActive(subItem.path)
+                                ? "menu-dropdown-badge-active"
+                                : "menu-dropdown-badge-inactive"
+                            } menu-dropdown-badge`}
+                          >
+                            COMING SOON
+                          </span>
+                        )}
                       </span>
                     </Link>
                   </li>
@@ -298,13 +419,13 @@ const AppSidebar: React.FC = () => {
   return (
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
+         ${
+           isExpanded || isMobileOpen
+             ? "w-[350px]"
+             : isHovered
+               ? "w-[350px]"
+               : "w-[90px]"
+         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
@@ -354,12 +475,44 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
+                  "DOMAIN DRIVEN DESIGN LAYERS"
+                ) : (
+                  <HorizontaLDots className="size-6" />
+                )}
+              </h2>
+              {renderMenuItems(dddLayerItems, "others")}
+            </div>
+            <div className="mt-6">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
                   "Software Layers"
                 ) : (
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
               {renderMenuItems(softwareLayerItems, "others")}
+            </div>
+            <div className="mt-6">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "Educational Layers"
+                ) : (
+                  <HorizontaLDots className="size-6" />
+                )}
+              </h2>
+              {renderMenuItems(educationalLayerItems, "others")}
             </div>
             <div className="mt-6">
               <h2

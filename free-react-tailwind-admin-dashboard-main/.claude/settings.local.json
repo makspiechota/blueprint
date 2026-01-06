@@ -11,7 +11,14 @@
       "Bash(npx tsc:*)",
       "Bash(npm run build:*)",
       "Bash(ls:*)",
-      "Bash(node validate-yaml.cjs:*)"
+      "Bash(node validate-yaml.cjs:*)",
+      "Bash(grep:*)",
+      "WebSearch",
+      "WebFetch(domain:likec4.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:hub.docker.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm install:*)"
     ]
   }
 }

@@ -1,0 +1,15 @@
+type: epic
+id: string
+productName: string
+version: string
+last_updated: string
+name: string
+description: string
+status: string
+target_quarter: string
+features:
+  - id: string
+    name: string
+    description: string
+    status: string
+    path: string

@@ -13,6 +13,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import ChatButton from './ChatButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { useBusinessData } from '../context/BusinessDataContext';
 
@@ -24,6 +25,7 @@ interface Task {
   status?: string;
   estimated_hours?: number;
   description?: string;
+  order?: number;
 }
 
 interface UserStory {
@@ -32,6 +34,7 @@ interface UserStory {
   status?: string;
   story_points?: number;
   description?: string;
+  order?: number;
   tasks?: Task[];
 }
 
@@ -40,6 +43,7 @@ interface Feature {
   name: string;
   status?: string;
   description?: string;
+  order?: number;
   user_stories?: UserStory[];
 }
 
@@ -49,6 +53,7 @@ interface Epic {
   status?: string;
   target_quarter?: string;
   description?: string;
+  order?: number;
   features?: Feature[];
 }
 
@@ -128,6 +133,7 @@ interface TreeItem {
   target_quarter?: string;
   story_points?: number;
   estimated_hours?: number;
+  order?: number;
   children?: TreeItem[];
 }
 
@@ -139,7 +145,8 @@ const TreeNode: React.FC<{
   onSelect: (item: TreeItem) => void;
   expandedNodes: Set<string>;
   onToggleExpand: (id: string) => void;
-}> = ({ item, level, selectedItem, onSelect, expandedNodes, onToggleExpand }) => {
+  onMoveItem: (itemId: string, direction: 'up' | 'down') => void;
+}> = ({ item, level, selectedItem, onSelect, expandedNodes, onToggleExpand, onMoveItem }) => {
   const isExpanded = expandedNodes.has(item.id);
   const hasChildren = item.children && item.children.length > 0;
   const isSelected = selectedItem?.id === item.id;
@@ -199,6 +206,44 @@ const TreeNode: React.FC<{
         <span className={`text-xs px-1.5 py-0.5 rounded ${getStatusStyle(item.status)}`}>
           {item.status || 'planned'}
         </span>
+        {item.id !== 'roadmap-root' && (
+          <div className="flex gap-1 ml-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveItem(item.id, 'up');
+              }}
+              className={`w-5 h-5 flex items-center justify-center ${
+                (item.order || 0) > 0
+                  ? 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+                  : 'text-gray-200 dark:text-gray-700 cursor-not-allowed'
+              }`}
+              title="Move up"
+              disabled={(item.order || 0) === 0}
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveItem(item.id, 'down');
+              }}
+              className={`w-5 h-5 flex items-center justify-center ${
+                true // For now, assume can move down
+                  ? 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+                  : 'text-gray-200 dark:text-gray-700 cursor-not-allowed'
+              }`}
+              title="Move down"
+              disabled={false} // For now
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
       {hasChildren && isExpanded && (
         <div>
@@ -211,6 +256,7 @@ const TreeNode: React.FC<{
               onSelect={onSelect}
               expandedNodes={expandedNodes}
               onToggleExpand={onToggleExpand}
+              onMoveItem={onMoveItem}
             />
           ))}
         </div>
@@ -233,84 +279,6 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
   };
 
   // Build tree data for list view
-  const treeData: TreeItem | null = useMemo(() => {
-    if (!data) return null;
-
-    const buildTaskItem = (task: Task, epicId: string, featureId: string, storyId: string): TreeItem => ({
-      id: `task-${epicId}-${featureId}-${storyId}-${task.id}`,
-      type: 'task',
-      name: task.name,
-      status: task.status,
-      description: task.description,
-      estimated_hours: task.estimated_hours,
-    });
-
-    const buildStoryItem = (story: UserStory, epicId: string, featureId: string): TreeItem => ({
-      id: `story-${epicId}-${featureId}-${story.id}`,
-      type: 'story',
-      name: story.name,
-      status: story.status,
-      description: story.description,
-      story_points: story.story_points,
-      children: story.tasks?.map((t) => buildTaskItem(t, epicId, featureId, story.id)),
-    });
-
-    const buildFeatureItem = (feature: Feature, epicId: string): TreeItem => ({
-      id: `feature-${epicId}-${feature.id}`,
-      type: 'feature',
-      name: feature.name,
-      status: feature.status,
-      description: feature.description,
-      children: feature.user_stories?.map((s) => buildStoryItem(s, epicId, feature.id)),
-    });
-
-    const buildEpicItem = (epic: Epic): TreeItem => ({
-      id: `epic-${epic.id}`,
-      type: 'epic',
-      name: epic.name,
-      status: epic.status,
-      description: epic.description,
-      target_quarter: epic.target_quarter,
-      children: epic.features?.map((f) => buildFeatureItem(f, epic.id)),
-    });
-
-    return {
-      id: 'roadmap-root',
-      type: 'roadmap',
-      name: data.title || 'Product Roadmap',
-      description: data.description,
-      children: data.epics?.map(buildEpicItem),
-    };
-  }, [data]);
-
-  const toggleExpand = useCallback((id: string) => {
-    setExpandedNodes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const expandAll = useCallback(() => {
-    if (!treeData) return;
-    const allIds = new Set<string>();
-    const collectIds = (item: TreeItem) => {
-      allIds.add(item.id);
-      item.children?.forEach(collectIds);
-    };
-    collectIds(treeData);
-    setExpandedNodes(allIds);
-  }, [treeData]);
-
-  const collapseAll = useCallback(() => {
-    setExpandedNodes(new Set(['roadmap-root']));
-  }, []);
-
-  // Calculate initial layout from data
   const calculateLayout = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
@@ -348,13 +316,14 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
       id: 'roadmap-root',
       type: 'default',
       position: { x: rootX, y: 0 },
-      data: {
-        label: createNodeLabel('roadmap', data.title || 'Product Roadmap'),
-        title: data.title,
-        description: data.description,
-        type: 'roadmap',
-        name: data.title || 'Product Roadmap',
-      },
+        data: {
+          label: createNodeLabel('roadmap', data.title || 'Product Roadmap'),
+          title: data.title,
+          description: data.description,
+          type: 'roadmap',
+          name: data.title || 'Product Roadmap',
+          order: 0,
+        },
       style: { ...nodeStyles.roadmap, borderRadius: '8px', width: nodeWidth },
     });
 
@@ -380,6 +349,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
           ),
           ...epic,
           type: 'epic',
+          order: epicIndex,
         },
         style: { ...nodeStyles.epic, borderRadius: '8px', width: nodeWidth },
       });
@@ -396,7 +366,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
       if (epic.features && epic.features.length > 0) {
         let featureStartX = epicStartX;
 
-        epic.features.forEach((feature) => {
+        epic.features.forEach((feature, featureIndex) => {
           const storiesWidth = feature.user_stories
             ? feature.user_stories.reduce((acc, story) => {
                 const tasksWidth = story.tasks
@@ -419,6 +389,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
               ...feature,
               type: 'feature',
               parentEpicId: epic.id,
+              order: featureIndex,
             },
             style: { ...nodeStyles.feature, borderRadius: '8px', width: nodeWidth },
           });
@@ -435,7 +406,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
           if (feature.user_stories && feature.user_stories.length > 0) {
             let storyStartX = featureStartX;
 
-            feature.user_stories.forEach((story) => {
+            feature.user_stories.forEach((story, storyIndex) => {
               const tasksWidth = story.tasks
                 ? Math.max(story.tasks.length * (nodeWidth + horizontalSpacing), nodeWidth)
                 : nodeWidth;
@@ -460,6 +431,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
                   type: 'story',
                   parentFeatureId: feature.id,
                   parentEpicId: epic.id,
+                  order: storyIndex,
                 },
                 style: { ...nodeStyles.story, borderRadius: '8px', width: nodeWidth },
               });
@@ -490,6 +462,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
                       parentStoryId: story.id,
                       parentFeatureId: feature.id,
                       parentEpicId: epic.id,
+                      order: taskIndex,
                     },
                     style: { ...nodeStyles.task, borderRadius: '8px', width: nodeWidth, minHeight: 60 },
                   });
@@ -602,9 +575,216 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
       style: { stroke: edgeColors.roadmap, strokeWidth: 2 },
       markerEnd: { type: MarkerType.ArrowClosed, color: edgeColors.roadmap },
     }));
-  };
+   };
 
-  const addFeature = () => {
+   const toggleExpand = useCallback((id: string) => {
+     setExpandedNodes((prev) => {
+       const newSet = new Set(prev);
+       if (newSet.has(id)) {
+         newSet.delete(id);
+       } else {
+         newSet.add(id);
+       }
+       return newSet;
+     });
+   }, []);
+
+   // Build roadmap data from nodes and edges for saving
+   const buildRoadmapData = () => {
+     const roadmapNode = nodes.find(n => n.id === 'roadmap-root');
+
+     // Get all epics connected to roadmap
+     const epicEdges = edges.filter(e => e.source === 'roadmap-root');
+     const epics: Epic[] = epicEdges.map(epicEdge => {
+       const epicNode = nodes.find(n => n.id === epicEdge.target);
+       if (!epicNode) return null;
+
+       // Get features connected to this epic
+       const featureEdges = edges.filter(e => e.source === epicNode.id);
+       const features: Feature[] = featureEdges.map(featureEdge => {
+         const featureNode = nodes.find(n => n.id === featureEdge.target && n.data.type === 'feature');
+         if (!featureNode) return null;
+
+         // Get stories connected to this feature
+         const storyEdges = edges.filter(e => e.source === featureNode.id);
+         const stories: UserStory[] = storyEdges.map(storyEdge => {
+           const storyNode = nodes.find(n => n.id === storyEdge.target && n.data.type === 'story');
+           if (!storyNode) return null;
+
+           // Get tasks connected to this story
+           const taskEdges = edges.filter(e => e.source === storyNode.id);
+           const tasks: Task[] = taskEdges.map(taskEdge => {
+             const taskNode = nodes.find(n => n.id === taskEdge.target && n.data.type === 'task');
+             if (!taskNode) return null;
+             return {
+               id: taskNode.data.id || taskNode.id.replace('task-', ''),
+               name: taskNode.data.name || 'Untitled Task',
+               status: taskNode.data.status || 'planned',
+               description: taskNode.data.description,
+               estimated_hours: taskNode.data.estimated_hours,
+               order: taskNode.data.order || 0,
+             };
+           }).filter(Boolean) as Task[];
+
+           return {
+             id: storyNode.data.id || storyNode.id.replace('story-', ''),
+             name: storyNode.data.name || 'Untitled Story',
+             status: storyNode.data.status || 'planned',
+             description: storyNode.data.description,
+             story_points: storyNode.data.story_points,
+             order: storyNode.data.order || 0,
+             tasks: tasks.length > 0 ? tasks : undefined,
+           };
+         }).filter(Boolean) as UserStory[];
+
+         return {
+           id: featureNode.data.id || featureNode.id.replace('feature-', ''),
+           name: featureNode.data.name || 'Untitled Feature',
+           status: featureNode.data.status || 'planned',
+           description: featureNode.data.description,
+           order: featureNode.data.order || 0,
+           user_stories: stories.length > 0 ? stories : undefined,
+         };
+        }).filter(Boolean) as Feature[];
+
+        // Sort features by order
+        features.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        // Sort stories within features
+        features.forEach(feature => {
+          if (feature.user_stories) {
+            feature.user_stories.sort((a, b) => (a.order || 0) - (b.order || 0));
+            // Sort tasks within stories
+            feature.user_stories.forEach(story => {
+              if (story.tasks) {
+                story.tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
+              }
+            });
+          }
+        });
+
+        // Sort stories within features
+        features.forEach(feature => {
+          if (feature.user_stories) {
+            feature.user_stories.sort((a, b) => {
+              const aOrder = (a as any).order || 0;
+              const bOrder = (b as any).order || 0;
+              return aOrder - bOrder;
+            });
+            // Sort tasks within stories
+            feature.user_stories.forEach(story => {
+              if (story.tasks) {
+                story.tasks.sort((a, b) => {
+                  const aOrder = (a as any).order || 0;
+                  const bOrder = (b as any).order || 0;
+                  return aOrder - bOrder;
+                });
+              }
+            });
+          }
+        });
+
+        return {
+         id: epicNode.data.id || epicNode.id.replace('epic-', ''),
+         name: epicNode.data.name || 'Untitled Epic',
+         status: epicNode.data.status || 'planned',
+         description: epicNode.data.description,
+         target_quarter: epicNode.data.target_quarter,
+         order: epicNode.data.order || 0,
+         features: features.length > 0 ? features : undefined,
+       };
+     }).filter(Boolean) as Epic[];
+
+     // Sort epics by order if available
+     epics.sort((a, b) => {
+       const aOrder = (a as any).order || 0;
+       const bOrder = (b as any).order || 0;
+       return aOrder - bOrder;
+     });
+
+     return {
+       type: 'roadmap',
+       productName: productName || 'blueprint',
+       version: '1.0',
+       last_updated: new Date().toISOString().split('T')[0],
+       title: roadmapNode?.data.title || roadmapNode?.data.name || 'Product Roadmap',
+       description: roadmapNode?.data.description || '',
+       epics,
+     };
+   };
+
+   // Build tree data from current nodes/edges state
+   const treeData: TreeItem | null = useMemo(() => {
+     const currentData = buildRoadmapData();
+     if (!currentData) return null;
+
+     const buildTaskItem = (task: Task, epicId: string, featureId: string, storyId: string, order?: number): TreeItem => ({
+       id: `task-${epicId}-${featureId}-${storyId}-${task.id}`,
+       type: 'task',
+       name: task.name,
+       status: task.status,
+       description: task.description,
+       estimated_hours: task.estimated_hours,
+       order,
+     });
+
+     const buildStoryItem = (story: UserStory, epicId: string, featureId: string, order?: number): TreeItem => ({
+       id: `story-${epicId}-${featureId}-${story.id}`,
+       type: 'story',
+       name: story.name,
+       status: story.status,
+       description: story.description,
+       story_points: story.story_points,
+       order,
+       children: story.tasks?.map((t, idx) => buildTaskItem(t, epicId, featureId, story.id, idx)),
+     });
+
+     const buildFeatureItem = (feature: Feature, epicId: string, order?: number): TreeItem => ({
+       id: `feature-${epicId}-${feature.id}`,
+       type: 'feature',
+       name: feature.name,
+       status: feature.status,
+       description: feature.description,
+       order,
+       children: feature.user_stories?.map((s, idx) => buildStoryItem(s, epicId, feature.id, idx)),
+     });
+
+     const buildEpicItem = (epic: Epic, order?: number): TreeItem => ({
+       id: `epic-${epic.id}`,
+       type: 'epic',
+       name: epic.name,
+       status: epic.status,
+       description: epic.description,
+       target_quarter: epic.target_quarter,
+       order,
+       children: epic.features?.map((f, idx) => buildFeatureItem(f, epic.id, idx)),
+     });
+
+     return {
+       id: 'roadmap-root',
+       type: 'roadmap' as const,
+       name: currentData.title || 'Product Roadmap',
+       description: currentData.description,
+       children: currentData.epics?.map((e, idx) => buildEpicItem(e, idx)),
+     };
+   }, [nodes, edges]);
+
+   const expandAll = useCallback(() => {
+     if (!treeData) return;
+     const allIds = new Set<string>();
+     const collectIds = (item: TreeItem) => {
+       allIds.add(item.id);
+       item.children?.forEach(collectIds);
+     };
+     collectIds(treeData);
+     setExpandedNodes(allIds);
+   }, [treeData]);
+
+   const collapseAll = useCallback(() => {
+     setExpandedNodes(new Set());
+   }, []);
+
+   const addFeature = () => {
     const id = `feature-new-${Date.now()}`;
     const existingFeatures = nodes.filter(n => n.data.type === 'feature');
     const xPos = existingFeatures.length > 0
@@ -740,6 +920,12 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
     setEdges(eds => eds.filter(e => e.id !== edgeId));
   };
 
+  const deleteListItem = (item: TreeItem) => {
+    // Find the corresponding node ID and delete it
+    const nodeId = item.id;
+    deleteNode(nodeId);
+  };
+
   // Update node data
   const updateNodeData = (nodeId: string, field: string, value: string) => {
     setNodes(nds => nds.map(n => {
@@ -766,81 +952,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
     }
   };
 
-  // Build roadmap data from nodes and edges for saving
-  const buildRoadmapData = () => {
-    const roadmapNode = nodes.find(n => n.id === 'roadmap-root');
 
-    // Get all epics connected to roadmap
-    const epicEdges = edges.filter(e => e.source === 'roadmap-root');
-    const epics: Epic[] = epicEdges.map(epicEdge => {
-      const epicNode = nodes.find(n => n.id === epicEdge.target);
-      if (!epicNode) return null;
-
-      // Get features connected to this epic
-      const featureEdges = edges.filter(e => e.source === epicNode.id);
-      const features: Feature[] = featureEdges.map(featureEdge => {
-        const featureNode = nodes.find(n => n.id === featureEdge.target && n.data.type === 'feature');
-        if (!featureNode) return null;
-
-        // Get stories connected to this feature
-        const storyEdges = edges.filter(e => e.source === featureNode.id);
-        const stories: UserStory[] = storyEdges.map(storyEdge => {
-          const storyNode = nodes.find(n => n.id === storyEdge.target && n.data.type === 'story');
-          if (!storyNode) return null;
-
-          // Get tasks connected to this story
-          const taskEdges = edges.filter(e => e.source === storyNode.id);
-          const tasks: Task[] = taskEdges.map(taskEdge => {
-            const taskNode = nodes.find(n => n.id === taskEdge.target && n.data.type === 'task');
-            if (!taskNode) return null;
-            return {
-              id: taskNode.data.id || taskNode.id.replace('task-', ''),
-              name: taskNode.data.name || 'Untitled Task',
-              status: taskNode.data.status || 'planned',
-              description: taskNode.data.description,
-              estimated_hours: taskNode.data.estimated_hours,
-            };
-          }).filter(Boolean) as Task[];
-
-          return {
-            id: storyNode.data.id || storyNode.id.replace('story-', ''),
-            name: storyNode.data.name || 'Untitled Story',
-            status: storyNode.data.status || 'planned',
-            description: storyNode.data.description,
-            story_points: storyNode.data.story_points,
-            tasks: tasks.length > 0 ? tasks : undefined,
-          };
-        }).filter(Boolean) as UserStory[];
-
-        return {
-          id: featureNode.data.id || featureNode.id.replace('feature-', ''),
-          name: featureNode.data.name || 'Untitled Feature',
-          status: featureNode.data.status || 'planned',
-          description: featureNode.data.description,
-          user_stories: stories.length > 0 ? stories : undefined,
-        };
-      }).filter(Boolean) as Feature[];
-
-      return {
-        id: epicNode.data.id || epicNode.id.replace('epic-', ''),
-        name: epicNode.data.name || 'Untitled Epic',
-        status: epicNode.data.status || 'planned',
-        description: epicNode.data.description,
-        target_quarter: epicNode.data.target_quarter,
-        features: features.length > 0 ? features : undefined,
-      };
-    }).filter(Boolean) as Epic[];
-
-    return {
-      type: 'roadmap',
-      productName: productName || 'blueprint',
-      version: '1.0',
-      last_updated: new Date().toISOString().split('T')[0],
-      title: roadmapNode?.data.title || roadmapNode?.data.name || 'Product Roadmap',
-      description: roadmapNode?.data.description || '',
-      epics,
-    };
-  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -856,12 +968,10 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
         throw new Error('Failed to save roadmap');
       }
 
-      // Reload roadmap data to refresh the UI
-      if (reloadRoadmap) {
-        await reloadRoadmap();
-      }
-
-      alert('Roadmap saved successfully!');
+       // Reload roadmap data to refresh the UI
+       if (reloadRoadmap) {
+         await reloadRoadmap();
+       }
     } catch (error) {
       console.error('Error saving roadmap:', error);
       alert('Failed to save roadmap. Check console for details.');
@@ -910,13 +1020,16 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
             Graph
           </button>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="px-4 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 disabled:bg-gray-400"
-        >
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
+        <div className="flex items-center gap-2">
+          <DownloadButton data={data} filename={`roadmap-${productName}.yaml`} />
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
       </div>
 
       {/* List View */}
@@ -960,6 +1073,51 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
                 onSelect={setSelectedListItem}
                 expandedNodes={expandedNodes}
                 onToggleExpand={toggleExpand}
+                onMoveItem={(itemId, direction) => {
+                  // Update order of items at the same level
+                  setNodes(currentNodes => {
+                    const nodesCopy = currentNodes.map(n => ({ ...n, data: { ...n.data } })); // Deep copy
+                    const nodeIndex = nodesCopy.findIndex(n => n.id === itemId);
+                    if (nodeIndex === -1) return currentNodes;
+
+                    const node = nodesCopy[nodeIndex];
+                    const parentId = node.data.parentEpicId || node.data.parentFeatureId || node.data.parentStoryId || 'roadmap-root';
+
+                    // Find siblings at the same level
+                    const siblings = nodesCopy.filter(n => {
+                      if (n.id === itemId) return false;
+                      const nParentId = n.data.parentEpicId || n.data.parentFeatureId || n.data.parentStoryId || 'roadmap-root';
+                      return nParentId === parentId && n.data.type === node.data.type;
+                    });
+
+                    // Sort siblings by current order
+                    siblings.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+
+                    // Find current position
+                    const currentOrder = node.data.order || 0;
+                    let newOrder = currentOrder;
+
+                    if (direction === 'up') {
+                      const prevSibling = siblings.filter(s => (s.data.order || 0) < currentOrder).pop();
+                      if (prevSibling) {
+                        newOrder = prevSibling.data.order || 0;
+                        prevSibling.data.order = currentOrder;
+                      }
+                    } else {
+                      const nextSibling = siblings.filter(s => (s.data.order || 0) > currentOrder)[0];
+                      if (nextSibling) {
+                        newOrder = nextSibling.data.order || 0;
+                        nextSibling.data.order = currentOrder;
+                      }
+                    }
+
+                    if (newOrder !== currentOrder) {
+                      nodesCopy[nodeIndex].data.order = newOrder;
+                    }
+
+                    return nodesCopy;
+                  });
+                }}
               />
             </div>
           </div>
@@ -1134,17 +1292,29 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
                           <span>{nodeIcons.task}</span> Add Task
                         </button>
                       )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                  <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  <p>Select an item to view properties</p>
-                </div>
-              )}
+                     </div>
+                   )}
+
+                   {/* Delete button */}
+                   {selectedListItem.id !== 'roadmap-root' && (
+                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                       <button
+                         onClick={() => deleteListItem(selectedListItem)}
+                         className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium"
+                       >
+                         Delete {selectedListItem.type}
+                       </button>
+                     </div>
+                   )}
+                 </div>
+               ) : (
+                 <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                   <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                   </svg>
+                   <p>Select an item to view properties</p>
+                 </div>
+               )}
             </div>
           </div>
         </div>

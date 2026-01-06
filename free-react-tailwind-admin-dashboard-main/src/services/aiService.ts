@@ -402,9 +402,32 @@ class AIService {
       const { productName, ...contextData } = resourceData;
 
       const prodName = resourceData.productName;
-      const schemaPath = `src/schemas/${schemaType}.yaml`;
       const yamlPath = `src/data/${prodName}/${schemaType}.yaml`;
-      const schemaInstruction = `\n\nYou are generating content for the ${prodName} product. The generated YAML will be saved to: ./${yamlPath}\n\nRead the schema from: ./${schemaPath}\n\nGenerate valid YAML that validates against this schema using the validate-yaml.cjs script. Ensure all required fields are present and types match. Quote string values that contain colons, special characters, or start with numbers. Use proper YAML syntax. The generated YAML must pass validation when run with: node validate-yaml.cjs <yaml-file> ${schemaPath}. Output ONLY the YAML content, no explanations or additional text.`;
+
+      // Fetch the schema content
+      let schemaContent = "";
+      try {
+        const schemaResponse = await fetch(`${API_BASE}/api/schemas/${schemaType}.yaml`);
+        if (schemaResponse.ok) {
+          schemaContent = await schemaResponse.text();
+        }
+      } catch (error) {
+        console.warn("Failed to fetch schema:", error);
+      }
+
+      // Fetch example roadmap content for reference
+      let exampleRoadmap = "";
+      try {
+        const exampleResponse = await fetch(`${API_BASE}/api/yaml/blueprint/roadmap.yaml`);
+        if (exampleResponse.ok) {
+          const exampleData = await exampleResponse.json();
+          exampleRoadmap = exampleData.data ? yaml.dump(exampleData.data) : "";
+        }
+      } catch (error) {
+        console.warn("Failed to fetch example roadmap:", error);
+      }
+
+      const schemaInstruction = `\n\nYou are generating content for the ${prodName} product. The generated YAML will be saved to: ./${yamlPath}\n\nSchema content:\n${schemaContent}\n\nGenerate valid YAML that validates against this schema. Ensure all required fields are present and types match. Quote string values that contain colons, special characters, or start with numbers. Use proper YAML syntax. Output ONLY the YAML content, no explanations or additional text.`;
 
       switch (resourceType) {
         case "generate-north-star":
@@ -425,11 +448,15 @@ class AIService {
         case "generate-customers-factory":
           prompt = `Generate a Customers Factory (AAARR Metrics) YAML file based on the following Lean Viability data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Lean Viability data. Output only valid YAML.${schemaInstruction}`;
           break;
-        case "generate-policy-charter":
-          prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Customers Factory data. Output only valid YAML.${schemaInstruction}`;
-          break;
-        default:
-          return { success: false, message: "Unknown resource type" };
+         case "generate-policy-charter":
+           prompt = `Generate a Policy Charter YAML file based on the following Customers Factory data: ${JSON.stringify(contextData, null, 2)}\n\nThe YAML must match the schema structure exactly, with all required fields populated with appropriate content derived from the Customers Factory data. Output only valid YAML.${schemaInstruction}`;
+           break;
+         case "generate-roadmap": {
+           prompt = `Generate a comprehensive Roadmap structure in YAML format based on the following Policy Charter data: ${JSON.stringify(contextData, null, 2)}\n\nAnalyze the reference roadmap structure from the existing blueprint product at src/data/blueprint/roadmap/ and create a similar hierarchical roadmap for the ${prodName} product. The roadmap should be a nested YAML object with the following structure:\n\n- type: roadmap\n- productName: ${prodName}\n- version: 1.0\n- last_updated: current date\n- title: appropriate title\n- description: appropriate description\n- epics: array of epic objects, each with:\n  - id: unique id\n  - name: epic name\n  - description: epic description\n  - status: in_progress, planned, completed, etc.\n  - target_quarter: Q1-2026, etc.\n  - priority: high, medium, low\n  - features: array of feature objects, each with:\n    - id: unique id\n    - name: feature name\n    - description: feature description\n    - status: planned, etc.\n    - priority: high, etc.\n    - user_stories: array of user story objects (optional)\n\nExample reference roadmap structure:\n${exampleRoadmap}\n\nGenerate a realistic roadmap with 3-5 epics, each with 2-4 features. Output only the YAML content, no explanations.`;
+           break;
+         }
+         default:
+           return { success: false, message: "Unknown resource type" };
       }
 
       // Send the generation prompt
@@ -462,44 +489,75 @@ class AIService {
 
       console.log("Generated YAML:", generatedYaml.substring(0, 200) + "...");
 
-      // Validate the YAML can be parsed
-      try {
-        yaml.load(generatedYaml);
-      } catch (error) {
-        console.error("Generated YAML is invalid:", error);
-        return {
-          success: false,
-          message: `Generated YAML is invalid: ${(error as Error).message}`,
-        };
-      }
+       // Validate the YAML can be parsed
+       let parsedData;
+       try {
+         parsedData = yaml.load(generatedYaml);
+       } catch (error) {
+         console.error("Generated YAML is invalid:", error);
+         return {
+           success: false,
+           message: `Generated YAML is invalid: ${(error as Error).message}`,
+         };
+       }
 
-      // Save the generated content
-      let fileName = "";
-      switch (resourceType) {
-        case "generate-north-star":
-          fileName = "north-star.yaml";
-          break;
-        case "generate-lean-canvas":
-          fileName = "lean-canvas.yaml";
-          break;
-        case "generate-architectural-scope":
-          fileName = "architectural-scope.yaml";
-          break;
-        case "generate-lean-viability":
-          fileName = "lean-viability.yaml";
-          break;
-        case "generate-customers-factory":
-          fileName = "aaarr-metrics.yaml";
-          break;
-        case "generate-policy-charter":
-          fileName = "policy-charter.yaml";
-          break;
-      }
+       // Save the generated content
+       if (resourceType === "generate-roadmap") {
+         // For roadmap, save via /api/roadmap/ to create directory structure
+         try {
+           const response = await fetch(`${API_BASE}/api/roadmap/${productName}`, {
+             method: "PUT",
+             headers: {
+               "Content-Type": "application/json",
+             },
+             body: JSON.stringify({ data: parsedData }),
+           });
 
-      const filePath = `src/data/${productName}/${fileName}`;
-      const saveResult = await this.saveFileContent(filePath, generatedYaml);
+           if (!response.ok) {
+             const error = await response.json();
+             return {
+               success: false,
+               message: error.error || "Failed to save roadmap",
+             };
+           }
 
-      return saveResult;
+           const result = await response.json();
+           return {
+             success: true,
+             message: result.message || "Roadmap saved successfully",
+           };
+         } catch (error) {
+           console.error("Save roadmap error:", error);
+           return { success: false, message: "Network error while saving roadmap" };
+         }
+       } else {
+         let fileName = "";
+         switch (resourceType) {
+           case "generate-north-star":
+             fileName = "north-star.yaml";
+             break;
+           case "generate-lean-canvas":
+             fileName = "lean-canvas.yaml";
+             break;
+           case "generate-architectural-scope":
+             fileName = "architectural-scope.yaml";
+             break;
+           case "generate-lean-viability":
+             fileName = "lean-viability.yaml";
+             break;
+           case "generate-customers-factory":
+             fileName = "aaarr-metrics.yaml";
+             break;
+           case "generate-policy-charter":
+             fileName = "policy-charter.yaml";
+             break;
+         }
+
+         const filePath = `src/data/${productName}/${fileName}`;
+         const saveResult = await this.saveFileContent(filePath, generatedYaml);
+
+         return saveResult;
+       }
     } catch (error) {
       console.error("Generate layer error:", error);
       return {

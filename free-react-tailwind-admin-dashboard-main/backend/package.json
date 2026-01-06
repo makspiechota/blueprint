@@ -8,12 +8,14 @@
     "dev": "ts-node server.ts"
   },
   "dependencies": {
+    "@likec4/layouts": "^1.46.4",
     "@types/ws": "^8.18.1",
     "ajv": "^8.17.1",
     "chokidar": "^5.0.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "js-yaml": "^4.1.0",
+    "likec4": "^1.46.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {

@@ -13,6 +13,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import ChatButton from './ChatButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { useBusinessData } from '../context/BusinessDataContext';
 
@@ -616,6 +617,10 @@ const PolicyCharterVisualizer: React.FC<PolicyCharterVisualizerProps> = ({ chart
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Policy Charter</h1>
+        <DownloadButton data={charter} filename={`policy-charter-${productName}.yaml`} />
+      </div>
       <div className="policy-charter-visualizer relative">
         <ChatButton
           resourceType="policy-charter-overview"

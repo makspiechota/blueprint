@@ -1,0 +1,14 @@
+type: feature
+id: new-1767353409116
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: Deployment
+status: planned
+user_stories:
+  - id: new-1767353594094
+    name: >-
+      As an operator I want every approved code to be merged into the main
+      branch
+    status: planned
+    path: ./new-1767353594094/user-story.yaml

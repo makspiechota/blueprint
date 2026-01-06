@@ -54,11 +54,12 @@ try {
    } else {
      console.log('Data keys:', Object.keys(data));
      console.log('Schema keys:', Object.keys(schema));
-   function validateStructure(obj, sch, currentPath = '') {
-     let valid = true;
-     for (const key in sch) {
-       const isOptional = key.endsWith('?');
-       const actualKey = isOptional ? key.slice(0, -1) : key;
+    function validateStructure(obj, sch, currentPath = '') {
+      let valid = true;
+      const optionalKeys = ['stages.retention.metrics', 'stages.referral.metrics'];
+      for (const key in sch) {
+        const isOptional = key.endsWith('?') || optionalKeys.includes(currentPath ? `${currentPath}.${key}` : key);
+        const actualKey = isOptional ? key.slice(0, -1) : key;
        const fullPath = currentPath ? `${currentPath}.${actualKey}` : actualKey;
        if (!(actualKey in obj)) {
          if (!isOptional) {

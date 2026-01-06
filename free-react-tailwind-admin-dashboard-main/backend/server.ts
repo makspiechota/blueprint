@@ -6,6 +6,7 @@ const yaml = require('js-yaml');
 const { execSync } = require('child_process');
 const WebSocketServer = require('ws');
 const chokidar = require('chokidar');
+const { LikeC4 } = require('likec4');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,6 +17,9 @@ app.use(express.json());
 
 // Path to YAML files
 const yamlDir = path.join(process.cwd(), 'src', 'data');
+
+// Helper to get C4 directory for a product (src/data/{productName}/c4/)
+const getC4Dir = (productName: string) => path.join(yamlDir, productName, 'c4');
 
 // Helper to get misc directory for a product
 const getMiscDir = (productName: string) => path.join(yamlDir, productName, 'misc');
@@ -323,6 +327,168 @@ app.delete('/api/misc/:productName/:filename', (req, res) => {
 
 
 // ==================
+// C4 Architecture Visualization API
+// ==================
+
+// Cache for LikeC4 instances per product (for parsing and layouting)
+const likec4Instances: Map<string, any> = new Map();
+
+// Helper to get or create a LikeC4 instance for a product
+const getLikeC4Instance = async (productName: string) => {
+  // Check if we have a cached instance
+  if (likec4Instances.has(productName)) {
+    return likec4Instances.get(productName);
+  }
+
+  // Create workspace path - C4 files are in src/data/{productName}/c4/
+  const workspacePath = path.join(yamlDir, productName, 'c4');
+
+  // Ensure the directory exists
+  if (!fs.existsSync(workspacePath)) {
+    fs.mkdirSync(workspacePath, { recursive: true });
+    return null;
+  }
+
+  try {
+    // Create new LikeC4 instance
+    const instance = await LikeC4.fromWorkspace(workspacePath, {
+      printErrors: false,
+      throwIfInvalid: false
+    });
+
+    likec4Instances.set(productName, instance);
+    return instance;
+  } catch (error) {
+    console.error(`Error creating LikeC4 instance for ${productName}:`, error);
+    return null;
+  }
+};
+
+// Helper to invalidate cached LikeC4 instance when files change
+const invalidateLikeC4Instance = (productName: string) => {
+  if (likec4Instances.has(productName)) {
+    const instance = likec4Instances.get(productName);
+    if (instance && typeof instance.dispose === 'function') {
+      instance.dispose();
+    }
+    likec4Instances.delete(productName);
+    console.log(`Invalidated LikeC4 instance for ${productName}`);
+  }
+};
+
+// GET /api/c4-model/:productName - Get layouted C4 model for rendering
+app.get('/api/c4-model/:productName', async (req, res) => {
+  try {
+    const { productName } = req.params;
+    const workspacePath = path.join(yamlDir, productName, 'c4');
+
+    // Check if directory exists
+    if (!fs.existsSync(workspacePath)) {
+      return res.status(404).json({ error: 'C4 workspace not found' });
+    }
+
+    // Check if there are any C4 files
+    const c4Files = fs.readdirSync(workspacePath).filter(f =>
+      f.endsWith('.likec4') || f.endsWith('.c4')
+    );
+
+    if (c4Files.length === 0) {
+      return res.status(404).json({ error: 'No C4 files found in workspace' });
+    }
+
+    // Get or create LikeC4 instance
+    const instance = await getLikeC4Instance(productName);
+    if (!instance) {
+      return res.status(500).json({ error: 'Failed to initialize LikeC4 instance' });
+    }
+
+    // Get validation errors if any
+    const errors = instance.getErrors();
+    if (errors && errors.length > 0) {
+      console.log(`LikeC4 validation warnings for ${productName}:`, errors);
+    }
+
+    // Get the layouted model and extract serializable data
+    const layoutedModel = await instance.layoutedModel();
+    const modelData = layoutedModel.$data;
+
+    // Return the full model $data for LikeC4Model.create() to work on the frontend
+    res.json({
+      success: true,
+      modelData: modelData,
+      errors: errors || [],
+      workspace: workspacePath
+    });
+  } catch (error) {
+    console.error('Error getting C4 model:', error);
+    res.status(500).json({
+      error: 'Failed to get C4 model',
+      details: error.message
+    });
+  }
+});
+
+// GET /api/c4-model/:productName/views - List available views
+app.get('/api/c4-model/:productName/views', async (req, res) => {
+  try {
+    const { productName } = req.params;
+
+    const instance = await getLikeC4Instance(productName);
+    if (!instance) {
+      return res.status(404).json({ error: 'C4 workspace not found or empty' });
+    }
+
+    const model = instance.computedModel();
+    const views = model.views().map(v => ({
+      id: v.id,
+      title: v.title || v.id,
+      description: v.description
+    }));
+
+    res.json({ views });
+  } catch (error) {
+    console.error('Error listing C4 views:', error);
+    res.status(500).json({ error: 'Failed to list views' });
+  }
+});
+
+// POST /api/c4-model/:productName/parse - Parse DSL content without saving (for live preview)
+app.post('/api/c4-model/:productName/parse', async (req, res) => {
+  try {
+    const { productName } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    // Parse directly from source string
+    const tempInstance = await LikeC4.fromSource(content, {
+      printErrors: false,
+      throwIfInvalid: false
+    });
+
+    const errors = tempInstance.getErrors();
+    const layoutedModel = await tempInstance.layoutedModel();
+
+    // Extract serializable data
+    const modelData = layoutedModel.$data;
+
+    res.json({
+      success: true,
+      model: modelData,
+      errors: errors || []
+    });
+  } catch (error) {
+    console.error('Error parsing C4 content:', error);
+    res.status(500).json({
+      error: 'Failed to parse C4 content',
+      details: error.message
+    });
+  }
+});
+
+// ==================
 // C4 Architecture Files API
 // ==================
 
@@ -330,15 +496,15 @@ app.delete('/api/misc/:productName/:filename', (req, res) => {
 app.get('/api/c4/:productName', (req, res) => {
   try {
     const { productName } = req.params;
-    const c4Dir = path.join(yamlDir, productName, 'c4');
+    const productC4Dir = getC4Dir(productName);
 
-    if (!fs.existsSync(c4Dir)) {
+    if (!fs.existsSync(productC4Dir)) {
       // Create directory if it doesn't exist
-      fs.mkdirSync(c4Dir, { recursive: true });
+      fs.mkdirSync(productC4Dir, { recursive: true });
       return res.json({ files: [] });
     }
 
-    const files = fs.readdirSync(c4Dir)
+    const files = fs.readdirSync(productC4Dir)
       .filter(file => file.endsWith('.likec4') || file.endsWith('.c4'))
       .map(file => ({
         name: file,
@@ -356,11 +522,11 @@ app.get('/api/c4/:productName', (req, res) => {
 app.get('/api/c4/:productName/:filename', (req, res) => {
   try {
     const { productName, filename } = req.params;
-    const c4Dir = path.join(yamlDir, productName, 'c4');
-    const filePath = path.join(c4Dir, filename);
+    const productC4Dir = getC4Dir(productName);
+    const filePath = path.join(productC4Dir, filename);
 
     // Security: prevent directory traversal
-    if (!filePath.startsWith(c4Dir)) {
+    if (!filePath.startsWith(productC4Dir)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -386,20 +552,23 @@ app.put('/api/c4/:productName/:filename', (req, res) => {
       return res.status(400).json({ error: 'Content is required' });
     }
 
-    const c4Dir = path.join(yamlDir, productName, 'c4');
-    const filePath = path.join(c4Dir, filename);
+    const productC4Dir = getC4Dir(productName);
+    const filePath = path.join(productC4Dir, filename);
 
     // Security: prevent directory traversal
-    if (!filePath.startsWith(c4Dir)) {
+    if (!filePath.startsWith(productC4Dir)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     // Ensure directory exists
-    if (!fs.existsSync(c4Dir)) {
-      fs.mkdirSync(c4Dir, { recursive: true });
+    if (!fs.existsSync(productC4Dir)) {
+      fs.mkdirSync(productC4Dir, { recursive: true });
     }
 
     fs.writeFileSync(filePath, content, 'utf8');
+
+    // Invalidate cached LikeC4 instance so next request gets fresh model
+    invalidateLikeC4Instance(productName);
 
     // Broadcast the update to all connected WebSocket clients
     broadcastC4Update(productName, filename, content);
@@ -421,17 +590,17 @@ app.post('/api/c4/:productName/:filename', (req, res) => {
       return res.status(400).json({ error: 'Filename must end with .likec4 or .c4' });
     }
 
-    const c4Dir = path.join(yamlDir, productName, 'c4');
-    const filePath = path.join(c4Dir, filename);
+    const productC4Dir = getC4Dir(productName);
+    const filePath = path.join(productC4Dir, filename);
 
     // Security: prevent directory traversal
-    if (!filePath.startsWith(c4Dir)) {
+    if (!filePath.startsWith(productC4Dir)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     // Ensure directory exists
-    if (!fs.existsSync(c4Dir)) {
-      fs.mkdirSync(c4Dir, { recursive: true });
+    if (!fs.existsSync(productC4Dir)) {
+      fs.mkdirSync(productC4Dir, { recursive: true });
     }
 
     if (fs.existsSync(filePath)) {
@@ -439,6 +608,9 @@ app.post('/api/c4/:productName/:filename', (req, res) => {
     }
 
     fs.writeFileSync(filePath, content || '', 'utf8');
+
+    // Invalidate cached LikeC4 instance so next request gets fresh model
+    invalidateLikeC4Instance(productName);
 
     // Broadcast the update to all connected WebSocket clients
     broadcastC4Update(productName, filename, content || '');
@@ -454,11 +626,11 @@ app.post('/api/c4/:productName/:filename', (req, res) => {
 app.delete('/api/c4/:productName/:filename', (req, res) => {
   try {
     const { productName, filename } = req.params;
-    const c4Dir = path.join(yamlDir, productName, 'c4');
-    const filePath = path.join(c4Dir, filename);
+    const productC4Dir = getC4Dir(productName);
+    const filePath = path.join(productC4Dir, filename);
 
     // Security: prevent directory traversal
-    if (!filePath.startsWith(c4Dir)) {
+    if (!filePath.startsWith(productC4Dir)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -467,11 +639,29 @@ app.delete('/api/c4/:productName/:filename', (req, res) => {
     }
 
     fs.unlinkSync(filePath);
+
+    // Invalidate cached LikeC4 instance so next request gets fresh model
+    invalidateLikeC4Instance(productName);
+
     res.json({ success: true, message: 'File deleted successfully' });
   } catch (error) {
     console.error('Error deleting C4 file:', error);
     res.status(500).json({ error: 'Failed to delete file' });
   }
+});
+
+// Serve static C4 files
+app.use('/api/c4-static/:productName', (req, res, next) => {
+  const { productName } = req.params;
+  const staticDir = path.join(getC4Dir(productName), 'static');
+
+  if (!fs.existsSync(staticDir)) {
+    return res.status(404).json({ error: 'Static directory not found' });
+  }
+
+  // Remove the productName from the path for express.static
+  req.url = req.url.replace(`/${productName}`, '');
+  express.static(staticDir)(req, res, next);
 });
 
 // ==================
@@ -1339,15 +1529,17 @@ watcher.on('change', (filePath) => {
       broadcastUpdate(filename, data, productName);
     }
 
-    // Handle LikeC4 files
-    if (filename.endsWith('.likec4')) {
+    // Handle LikeC4 files (path: {productName}/c4/{filename}.likec4)
+    if (filename.endsWith('.likec4') || filename.endsWith('.c4')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
-      // Extract productName from path: yamlDir/productName/c4/filename.likec4
-      const relativePath = path.relative(yamlDir, filePath);
-      const parts = relativePath.split(path.sep);
+      // Extract productName from path: yamlDir/{productName}/c4/filename.likec4
       if (parts.length >= 3 && parts[1] === 'c4') {
         const productName = parts[0];
         console.log(`C4 file ${filename} changed externally, broadcasting update for ${productName}`);
+
+        // Invalidate cached LikeC4 instance
+        invalidateLikeC4Instance(productName);
+
         broadcastC4Update(productName, filename, fileContent);
       }
     }
@@ -1372,14 +1564,16 @@ watcher.on('add', (filePath) => {
       broadcastUpdate(filename, data, productName);
     }
 
-    // Handle LikeC4 files
-    if (filename.endsWith('.likec4')) {
+    // Handle LikeC4 files (path: {productName}/c4/{filename}.likec4)
+    if (filename.endsWith('.likec4') || filename.endsWith('.c4')) {
       const fileContent = fs.readFileSync(filePath, 'utf8');
-      const relativePath = path.relative(yamlDir, filePath);
-      const parts = relativePath.split(path.sep);
       if (parts.length >= 3 && parts[1] === 'c4') {
         const productName = parts[0];
         console.log(`C4 file ${filename} added, broadcasting update for ${productName}`);
+
+        // Invalidate cached LikeC4 instance
+        invalidateLikeC4Instance(productName);
+
         broadcastC4Update(productName, filename, fileContent);
       }
     }
@@ -1407,13 +1601,17 @@ watcher.on('unlink', (filePath) => {
     });
   }
 
-  // Handle LikeC4 files
-  if (filename.endsWith('.likec4')) {
+  // Handle LikeC4 files (path: {productName}/c4/{filename}.likec4)
+  if (filename.endsWith('.likec4') || filename.endsWith('.c4')) {
     const relativePath = path.relative(yamlDir, filePath);
     const parts = relativePath.split(path.sep);
     if (parts.length >= 3 && parts[1] === 'c4') {
       const productName = parts[0];
       console.log(`C4 file ${filename} deleted, broadcasting removal for ${productName}`);
+
+      // Invalidate cached LikeC4 instance
+      invalidateLikeC4Instance(productName);
+
       const message = JSON.stringify({
         type: 'c4_delete',
         productName,

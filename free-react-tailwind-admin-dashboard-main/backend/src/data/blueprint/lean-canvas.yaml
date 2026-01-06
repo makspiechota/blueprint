@@ -17,14 +17,12 @@ problem:
       machine-readable business context
   existing_alternatives: >-
     Generic documentation tools, unstructured wikis, manual context sharing,
-    ad-hoc AI prompting
+    ad-hoc AI prompting, Agent OS
 customer_segments:
   target_customers: >-
     B2B SaaS companies with engineering teams using AI tools for development
     workflows
-  early_adopters: >-
-    Tech-forward companies already experimenting with AI agents in software
-    development
+  early_adopters: Post-PMF scaleups
 unique_value_proposition:
   single_clear_message: Give your AI agents the business context they need to work effectively
   high_level_concept: >-
@@ -32,9 +30,7 @@ unique_value_proposition:
     AI agent consumption and systematic workflows
 solution:
   top_3_features:
-    - >-
-      Hierarchical blueprint system (North Star → Architecture → Business Model
-      → Metrics → Policies)
+    - Hierarchical blueprint system (Business →DDD → Software Layers)
     - >-
       YAML-based DSL with validation and cross-references optimized for AI
       parsing
@@ -46,28 +42,21 @@ solution:
       human-agent communication and collaboration
 channels:
   path_to_customers:
-    - Technical content marketing on AI context management and structured DSLs
-    - Developer community engagement and open-source contributions
-    - Engineering conference presentations and workshops
-    - Direct sales to engineering leaders and platform teams
+    - Upsell for Software Factory product
+    - >-
+      Trainings and online courses about how engineering excellence enables
+      autonomous AI SDLC-workflows (during the course - minimal implementation
+      built, showing the potential)
+    - Conferences, podcasts, webinars
+    - Partnerships with AI providers and tech platforms
 revenue_streams:
   revenue_model: SaaS subscription based on team size and blueprint complexity
-  lifetime_value: $50,000+ for mid-sized SaaS companies over 3-year adoption
-cost_structure:
-  customer_acquisition_cost: $500 per customer through content marketing and community referrals
-  distribution_costs: $200 per customer for cloud infrastructure and AI processing
-  hosting_costs: $150 per customer for platform maintenance and updates
-  people_costs: $300 per customer for customer success and support
+  lifetime_value: $36000 for mid-sized SaaS companies over 3-year adoption
 key_metrics:
   annual_revenue_3_years_target:
-    amount: 750000
+    amount: 1000000
     currency: USD
     timeframe: 3 years
-  activities_to_measure:
-    - Blueprint creation completion rate (>80%)
-    - AI integration success rate (>90%)
-    - Engineering velocity improvement (3-6x target)
-    - Time to AI adoption readiness (<30 days)
 unfair_advantage:
   cant_be_copied: >-
     Decade of deep expertise in SDLC development, encompassing methodologies

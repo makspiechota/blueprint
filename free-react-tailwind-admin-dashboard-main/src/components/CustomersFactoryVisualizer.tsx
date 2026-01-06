@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChatButton from './ChatButton';
 import EditButton from './EditButton';
+import DownloadButton from './DownloadButton';
 import { useChat } from '../context/ChatContext';
 import { aiService } from '../services/aiService';
 import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
@@ -175,6 +176,7 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
     if (value?.percentage !== undefined) return `${value.percentage}%`;
     if (value?.rate !== undefined) return `${value.rate}${value.period ? ` ${value.period}` : ''}`;
     if (value?.amount !== undefined) return `$${value.amount.toLocaleString()}`;
+    if (value?.count !== undefined) return value.count.toString();
     if (value?.score !== undefined) return value.score;
     return 'N/A';
   };
@@ -185,7 +187,10 @@ const CustomersFactoryVisualizer: React.FC<CustomersFactoryVisualizerProps> = ({
     <div className="space-y-6 relative">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{data.title || 'Customers Factory'}</h1>
-        <span className="text-sm text-gray-500 dark:text-gray-400">AAARR Growth Framework</span>
+        <div className="flex items-center gap-2">
+          <DownloadButton data={data} filename={`aaarr-metrics-${productName}.yaml`} />
+          <span className="text-sm text-gray-500 dark:text-gray-400">AAARR Growth Framework</span>
+        </div>
       </div>
 
       {/* Stage Selection Menu */}

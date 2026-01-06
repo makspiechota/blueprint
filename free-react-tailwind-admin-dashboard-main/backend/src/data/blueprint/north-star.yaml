@@ -12,9 +12,9 @@ problem: >-
   agents, resulting in inconsistent outputs, manual overhead, and inability to
   leverage AI effectively across development workflows
 solution: >-
-  Build BLUEPRINT, a hierarchical DSL platform that structures business
-  knowledge as single source of truth, enabling AI agents to understand context
-  and execute systematically across development workflows
+  BLUEPRINT, a hierarchical plain-text DSL that structures business knowledge as
+  single source of truth, enabling AI agents to understand context and execute
+  systematically across development workflows
 strategic_goals:
   - title: Establish BLUEPRINT as the standard for AI context management
     description: >-

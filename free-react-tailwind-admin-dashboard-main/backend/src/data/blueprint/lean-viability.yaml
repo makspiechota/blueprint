@@ -6,27 +6,27 @@ title: BLUEPRINT Platform Viability Analysis
 lean_canvas_ref: lean-canvas.yaml
 calculations:
   annual_revenue_per_customer:
-    amount: 1000
+    amount: 12000
     currency: USD
     basis: SaaS subscription for engineering teams (5-15 engineers)
   required_customers:
-    count: 750
+    count: 84
     formula: Annual revenue target / Annual revenue per customer
   customer_acquisition_rate:
     rate: 25
     period: month
     formula: Required customers / (Time horizon in months)
   monthly_acquisition_target:
-    rate: 7
+    rate: 2
     period: month
     formula: Required customers × Monthly churn rate
   customer_lifetime_value:
-    years: 10
+    years: 5
     formula: Annual revenue per customer * Customer lifetime
-    amount: 10000
+    amount: 60000
     currency: USD
   churn_rate:
-    monthly_rate: 0.008333333333333333
+    monthly_rate: 0.016666666666666666
     formula: 1 / (12 * Customer lifetime)
   conversion_rate:
     rate: 0.15
@@ -39,6 +39,6 @@ calculations:
     prospect_acquisition_rate: 0.1
     acquisition_rate: 0.1
   funnel_targets:
-    users_activation_target: 70
-    users_target: 700
-    users_acquisition_target: 7000
+    users_activation_target: 20
+    users_target: 200
+    users_acquisition_target: 2000
