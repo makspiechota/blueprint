@@ -1,562 +1,193 @@
-# BLUEPRINT
+# TailAdmin React - Free React Tailwind Admin Dashboard Template
 
-Business knowledge management system with DSL parser and visualization.
+TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
+with everything they need to create a comprehensive, data-driven back-end,
+dashboard, or admin panel solution for upcoming web projects.
+
+With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
+feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
+application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+
+![TailAdmin React.js Dashboard Preview](./banner.png)
 
 ## Overview
 
-BLUEPRINT helps you define and communicate your strategic vision and business model through structured DSL (Domain-Specific Language) files. It provides a multi-layer approach:
+TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
+control panels. It's built on:
 
-1. **North Star** - Strategic vision: problem, solution, and goals
-2. **Lean Canvas** - Business model: customers, revenue, costs, and metrics
-3. **Lean 1-2-3 Viability** - Quantitative viability test with work-backwards calculations
-4. **AAARR Metrics** ✨ NEW - Customer lifecycle metrics (Pirate Metrics)
-5. **Architectural Scope** - Business capabilities organized by Why, What, How, Where, Who, and When
-6. **Policy Charter** ✨ NEW - Operational goals, tactics, policies, risks, and KPIs using Ronald Ross framework
-7. **Business Orchestration** - Multi-layer visualization
+- React 19
+- TypeScript
+- Tailwind CSS v4
 
-Use `business.yaml` as the entry point to orchestrate all layers. Together, these create a complete business blueprint from strategy to execution.
+### Quick Links
 
-## Features
+- [✨ Visit Website](https://tailadmin.com)
+- [📄 Documentation](https://tailadmin.com/docs)
+- [⬇️ Download](https://tailadmin.com/download)
+- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
+- [⚡ Get PRO Version](https://tailadmin.com/pricing)
 
-- **Multi-Layer Architecture** - North Star (vision) + Lean Canvas (business model) + Lean Viability (quantitative test) + AAARR Metrics (customer factory) + Architectural Scope (capabilities) + Policy Charter (operational governance)
-- **business.yaml Orchestration** - Single entry point for all layers with flexible combinations
-- **YAML DSL** - Simple, version-controlled format for business knowledge
-- **Lean Canvas Support** - 9-box business model framework (problem, solution, customers, revenue, costs)
-- **Lean 1-2-3 Viability** - Work-backwards calculations from revenue target to daily acquisition metrics
-- **Six Scope Dimensions** - Why (mission + goals), What, How, Where, Who, When (7±2 items each)
-- **Validation** - Schema validation + business rules for all layer types
-- **Tabbed Visualization** - HTML view with tabs for each layer
-- **CLI Tools** - Easy-to-use command-line interface for validate and visualize
+### Demos
+
+- [Free Version](https://free-react-demo.tailadmin.com/)
+- [Pro Version](https://react-demo.tailadmin.com)
+
+### Other Versions
+
+- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
+- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
+- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
+- [Angular Version](https://github.com/TailAdmin/free-angular-tailwind-dashboard)
+- [Laravel Version](https://github.com/TailAdmin/tailadmin-laravel)
 
 ## Installation
 
-```bash
-npm install -g blueprint
-```
+### Prerequisites
 
-Or use npx without installing:
+To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
 
-```bash
-npx blueprint <command>
-```
+- Node.js 18.x or later (recommended to use Node.js 20.x or later)
 
-## Quick Start
+### Cloning the Repository
 
-### 1. Create business.yaml (entry point)
-
-BLUEPRINT uses `business.yaml` as the single entry point for all layers:
-
-```yaml
-type: business
-version: "1.0"
-last_updated: "2025-12-20"
-title: "My Product"
-
-# All references are optional - use what makes sense for your project
-north_star_ref: "north-star.yaml"              # Vision and strategy
-lean_canvas_ref: "lean-canvas.yaml"            # Business model
-lean_viability_ref: "lean-viability.yaml"      # Viability calculations
-aaarr_metrics_ref: "aaarr-metrics.yaml"        # Customer metrics
-architectural_scope_ref: "architectural-scope.yaml"  # Architecture
-policy_charter_ref: "policy-charter.yaml"      # Operational governance
-```
-
-### 2. Create your strategic layer(s)
-
-**Option A: North Star** (vision-focused):
-```yaml
-type: north-star
-version: "1.0"
-last_updated: "2025-12-20"
-title: "My Product"
-vision: "Your vision"
-problem: "Your problem"
-solution: "Your solution"
-strategic_goals:
-  - title: "Goal 1"
-    description: "Description"
-```
-
-**Option B: Lean Canvas** (business model-focused):
-```yaml
-type: lean-canvas
-version: "1.0"
-last_updated: "2025-12-20"
-title: "My Product"
-problem:
-  top_3_problems:
-    - "Problem 1 - customers struggle with X"
-    - "Problem 2 - existing solutions are too expensive"
-    - "Problem 3 - current tools are too complex"
-customer_segments:
-  target_customers: "Your target market"
-unique_value_proposition:
-  single_clear_message: "Your unique value"
-solution:
-  top_3_features:
-    - "Feature 1"
-    - "Feature 2"
-    - "Feature 3"
-```
-
-**Option C: Both** (recommended for startups):
-Use both North Star for vision narrative and Lean Canvas for business details.
-
-### 3. Validate and Visualize
+Clone the repository using the following command:
 
 ```bash
-# Validate your business.yaml and all referenced layers
-blueprint validate business.yaml
-
-# Generate HTML visualization with tabbed interface
-blueprint visualize business.yaml
-# Opens business-visualization.html with tabs for each layer
+git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
 ```
 
-## Lean 1-2-3 Viability
-
-Based on Ash Maurya's Lean 1-2-3 framework. Validates business model viability by working backwards from revenue target to daily actions.
-
-### Quick Start
-
-1. Create `lean-viability.yaml`:
-```yaml
-type: lean-viability
-version: "1.0"
-title: "Your Viability Model"
-lean_canvas_ref: "lean-canvas.yaml"
-
-# 3-year viability test
-time_horizon:
-  duration: 3
-  unit: years
-
-# Success criteria
-success_criteria:
-  annual_revenue:
-    amount: 10000000
-    currency: USD
-  target_year: 3
-
-# Work-backwards calculations
-calculations:
-  annual_revenue_per_customer:
-    amount: 1200
-    currency: USD
-    basis: "$100/month subscription"
-
-  required_customers:
-    count: 8334
-    formula: "$10M / $1,200"
-
-  customer_acquisition_rate:
-    rate: 2778
-    period: year
-    formula: "8,334 / 3 years"
-
-  monthly_acquisition_target:
-    rate: 231
-    period: month
-    formula: "2,778 / 12"
-
-# Optional: Enhanced calculations
-  customer_lifetime_value:
-    years: 1
-    formula: "Average customer lifetime"
-
-  churn_rate:
-    monthly_rate: 0.0833
-    formula: "1 / (CLV * 12)"
-
-  conversion_rate:
-    rate: 0.02
-    basis: "2% visitor-to-signup"
-
-  monthly_visitors:
-    rate: 11550
-    period: month
-    formula: "231 / 0.02"
-
-# Targets for AAARR import
-targets:
-  acquisition:
-    monthly_signups:
-      rate: 231
-      period: month
-  revenue:
-    arpu:
-      amount: 100
-      currency: USD
-      period: month
-```
-
-2. Generate dashboard:
-```bash
-blueprint visualize lean-viability.yaml
-```
-
-3. Review `viability-dashboard.html`:
-   - Success criteria ($10M in 3 years)
-   - Work-backwards calculations with formulas
-   - Customer lifetime value and churn assumptions
-   - Conversion funnel metrics
-   - Generated targets for AAARR metrics layer
-
-### Key Concepts
-
-**Structured Numeric Types:**
-- Currency amounts: `{ amount: 10000, currency: "USD" }`
-- Rates/periods: `{ rate: 231, period: "month" }`
-- Time horizons: `{ duration: 3, unit: "years" }`
-
-**Unidirectional Dependencies:**
-- ✅ Viability references Lean Canvas (upward)
-- ❌ Viability does NOT reference AAARR (downward - would create circular dependency)
-- ✅ AAARR imports targets FROM viability (upward reference)
-
-**Validations:**
-- Time horizon: Warns if < 2 or > 5 years
-- Currency consistency: All amounts must use same currency
-- Lean Canvas existence: Must reference valid `lean-canvas.yaml`
-- Sanity checks: Warns if required customers > 1M
-
-### Layer Integration
-
-Lean Viability generates targets that cascade to lower layers:
-
-```
-Lean Canvas (revenue model)
-  ↓ referenced by
-Lean Viability (work-backwards calculations)
-  ↓ generates targets for
-AAARR Metrics (import targets)
-  ↓ justified by
-Policy Charter (KPIs link to AAARR)
-  ↓ prioritizes
-Backlog (features by AAARR impact)
-```
-
-### Example
-
-See `examples/lean-viability.yaml` for a complete working example with:
-- $10M ARR target in 3 years
-- 231 monthly signups needed
-- Customer lifetime value and churn calculations
-- Conversion funnel metrics
-- Generated targets for AAARR import
-
-## AAARR Metrics (Customer Factory)
-
-### Quick Start
-
-1. Create `aaarr-metrics.yaml`:
-```yaml
-type: aaarr-metrics
-version: "1.0"
-title: "Your Customer Metrics"
-lean_viability_ref: "lean-viability.yaml"
-
-stages:
-  acquisition:
-    stage_goal: "Get users to discover your product"
-    metrics:
-      - id: aaarr.acquisition.signup-rate
-        name: "Monthly Signups"
-        target:
-          rate: 231
-          period: month
-          imported_from: lean-viability.targets.monthly_acquisition
-        current:
-          rate: 150
-          period: month
-
-  activation:
-    stage_goal: "Get users to first value"
-    metrics:
-      - id: aaarr.activation.first-value
-        name: "First Action Completion"
-        target:
-          percentage: 60
-        current:
-          percentage: 45
-
-  retention:
-    stage_goal: "Keep users coming back"
-    metrics:
-      - id: aaarr.retention.mau
-        name: "Monthly Active Users"
-        target:
-          rate: 8334
-          period: month
-        current:
-          rate: 5000
-          period: month
-
-  referral:
-    stage_goal: "Turn users into advocates"
-    metrics:
-      - id: aaarr.referral.nps
-        name: "Net Promoter Score"
-        target:
-          rate: 50
-          period: score
-        current:
-          rate: 35
-          period: score
-
-  revenue:
-    stage_goal: "Monetize the user base"
-    metrics:
-      - id: aaarr.revenue.arr
-        name: "Annual Recurring Revenue"
-        target:
-          amount: 10000000
-          currency: USD
-        current:
-          amount: 6000000
-          currency: USD
-```
-
-2. Generate Customer Factory visualization:
-```bash
-blueprint visualize aaarr-metrics.yaml
-```
-
-3. Review `aaarr-dashboard.html` to identify bottlenecks
-
-### Key Concepts
-
-**Semantic IDs**
-- Format: `aaarr.{stage}.{metric-name}`
-- Example: `aaarr.acquisition.signup-rate`
-- Validated by schema pattern
-
-**Metric Types**
-- Rate/Period: `{ rate: 231, period: "month" }`
-- Amount/Currency: `{ amount: 10000, currency: "USD" }`
-- Percentage: `{ percentage: 60 }`
-
-**Gap Calculation**
-- Automatic: Gap = Target - Current
-- Positive gap (red): Current below target
-- Negative gap (green): Current exceeds target
-- Visual indicators in dashboard
-
-**Target Import**
-- Import targets FROM lean-viability layer
-- Uses `imported_from` field
-- Reference format: `lean-viability.{section}.{field}`
-- Example: `imported_from: lean-viability.targets.monthly_acquisition`
-
-**Unidirectional Dependencies**
-- AAARR references: ✅ Lean Viability (upward)
-- AAARR references: ✅ North Star (upward)
-- AAARR references: ❌ Policy Charter (downward - would create circular dependency)
-- Policy Charter links TO AAARR (upward reference)
-
-**Validations**
-- All 5 stages required
-- Metric IDs must be unique
-- Metric ID must match stage name
-- Target/current types must be consistent
-- Currency must match for amount types
-- Warns if no viability reference
-
-### Customer Factory Visualization
-
-The generated dashboard shows:
-- **Pipeline View**: 5 stages connected left-to-right
-- **Stage Status**: Red border = gaps exist, Green = on track
-- **Metrics**: Each metric shows target, current, gap
-- **Bottleneck Identification**: Quickly spot underperforming stages
-- **Responsive Design**: Stacks vertically on mobile
-
-### Layer Integration
-
-AAARR Metrics connects viability targets to actionable KPIs:
-```
-Lean Canvas (revenue model)
-  ↓ referenced by
-Lean Viability (work-backwards calculations)
-  ↓ generates targets for
-AAARR Metrics (import targets) ← YOU ARE HERE
-  ↓ justified by
-Policy Charter (KPIs link to AAARR)
-  ↓ prioritizes
-Backlog (features by AAARR impact)
-```
-
-**Example Integration Flow:**
-1. Lean Viability calculates: Need 231 customers/month
-2. AAARR imports as target: `aaarr.acquisition.signup-rate`
-3. Policy Charter creates KPI: "Increase signup rate to 231/month"
-4. Policy Charter links KPI to metric: `aaarr.acquisition.signup-rate`
-5. Backlog prioritizes features that improve signup rate
-
-## Policy Charter (Operational Governance)
-
-### Quick Start
-
-Policy Charter implements Ronald Ross's framework for connecting strategy to execution:
-
-```yaml
-type: policy-charter
-version: "1.0"
-last_updated: "2025-12-25"
-title: "Software Factory Policy Charter"
-
-# Required references
-architectural_scope_ref: "architectural-scope.yaml"
-aaarr_metrics_ref: "aaarr-metrics.yaml"
-
-goals:
-  - id: pc.goal.delivery-velocity
-    title: "Accelerate Engineering Velocity"
-    description: "Enable teams to deliver features faster"
-    addresses:
-      - arch.goal.velocity
-    aaarr_impact:
-      - acquisition
-    tactics:
-      - pc.tactic.tdd-mandate
-    policies:
-      - pc.policy.tdd-required
-    kpis:
-      - pc.kpi.deployment-frequency
-
-tactics:
-  - id: pc.tactic.tdd-mandate
-    title: "Mandate Test-Driven Development"
-    description: "Require TDD for all features"
-    drives_policies:
-      - pc.policy.tdd-required
-
-policies:
-  - id: pc.policy.tdd-required
-    title: "TDD Required for New Features"
-    rule: "All new features must use Test-Driven Development"
-    driven_by_tactic: pc.tactic.tdd-mandate
-    enforcement: mandatory
-    brackets:
-      - condition: "High complexity"
-        rule: "Full TDD required"
-      - condition: "Low complexity"
-        rule: "TDD encouraged"
-
-risks:
-  - id: pc.risk.skill-gap
-    description: "Team lacks TDD skills"
-    probability: high
-    impact: medium
-    mitigation:
-      - pc.tactic.training-program
-
-kpis:
-  - id: pc.kpi.deployment-frequency
-    name: "Deployment Frequency"
-    target:
-      rate: 30
-      period: day
-    current:
-      rate: 12
-      period: day
-    measurement_frequency: daily
-    justification: aaarr.activation.feature-rollout-rate
-```
-
-### Key Concepts
-
-**Ronald Ross Framework:**
-```
-Goals (Why) → Tactics (How) → Policies (What)
-```
-
-**Semantic IDs:** Structured identifiers for all entities
-- `pc.goal.*` - Goals
-- `pc.tactic.*` - Tactics
-- `pc.policy.*` - Policies
-- `pc.risk.*` - Risks
-- `pc.kpi.*` - KPIs
-
-**Graduated Brackets:** Conditional policy rules for complex scenarios
-
-**Bidirectional Relationships:** Tactics drive policies, policies reference tactics
-
-### Three-Level Validation
-
-1. **Schema Validation** - JSON Schema compliance
-2. **Reference Existence** - File and cross-layer references exist
-3. **Logical Consistency** - Business rule validation
-
-### Policy Charter Visualization
-
-Comprehensive tabbed interface with:
-- **Goals Overview** - Goals with architectural addresses and AAARR impact
-- **Tactics Tree** - Hierarchical tactics with policy relationships
-- **Policies Matrix** - Policies with enforcement levels and graduated brackets
-- **Risk Management** - Risks with mitigation strategies
-- **KPI Dashboard** - KPIs with targets, current values, and justifications
-
-### Layer Integration
-
-Policy Charter connects strategy to operational execution:
-
-```
-North Star (strategy)
-  ↓ informs
-Architectural Scope (capabilities)
-  ↓ addressed by
-Policy Charter (operational goals) ← YOU ARE HERE
-  ↓ drives
-Backlog (implementation)
-```
-
-**Integration Flow:**
-1. Architectural Scope defines capability goals
-2. Policy Charter creates operational goals addressing scope goals
-3. Policy Charter defines tactics to achieve goals
-4. Policy Charter establishes policies driven by tactics
-5. Policy Charter identifies risks and mitigation strategies
-6. Policy Charter defines KPIs justified by AAARR metrics
-
-## Documentation
-
-- [User Guide](docs/user-guide.md) - Detailed usage instructions
-- [Layer Orchestration](docs/layer-orchestration.md) - business.yaml pattern and layer combinations
-- [Business Layer Architecture](docs/architecture/business-layer-architecture.md) - Complete multi-layer design and rationale
-- [Lean Canvas Guide](docs/lean-canvas-guide.md) - Complete Lean Canvas reference
-- [Architectural Scope Guide](docs/architectural-scope-guide.md) - Complete architectural scope reference
-- [North Star DSL Specification](docs/north-star-dsl-spec.md) - North Star DSL reference
-- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
-- [Examples](examples/README.md) - Working examples with explanations
-
-## CLI Commands
-
-```bash
-# Validation
-blueprint validate <file>        # Validate any layer file
-                                 # Supports: business, north-star, lean-canvas,
-                                 #           lean-viability, aaarr-metrics, architectural-scope
-
-# Visualization
-blueprint visualize <file>       # Generate HTML visualization
-                                 # business.yaml creates tabbed view with all referenced layers
-                                 # lean-viability.yaml creates viability dashboard
-                                 # aaarr-metrics.yaml creates aaarr-dashboard.html
-
-# Other
-blueprint --version              # Show version
-blueprint --help                 # Show help
-```
-
-## Development
-
-```bash
-npm install        # Install dependencies
-npm run build      # Build TypeScript
-npm test          # Run tests
-```
-
-## Software Factory
-
-This project uses Software Factory methodology with systematic practices and PR review mode.
+> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## Components
+
+TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
+template includes:
+
+- Sophisticated and accessible sidebar
+- Data visualization components
+- Prebuilt profile management and 404 page
+- Tables and Charts(Line and Bar)
+- Authentication forms and input elements
+- Alerts, Dropdowns, Modals, Buttons and more
+- Can't forget Dark Mode 🕶️
+
+All components are built with React and styled using Tailwind CSS for easy customization.
+
+## Feature Comparison
+
+### Free Version
+
+- 1 Unique Dashboard
+- 30+ dashboard components
+- 50+ UI elements
+- Basic Figma design files
+- Community support
+
+### Pro Version
+
+- 7 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, SaaS, Stocks, Logistics (more coming soon)
+- 500+ dashboard components and UI elements
+- Complete Figma design file
+- Email support
+
+To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+
+## Changelog
+
+### Version 2.0.2 - [March 25, 2025]
+
+- Upgraded to React 19
+- Included overrides for packages to prevent peer dependency errors.
+- Migrated from react-flatpickr to flatpickr package for React 19 support
+
+### Version 2.0.1 - [February 27, 2025]
+
+#### Update Overview
+
+- Upgraded to Tailwind CSS v4 for better performance and efficiency.
+- Updated class usage to match the latest syntax and features.
+- Replaced deprecated class and optimized styles.
+
+#### Next Steps
+
+- Run npm install or yarn install to update dependencies.
+- Check for any style changes or compatibility issues.
+- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
+- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+
+### Version 2.0.0 - [February 2025]
+
+A major update with comprehensive redesign and modern React patterns implementation.
+
+#### Major Improvements
+
+- Complete UI redesign with modern React patterns
+- New features: collapsible sidebar, chat, and calendar
+- Improved performance and accessibility
+- Updated data visualization using ApexCharts
+
+#### Key Features
+
+- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
+- Enhanced navigation with React Router integration
+- Advanced tables with sorting and filtering
+- Calendar with drag-and-drop support
+- New UI components and improved existing ones
+
+#### Breaking Changes
+
+- Updated sidebar component API
+- Migrated charts to ApexCharts
+- Revised authentication system
+
+[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
+
+### Version 1.3.7 - [June 20, 2024]
+
+#### Enhancements
+
+1. Remove Repetition of DefaultLayout in every Pages
+2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
+
+### Version 1.3.6 - [Jan 31, 2024]
+
+#### Enhancements
+
+1. Integrate flatpickr in [Date Picker/Form Elements]
+2. Change color after select an option [Select Element/Form Elements].
+3. Make it functional [Multiselect Dropdown/Form Elements].
+4. Make best value editable [Pricing Table One/Pricing Table].
+5. Rearrange Folder structure.
+
+### Version 1.2.0 - [Apr 28, 2023]
+
+- Add Typescript in TailAdmin React.
+
+### Version 1.0.0 - Initial Release - [Mar 13, 2023]
+
+- Initial release of TailAdmin React.
+
+## License
+
+TailAdmin React.js Free Version is released under the MIT License.
+
+## Support
+
+If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
+and maintaining this template.

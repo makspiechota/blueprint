@@ -1,9 +1,0 @@
-      annual_revenue_per_customer: "$1,200"  # From revenue.arpu * 12                                
-      required_customers: 8334  # $10M / $1,200                                                      
-      customer_acquisition_rate: "2778/year"  # 8334 / 3 years                                       
-      monthly_acquisition_target: "231/month"  # Feeds into acq.signup-rate                          
-
-      ok but let's make it more strict and possible to parse,.e.g annual_revenue_per_customer should be smth like
- annual_revenue_per_customer:
-    revenue: 100000
-    currency: USD (enum with supported currencies: USD, EUR, PLN)

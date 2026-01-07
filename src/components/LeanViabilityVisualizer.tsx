@@ -1,247 +1,710 @@
-import React from 'react';
-import { LeanViability } from '../parser/types';
+import React, { useState } from 'react';
+import ChatButton from './ChatButton';
+import EditButton from './EditButton';
+import DownloadButton from './DownloadButton';
+import { useChat } from '../context/ChatContext';
+import { aiService } from '../services/aiService';
+import { unprocessObjectDocLinks } from '../utils/docLinkProcessor';
+import yaml from 'js-yaml';
+import { calculateLeanViabilityMetrics } from '../utils/leanViabilityCalculations';
+import ReactApexChart from 'react-apexcharts';
 
-interface LeanViabilityVisualizerProps {
-  viability: LeanViability;
+interface LeanViability {
+  title?: string;
+  version?: string;
+  last_updated?: string;
+  time_horizon?: {
+    duration?: number;
+    unit?: string;
+  };
+  success_criteria?: {
+    annual_revenue?: {
+      amount?: number;
+      currency?: string;
+    };
+  };
+  calculations?: {
+    annual_revenue_per_customer?: {
+      amount?: number;
+      currency?: string;
+    };
+    required_customers?: {
+      count?: number;
+    };
+    monthly_acquisition_target?: {
+      rate?: number;
+      period?: string;
+    };
+    customer_lifetime_value?: {
+      years?: number;
+      amount?: number;
+      currency?: string;
+    };
+    churn_rate?: {
+      monthly_rate?: number;
+    };
+    conversion_rates?: {
+      prospect_acquisition_rate?: number; // prospects → users
+      activation_rate?: number; // users → activated users
+      acquisition_rate?: number; // activated users → customers
+    };
+    funnel_targets?: {
+      users_target?: number; // users needed
+      users_activation_target?: number; // activated users needed
+      users_acquisition_target?: number; // prospects needed
+    };
+  };
 }
 
-const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ viability }) => {
+interface LeanViabilityVisualizerProps {
+  data: LeanViability;
+  leanCanvasData?: any;
+  productName?: string;
+}
+
+// Hockey Stick Chart Component
+const HockeyStickChart: React.FC<{ targetCustomers: number }> = ({ targetCustomers }) => {
+  console.log('HockeyStickChart targetCustomers:', targetCustomers);
+  // Calculate hockey stick data points (exponential growth)
+  // Year 1: target ÷ 100, Year 2: target ÷ 10, Year 3: target
+  const year1 = Math.round(targetCustomers / 100);
+  const year2 = Math.round(targetCustomers / 10);
+  const year3 = targetCustomers;
+  console.log('Chart data points:', year1, year2, year3);
+
+  const chartData = {
+    series: [{
+      name: 'Customers',
+      data: [year1, year2, year3]
+    }],
+    options: {
+      chart: {
+        type: 'line' as const,
+        height: 300,
+        toolbar: {
+          show: false
+        },
+        background: 'transparent'
+      },
+      colors: ['#4f46e5'], // Indigo color
+      stroke: {
+        curve: 'smooth' as const,
+        width: 4
+      },
+      markers: {
+        size: 6,
+        colors: ['#4f46e5'],
+        strokeColors: '#fff',
+        strokeWidth: 2
+      },
+      xaxis: {
+        categories: ['Year 1', 'Year 2', 'Year 3'],
+        labels: {
+          style: {
+            colors: '#6b7280',
+            fontSize: '12px'
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: '#6b7280',
+            fontSize: '12px'
+          },
+          formatter: (value: number) => {
+            return value.toLocaleString();
+          }
+        }
+      },
+      grid: {
+        show: true,
+        borderColor: '#e5e7eb',
+        strokeDashArray: 3,
+        xaxis: {
+          lines: {
+            show: false
+          }
+        },
+        yaxis: {
+          lines: {
+            show: true
+          }
+        }
+      },
+      tooltip: {
+        theme: 'dark',
+        y: {
+          formatter: (value: number) => `${value.toLocaleString()} customers`
+        }
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'light',
+          type: 'vertical',
+          shadeIntensity: 0.4,
+          gradientToColors: ['#4f46e5'],
+          inverseColors: false,
+          opacityFrom: 0.4,
+          opacityTo: 0.1,
+          stops: [0, 100]
+        }
+      }
+    }
+  };
+
   return (
-    <div className="container">
-      <div className="header">
-        <h1>{viability.title}</h1>
-        <div className="metadata">
-          Version {viability.version} • Last updated: {viability.last_updated}
+    <div className="w-full">
+      <ReactApexChart
+        options={chartData.options}
+        series={chartData.series}
+        type="line"
+        height={300}
+      />
+    </div>
+  );
+};
+
+const LeanViabilityVisualizer: React.FC<LeanViabilityVisualizerProps> = ({ data, leanCanvasData, productName = 'blueprint' }) => {
+  const { openChat } = useChat();
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [localData, setLocalData] = useState<LeanViability>(data);
+
+  // Update local data when prop data changes
+  React.useEffect(() => {
+    setLocalData(data);
+  }, [data]);
+
+  // Recalculate when Lean Canvas data changes
+  React.useEffect(() => {
+    if (leanCanvasData) {
+      const calculatedData = calculateLeanViabilityMetrics(data, leanCanvasData);
+      setLocalData(calculatedData);
+    }
+  }, [leanCanvasData, data]);
+
+  const handleChatClick = (resourceType: string, resourceData: any) => {
+    openChat(resourceType, resourceData);
+  };
+
+  const handleEditClick = (sectionKey: string, sectionData: any) => {
+    setEditingSection(sectionKey);
+    console.log('handleEditClick:', sectionKey, sectionData);
+    if (sectionKey === 'arpu') {
+      setEditedContent((sectionData || 12000).toString());
+    } else if (sectionKey === 'prospect_acquisition_rate') {
+      setEditedContent((sectionData || 0.05).toString());
+    } else if (sectionKey === 'activation_rate') {
+      setEditedContent((sectionData || 0.1).toString());
+    } else if (sectionKey === 'acquisition_rate') {
+      setEditedContent((sectionData || 0.05).toString());
+    } else {
+      setEditedContent(yaml.dump(sectionData || {}));
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSection || !editedContent.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const updatedData = { ...data };
+
+      // Handle different section types
+      if (editingSection === 'arpu') {
+        const arpuAmount = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.annual_revenue_per_customer) updatedData.calculations.annual_revenue_per_customer = { currency: 'USD' };
+        updatedData.calculations.annual_revenue_per_customer.amount = arpuAmount;
+      } else if (editingSection === 'customer_lifetime') {
+        const lifetimeYears = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        updatedData.calculations.customer_lifetime_value = {
+          ...updatedData.calculations.customer_lifetime_value,
+          years: lifetimeYears
+        };
+      } else if (editingSection === 'activation_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.activation_rate = rate;
+      } else if (editingSection === 'prospect_acquisition_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.prospect_acquisition_rate = rate;
+      } else if (editingSection === 'acquisition_rate') {
+        const rate = parseFloat(editedContent);
+        if (!updatedData.calculations) updatedData.calculations = {};
+        if (!updatedData.calculations.conversion_rates) updatedData.calculations.conversion_rates = {};
+        updatedData.calculations.conversion_rates.acquisition_rate = rate;
+      } else {
+        const parsedSection = yaml.load(editedContent);
+        (updatedData as any)[editingSection] = parsedSection;
+      }
+
+      // Recalculate all dependent values
+      const calculatedData = calculateLeanViabilityMetrics(updatedData, leanCanvasData);
+      console.log('Calculated data:', calculatedData);
+      // Convert HTML links back to [[doc-name]] syntax before saving
+      const cleanedData = unprocessObjectDocLinks(calculatedData);
+      const yamlContent = yaml.dump(cleanedData);
+      const result = await aiService.saveFileContent(`src/data/${productName}/lean-viability.yaml`, yamlContent);
+
+       if (result.success) {
+         // Update local data immediately for instant UI feedback
+         setLocalData(calculatedData);
+         setEditingSection(null);
+         setEditedContent('');
+       } else {
+         alert('Failed to save changes: ' + result.message);
+       }
+    } catch (error) {
+      alert('Invalid YAML format. Please check your syntax and try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSection(null);
+    setEditedContent('');
+  };
+
+      console.log('LeanViabilityVisualizer render - churn rate:', localData.calculations?.churn_rate?.monthly_rate, 'monthly acquisition:', localData.calculations?.monthly_acquisition_target?.rate);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{localData.title || 'Lean Viability'}</h1>
+        <div className="flex items-center gap-2">
+          <DownloadButton data={localData} filename={`lean-viability-${productName}.yaml`} />
+          <span className="text-sm text-gray-500 dark:text-gray-400">Financial Analysis & Projections</span>
         </div>
       </div>
 
-      <div className="dashboard">
-        <div className="section">
-          <div className="section-title">Success Criteria</div>
-          <div className="metric">
-            <div className="metric-label">Target Revenue</div>
-            <div className="metric-value">
-              {viability.success_criteria?.annual_revenue?.currency === 'USD' ? '$' : '€'}
-              {viability.success_criteria?.annual_revenue?.amount?.toLocaleString()}
-            </div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Time Horizon</div>
-            <div className="metric-value">{viability.time_horizon.duration} {viability.time_horizon.unit}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Target Year</div>
-            <div className="metric-value">Year {viability.success_criteria?.target_year}</div>
-          </div>
-        </div>
-
-        <div className="section">
-          <div className="section-title">Assumptions</div>
-          <div className="metric">
-            <div className="metric-label">Annual Revenue per Customer</div>
-            <div className="metric-value">
-              {viability.calculations?.annual_revenue_per_customer?.currency === 'USD' ? '$' : '€'}
-              {viability.calculations?.annual_revenue_per_customer?.amount?.toLocaleString()}
-            </div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Basis</div>
-            <p>{viability.calculations?.annual_revenue_per_customer?.basis}</p>
-          </div>
-        </div>
-
-        <div className="section full-width">
-          <div className="section-title">Work-Backwards Calculations</div>
-
-          {viability.calculations?.required_customers && (
-            <div className="calculation">
-              <div className="calc-name">Required Customers</div>
-              <div className="calc-value">{viability.calculations.required_customers.count.toLocaleString()}</div>
-              <div className="formula">{viability.calculations.required_customers.formula}</div>
-            </div>
-          )}
-
-          {viability.calculations?.customer_lifetime_value && (
-            <div className="calculation">
-              <div className="calc-name">Customer Lifetime Value</div>
-              <div className="calc-value">{viability.calculations.customer_lifetime_value.years} years</div>
-              <div className="formula">{viability.calculations.customer_lifetime_value.formula}</div>
-            </div>
-          )}
-
-          {viability.calculations?.churn_rate && (
-            <div className="calculation">
-              <div className="calc-name">Monthly Churn Rate</div>
-              <div className="calc-value">{(viability.calculations.churn_rate.monthly_rate! * 100).toFixed(2)}%</div>
-              <div className="formula">{viability.calculations.churn_rate.formula}</div>
-            </div>
-          )}
-
-          {viability.calculations?.customer_acquisition_rate && (
-            <div className="calculation">
-              <div className="calc-name">Customer Acquisition Rate</div>
-              <div className="calc-value">{viability.calculations.customer_acquisition_rate.rate}/{viability.calculations.customer_acquisition_rate.period}</div>
-              <div className="formula">{viability.calculations.customer_acquisition_rate.formula}</div>
-            </div>
-          )}
-
-          {viability.calculations?.monthly_acquisition_target && (
-            <div className="calculation">
-              <div className="calc-name">Monthly Acquisition Target</div>
-              <div className="calc-value">{viability.calculations.monthly_acquisition_target.rate}/{viability.calculations.monthly_acquisition_target.period}</div>
-              <div className="formula">{viability.calculations.monthly_acquisition_target.formula}</div>
-            </div>
-          )}
-
-          {viability.calculations?.conversion_rate && (
-            <div className="calculation">
-              <div className="calc-name">Conversion Rate</div>
-              <div className="calc-value">{(viability.calculations.conversion_rate.rate! * 100).toFixed(2)}%</div>
-              <div className="formula">{viability.calculations.conversion_rate.basis}</div>
-            </div>
-          )}
-
-          {viability.calculations?.monthly_visitors && (
-            <div className="calculation">
-              <div className="calc-name">Monthly Visitors Needed</div>
-              <div className="calc-value">{viability.calculations.monthly_visitors.rate.toLocaleString()}/{viability.calculations.monthly_visitors.period}</div>
-              <div className="formula">{viability.calculations.monthly_visitors.formula}</div>
-            </div>
-          )}
-        </div>
-
-        {viability.targets && (
-          <div className="section full-width">
-            <div className="section-title">Generated Targets (for AAARR Import)</div>
-
-            {viability.targets.acquisition?.monthly_signups && (
-              <div className="target-item">
-                <div className="target-stage">Acquisition</div>
-                <div className="target-metric">
-                  Monthly signups: {viability.targets.acquisition.monthly_signups.rate}/{viability.targets.acquisition.monthly_signups.period}
-                </div>
+       {/* Primary Business Target */}
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+              <div className="mb-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Annual Revenue in 3 Years</div>
               </div>
-            )}
-
-            {viability.targets.revenue?.arpu && (
-              <div className="target-item">
-                <div className="target-stage">Revenue</div>
-                <div className="target-metric">
-                  ARPU: {viability.targets.revenue.arpu.currency === 'USD' ? '$' : '€'}{viability.targets.revenue.arpu.amount}/{viability.targets.revenue.arpu.period}
-                </div>
+             <div className="text-3xl mb-3">🎯</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ${leanCanvasData?.key_metrics?.annual_revenue_3_years_target?.amount?.toLocaleString() || '750,000'}
               </div>
-            )}
+             <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+               From Lean Canvas
+             </div>
           </div>
-        )}
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Required Customers</div>
+
+            </div>
+            <div className="text-3xl mb-3">👥</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {localData.calculations?.required_customers?.count || 833}
+            </div>
+         </div>
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-gray-600 dark:text-gray-400">ARPU (Annual Revenue Per User)</div>
+               <div className="flex items-center gap-2">
+                 <EditButton onClick={() => handleEditClick('arpu', localData.calculations?.annual_revenue_per_customer?.amount)} />
+                 <ChatButton
+                   resourceType="lean-viability-arpu"
+                   resourceData={{ title: 'ARPU (Annual Revenue Per User)', content: localData.calculations?.annual_revenue_per_customer }}
+                   onClick={handleChatClick}
+                   className="!relative !top-0 !right-0"
+                 />
+                 {editingSection === 'arpu' && (
+                   <>
+                     <button
+                       onClick={handleSaveEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                       className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                     >
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                       </svg>
+                       Cancel
+                     </button>
+                   </>
+                 )}
+                </div>
+             </div>
+             {editingSection === 'arpu' ? (
+               <input
+                 type="number"
+                 value={editedContent}
+                 onChange={(e) => setEditedContent(e.target.value)}
+                 className="w-full px-3 py-2 text-center text-2xl font-bold border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+                 disabled={isSaving}
+                 placeholder="Enter ARPU amount"
+               />
+             ) : (
+               <>
+                 <div className="text-3xl mb-3">💵</div>
+                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                   ${localData.calculations?.annual_revenue_per_customer?.amount?.toLocaleString() || '12,000'}
+                 </div>
+               </>
+             )}
+         </div>
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Time to Reach Target</div>
+
+            </div>
+            <div className="text-3xl mb-3">⏰</div>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+              {localData.time_horizon?.duration || 3} {localData.time_horizon?.unit || 'years'}
+            </div>
+         </div>
       </div>
 
-      <style jsx>{`
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-        }
-        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .metadata { color: #666; font-size: 0.9rem; }
+      {/* Detailed Financial Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Assumptions */}
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="text-blue-600 dark:text-blue-400">📊</span>
+                Key Assumptions
+              </h3>
 
-        .dashboard {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-        }
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-gray-700 dark:text-gray-300">Annual Revenue per Customer</span>
+                   <span className="font-semibold text-gray-900 dark:text-white">${localData.calculations?.annual_revenue_per_customer?.amount?.toLocaleString() || '12,000'}</span>
+                </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                    <span className="text-gray-700 dark:text-gray-300">Customer Lifetime</span>
+                    <div className="flex items-center gap-2">
+                      {editingSection === 'customer_lifetime' ? (
+                        <>
+                          <input
+                            type="number"
+                            value={editedContent}
+                            onChange={(e) => setEditedContent(e.target.value)}
+                            className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                            disabled={isSaving}
+                            step="0.1"
+                            min="0.1"
+                          />
+                          <button
+                            onClick={handleSaveEdit}
+                            disabled={isSaving}
+                            className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            {isSaving ? 'Saving...' : 'Save'}
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            disabled={isSaving}
+                            className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-semibold text-gray-900 dark:text-white">{localData.calculations?.customer_lifetime_value?.years || 3} years</span>
+                          <EditButton onClick={() => handleEditClick('customer_lifetime', localData.calculations?.customer_lifetime_value)} />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                  <span className="text-gray-700 dark:text-gray-300">Monthly Churn Rate</span>
+                   <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.churn_rate?.monthly_rate || 0.05) * 100).toFixed(1)}%</span>
+                </div>
 
-        .section {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 8px;
-        }
+               </div>
+        </div>
 
-        .full-width { grid-column: 1 / -1; }
+        {/* Work-Backwards Calculations */}
+         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="text-green-600 dark:text-green-400">🧮</span>
+                Work-Backwards Calculations
+              </h3>
 
-        .section-title {
-          font-size: 1.2rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 2px solid #333;
-        }
+              </div>
+              <div className="space-y-4">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">Required Customers</span>
+                    <span className="font-bold text-green-600 dark:text-green-400">{data.calculations?.required_customers?.count || 833}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Annual revenue target ÷ ARPU</div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">Monthly Acquisition Target</span>
+                     <span className="font-bold text-blue-600 dark:text-blue-400">{localData.calculations?.monthly_acquisition_target?.rate || 7} customers</span>
+                  </div>
+                   <div className="text-xs text-gray-500 dark:text-gray-400">Required customers × Monthly churn rate</div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">Customer Lifetime Value</span>
+                     <span className="font-bold text-purple-600 dark:text-purple-400">
+                       ${((localData.calculations?.annual_revenue_per_customer?.amount || 12000) * (localData.calculations?.customer_lifetime_value?.years || 3)).toLocaleString()}
+                     </span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">ARPU × Lifetime</div>
+                </div>
 
-        .metric {
-          margin-bottom: 1rem;
-        }
+               </div>
+         </div>
+       </div>
 
-        .metric-label {
-          font-size: 0.85rem;
-          color: #666;
-          text-transform: uppercase;
-          margin-bottom: 0.25rem;
-        }
+       {/* User Acquisition Funnel */}
+       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative">
+         <div className="flex items-center justify-between mb-6">
+           <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+             <span className="text-cyan-600 dark:text-cyan-400">🎯</span>
+             User Acquisition Funnel
+           </h3>
+           <div className="flex items-center gap-2">
+             <ChatButton
+               resourceType="lean-viability-funnel"
+               resourceData={{ title: 'User Acquisition Funnel', content: localData.calculations }}
+               onClick={handleChatClick}
+               className="!relative !top-0 !right-0"
+             />
+           </div>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           {/* Conversion Rates */}
+           <div className="space-y-4">
+             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Conversion Rates</h4>
+             <div className="space-y-3">
+               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                 <span className="text-gray-700 dark:text-gray-300">Prospect Acquisition Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'prospect_acquisition_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                         </svg>
+                         {isSaving ? 'Saving...' : 'Save'}
+                       </button>
+                       <button
+                         onClick={handleCancelEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                         </svg>
+                         Cancel
+                       </button>
+                     </>
+                   ) : (
+                     <>
+                       <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.prospect_acquisition_rate || 0.05) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('prospect_acquisition_rate', localData.calculations?.conversion_rates?.prospect_acquisition_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Prospects → Users</div>
 
-        .metric-value {
-          font-size: 1.5rem;
-          font-weight: bold;
-          color: #333;
-        }
+               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
+                 <span className="text-gray-700 dark:text-gray-300">User Activation Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'activation_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancel
+                      </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.activation_rate || 0.1) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('activation_rate', localData.calculations?.conversion_rates?.activation_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+               <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Users → Activated Users</div>
 
-        .calculation {
-          margin-bottom: 1.5rem;
-          padding: 1rem;
-          background: #f9f9f9;
-          border-left: 4px solid #007bff;
-          border-radius: 4px;
-        }
+               <div className="flex justify-between items-center py-2">
+                 <span className="text-gray-700 dark:text-gray-300">Sale/Conversion Rate</span>
+                 <div className="flex items-center gap-2">
+                   {editingSection === 'acquisition_rate' ? (
+                     <>
+                       <input
+                         type="number"
+                         value={editedContent}
+                         onChange={(e) => setEditedContent(e.target.value)}
+                         className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white"
+                         disabled={isSaving}
+                         step="0.01"
+                         min="0.01"
+                         max="1"
+                       />
+                       <button
+                         onClick={handleSaveEdit}
+                         disabled={isSaving}
+                         className="flex items-center gap-1 px-2 py-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                       >
+                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       {isSaving ? 'Saving...' : 'Save'}
+                     </button>
+                     <button
+                       onClick={handleCancelEdit}
+                       disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-xs rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Cancel
+                      </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-gray-900 dark:text-white">{((localData.calculations?.conversion_rates?.acquisition_rate || 0.05) * 100).toFixed(1)}%</span>
+                       <EditButton onClick={() => handleEditClick('acquisition_rate', localData.calculations?.conversion_rates?.acquisition_rate)} />
+                     </>
+                   )}
+                 </div>
+               </div>
+               <div className="text-xs text-gray-500 dark:text-gray-400">Activated Users → Customers</div>
+             </div>
+           </div>
 
-        .calc-name {
-          font-weight: bold;
-          font-size: 1.1rem;
-          margin-bottom: 0.5rem;
-        }
+           {/* Funnel Targets */}
+           <div className="space-y-4">
+             <h4 className="text-lg font-medium text-gray-900 dark:text-white">Monthly Targets</h4>
+             <div className="space-y-4">
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Prospects Needed</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_acquisition_target || 2800} prospects</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Raw leads required</div>
+               </div>
 
-        .calc-value {
-          font-size: 1.8rem;
-          font-weight: bold;
-          color: #007bff;
-          margin-bottom: 0.5rem;
-        }
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Users Target</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_target || 1400} users</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Users after acquisition</div>
+               </div>
 
-        .formula {
-          font-family: 'Courier New', monospace;
-          background: #fff;
-          padding: 0.75rem;
-          border-radius: 4px;
-          font-size: 0.9rem;
-          margin: 0.5rem 0;
-          border: 1px solid #e0e0e0;
-        }
+               <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Activated Users Target</span>
+                   <span className="font-bold text-cyan-600 dark:text-cyan-400">{localData.calculations?.funnel_targets?.users_activation_target || 140} activated</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Activated users needed</div>
+               </div>
 
-        .target-item {
-          padding: 1rem;
-          background: #f0f8ff;
-          border-radius: 4px;
-          margin-bottom: 0.75rem;
-        }
+               <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                 <div className="flex justify-between items-center mb-2">
+                   <span className="text-gray-700 dark:text-gray-300 font-medium">Customer Target</span>
+                   <span className="font-bold text-green-600 dark:text-green-400">{localData.calculations?.monthly_acquisition_target?.rate || 7} customers</span>
+                 </div>
+                 <div className="text-xs text-gray-500 dark:text-gray-400">Paying customers needed</div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
 
-        .target-stage {
-          font-weight: bold;
-          color: #007bff;
-          margin-bottom: 0.25rem;
-        }
-
-        .target-metric {
-          font-size: 0.95rem;
-        }
-
-        @media (max-width: 768px) {
-          .dashboard {
-            grid-template-columns: 1fr;
-          }
-          .full-width {
-            grid-column: 1;
-          }
-        }
-      `}</style>
+       {/* Financial Projections - Hockey Stick Chart */}
+       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+           <span className="text-indigo-600 dark:text-indigo-400">📈</span>
+           3-Year Customer Growth Projection
+         </h3>
+         <div className="mb-4">
+           <HockeyStickChart targetCustomers={localData.calculations?.required_customers?.count || 250} />
+         </div>
+         <div className="text-sm text-gray-600 dark:text-gray-400">
+           <p className="mb-2"><strong>Hockey Stick Growth:</strong> Exponential customer acquisition following the classic hockey stick pattern where each year is 10x the previous year.</p>
+           <p><strong>Year 1:</strong> {Math.round((localData.calculations?.required_customers?.count || 250) / 100)} customers</p>
+           <p><strong>Year 2:</strong> {Math.round((localData.calculations?.required_customers?.count || 250) / 10)} customers</p>
+           <p><strong>Year 3:</strong> {localData.calculations?.required_customers?.count || 250} customers (annual target)</p>
+         </div>
+       </div>
     </div>
   );
 };
