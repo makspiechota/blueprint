@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ static-demo-tmp ]
+    branches: [ static-demo ]
   workflow_dispatch:
 
 permissions:
