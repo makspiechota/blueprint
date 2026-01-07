@@ -15,6 +15,11 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      external: ['@opencode-ai/sdk'],
+    },
+  },
   server: {
     proxy: {
       '/api': {

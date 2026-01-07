@@ -112,5 +112,4 @@ export {
   ChatIcon,
   AngleLeftIcon,
   AngleRightIcon,
-  BriefcaseIcon,
 };
