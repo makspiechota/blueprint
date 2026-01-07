@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { useChat } from '../context/ChatContext';
 import { ChatIcon } from '../icons';
 import DownloadButton from './DownloadButton';
+import { withBasePath } from '../utils/basePath';
 
 // Import LikeC4 bundled components with isolated styles
 import { LikeC4View, LikeC4ModelProvider } from '@likec4/diagram/bundle';
@@ -53,7 +54,7 @@ const C4Visualizer: React.FC = () => {
 
       for (const filename of possibleFiles) {
         try {
-          const dslResponse = await fetch(`/data/${safeProductName}/c4/${filename}`);
+          const dslResponse = await fetch(withBasePath(`data/${safeProductName}/c4/${filename}`));
           if (dslResponse.ok) {
             const content = await dslResponse.text();
             setDslContent(content);
@@ -70,7 +71,7 @@ const C4Visualizer: React.FC = () => {
       }
 
       // Load the pre-processed layouted model
-      const modelResponse = await fetch(`/data/${safeProductName}/c4/layouted-model.json`);
+      const modelResponse = await fetch(withBasePath(`data/${safeProductName}/c4/layouted-model.json`));
       if (modelResponse.ok) {
         const model = await modelResponse.json();
         setModelData(model);

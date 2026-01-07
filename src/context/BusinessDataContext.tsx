@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { processDocLinks } from '../utils/docLinkProcessor';
+import { withBasePath } from '../utils/basePath';
 import yaml from 'js-yaml';
 
 interface BusinessData {
@@ -80,13 +81,13 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
 const loadData = async (productName: string) => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes] = await Promise.all([
-      fetch(`/data/${productName}/north-star.yaml`),
-      fetch(`/data/${productName}/lean-canvas.yaml`),
-      fetch(`/data/${productName}/architectural-scope.yaml`),
-      fetch(`/data/${productName}/lean-viability.yaml`),
-      fetch(`/data/${productName}/aaarr-metrics.yaml`),
-      fetch(`/data/${productName}/policy-charter.yaml`),
-      fetch(`/data/${productName}/roadmap.json`),
+      fetch(withBasePath(`data/${productName}/north-star.yaml`)),
+      fetch(withBasePath(`data/${productName}/lean-canvas.yaml`)),
+      fetch(withBasePath(`data/${productName}/architectural-scope.yaml`)),
+      fetch(withBasePath(`data/${productName}/lean-viability.yaml`)),
+      fetch(withBasePath(`data/${productName}/aaarr-metrics.yaml`)),
+      fetch(withBasePath(`data/${productName}/policy-charter.yaml`)),
+      fetch(withBasePath(`data/${productName}/roadmap.json`)),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks(yaml.load(await northStarRes.text())) : null;
