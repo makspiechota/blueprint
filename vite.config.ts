@@ -19,9 +19,6 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/blueprint/' : '/',
   build: {
     outDir: 'dist',
-    rollupOptions: {
-      external: ['@opencode-ai/sdk'],
-    },
   },
   server: {
     proxy: {
