@@ -1,0 +1,62 @@
+type: lean-canvas
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-30'
+title: Lean Canvas for AI-Driven Autonomous SDLC
+north_star_ref: North Star for AI-Driven Autonomous SDLC
+problem:
+  top_3_problems:
+    - Lack of trust in the produced code, leading to manual reviews and delays
+    - >-
+      Human comprehension being the bottleneck in embracing the full pace of
+      AI-based workflows, slowing down innovation
+    - >-
+      Lack of tools for efficient monitoring of AI artifacts, making it hard to
+      track and improve performance
+    - >-
+      Lack of tools for fast configuration of AI-agent based workflows,
+      hindering quick setup and scaling
+  existing_alternatives: Tools like ClaudeCode serving only as a programmer assistant
+customer_segments:
+  target_customers: >-
+    B2B SaaS companies with engineering teams using AI agents for development
+    workflows
+  early_adopters: Post-PMF scaleups
+unique_value_proposition:
+  single_clear_message: >-
+    Engineering excellence legacy enables reliable AI autonomous workflows,
+    unlike ClaudeCode's code-editing without SDLC foundation
+  high_level_concept: >-
+    No-code platform but for building AI-based SDLC workflows, not the software
+    product itself
+solution:
+  top_3_features:
+    - >-
+      Engineering Excellence foundations (Extreme Programming, Trunk Based
+      Development, Feature Flags, Monitoring and Alerting) being in the kernel
+      of the autonomous AI-agents workflows
+    - No-code tooling for configuring agents (prompts, models) and workflows
+    - Comprehensive monitoring tools for AI artifacts
+    - >-
+      AI-first Context Management System (Blueprint) for structured,
+      machine-readable business context (The system we use here)
+channels:
+  path_to_customers:
+    - >-
+      Trainings and online courses about how engineering excellence enables
+      autonomous AI SDLC-workflows (during the course - minimal implementation
+      built, showing the potential) (see [[tripwire-product-idea]], [[leaders-tripwire-product-idea]])
+    - Conferences, podcasts, webinars (see example [[software-factory-boiling-frogs-call-for-papers]])
+    - Partnerships with AI providers and tech platforms
+revenue_streams:
+  revenue_model: SaaS subscription model for platform access
+  lifetime_value: Estimated at $36,000 per customer over 3 years
+key_metrics:
+  annual_revenue_3_years_target:
+    amount: 1000000
+    currency: USD
+    timeframe: 3 years
+unfair_advantage:
+  cant_be_copied: >-
+    Decade of deep expertise in SDLC development, encompassing methodologies
+    from business strategy to design patterns

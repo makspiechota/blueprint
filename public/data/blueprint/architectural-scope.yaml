@@ -1,0 +1,125 @@
+type: architectural-scope
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-28'
+title: BLUEPRINT Platform Architecture
+north_star_ref: north-star.yaml
+what:
+  - title: DSL Parsing Engine
+    description: >-
+      YAML-based domain-specific language for hierarchical blueprint definition
+      with schema validation
+  - title: Multi-layer Orchestration
+    description: >-
+      Cross-layer references and inheritance system connecting North Star,
+      Architectural Scope, Lean Canvas, AAARR Metrics, and Policy Charter
+  - title: AI Agent Integration APIs
+    description: >-
+      Structured APIs providing business context to AI agents for systematic
+      development workflows
+  - title: Visualization Engine
+    description: >-
+      Interactive dashboards and hierarchical tree views for blueprint
+      navigation and insights
+  - title: Version Control System
+    description: >-
+      Git-based versioning and collaboration for blueprint evolution and team
+      workflows
+  - title: Schema Validation Framework
+    description: Automated validation ensuring blueprint integrity and AI-readability
+when:
+  - title: 24/7 Availability
+    description: Cloud-based 24/7 availability of the system
+how:
+  - title: YAML DSL Parsing Engine
+    description: >-
+      Parse and validate hierarchical blueprint definitions using YAML schema
+      with cross-references
+  - title: Cross-layer Orchestration
+    description: >-
+      Coordinate data flow between North Star, Architectural Scope, Lean Canvas,
+      AAARR Metrics, and Policy Charter layers
+  - title: Repository-based Blueprint Files accessible for AI Agents
+    description: >-
+      All plain-text Blueprint DSL files are stored on repo so they are
+      accessible for AI Agents working on the codebase
+  - title: Interactive Visualization Engine
+    description: >-
+      Render hierarchical tree views, dashboards, and blueprint editors for
+      human-AI collaboration
+  - title: Git-based Version Control
+    description: >-
+      Manage blueprint versions, branches, and collaboration workflows using Git
+      integration
+  - title: Automated Schema Validation
+    description: >-
+      Ensure blueprint integrity and AI-readability through continuous
+      validation against business rules
+where:
+  - title: Global Cloud Infrastructure
+    description: >-
+      Deployed on major cloud providers (AWS, GCP, Azure) with multi-region
+      availability for global customers
+  - title: Development Environments
+    description: >-
+      Local development setups, staging environments, and CI/CD pipelines for
+      blueprint testing
+  - title: Customer Data Centers
+    description: >-
+      On-premises deployments for enterprises requiring data sovereignty and
+      compliance
+  - title: AI Processing Locations
+    description: >-
+      Distributed AI model inference across edge locations for low-latency AI
+      agent responses
+who:
+  - title: Development Team
+    description: >-
+      Full-stack engineers building the DSL engine, APIs, and visualization
+      components
+  - title: AI/ML Engineers
+    description: >-
+      Develop and maintain AI models for blueprint parsing, validation, and
+      agent integration
+  - title: Business Analysts
+    description: >-
+      Define business rules, validation schemas, and blueprint templates for
+      different industries
+  - title: System Administrators
+    description: Manage cloud infrastructure, security policies, and performance monitoring
+  - title: End Users (Engineering Teams)
+    description: >-
+      Software engineers using BLUEPRINT to provide structured context to their
+      AI development tools
+  - title: Stakeholders (Engineering Leaders)
+    description: >-
+      CTOs, engineering directors, and platform teams who oversee AI adoption
+      and workflow optimization
+why:
+  mission:
+    action: To provide
+    service: >-
+      structured business knowledge management. See [[north-star]] for vision
+      details
+    beneficiary: organizations implementing AI-agent based workflows
+  goals:
+    - title: To enable consistent AI agent performance
+      description: >-
+        Provide structured context that ensures AI agents understand business
+        requirements and constraints
+    - title: To reduce manual context overhead
+      description: >-
+        Eliminate repetitive work of gathering and formatting business knowledge
+        for AI interactions
+    - title: To improve AI workflow reliability
+      description: >-
+        Ensure AI agents have access to validated, up-to-date business context
+        across all development activities
+    - title: To accelerate AI adoption
+      description: >-
+        Lower the barrier for organizations to implement AI-agent based
+        workflows through structured context
+    - title: To maintain knowledge integrity
+      description: >-
+        Ensure business context remains consistent and authoritative across all
+        AI and human interactions

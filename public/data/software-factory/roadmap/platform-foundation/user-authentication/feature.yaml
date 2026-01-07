@@ -1,0 +1,12 @@
+type: feature
+id: user-authentication
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: User Authentication and Management
+description: |
+  Implement secure user registration, login, and basic profile management
+  to support individual users and prepare for team features.
+status: in_progress
+priority: high
+user_stories: []

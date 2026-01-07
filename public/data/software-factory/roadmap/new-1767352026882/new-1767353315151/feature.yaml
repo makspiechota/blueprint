@@ -1,0 +1,21 @@
+type: feature
+id: new-1767353315151
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: 'Quality Gate: Review'
+description: ''
+status: planned
+user_stories:
+  - id: new-1767353512081
+    name: >-
+      As an operator I want to review every chunk of work produced by the
+      Factory
+    status: planned
+    path: ./new-1767353512081/user-story.yaml
+  - id: new-1767353554313
+    name: >-
+      As an operator I want the Factory to address every comment I have to the
+      chunk of work I reviewed
+    status: planned
+    path: ./new-1767353554313/user-story.yaml

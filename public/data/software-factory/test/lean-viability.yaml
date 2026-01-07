@@ -1,0 +1,45 @@
+type: lean-viability
+productName: test product
+version: '1.0'
+last_updated: '2025-12-30'
+title: Lean Viability Analysis for Test Product
+lean_canvas_ref: test/lean-canvas.yaml
+calculations:
+  annual_revenue_per_customer:
+    amount: 12000
+    currency: USD
+    basis: Estimated annual subscription revenue
+  required_customers:
+    count: 84
+    formula: Annual revenue target / Annual revenue per customer
+  customer_acquisition_rate:
+    rate: 50
+    period: monthly
+    formula: Customers acquired / total prospects
+  monthly_acquisition_target:
+    rate: 2
+    period: month
+    formula: Required customers × Monthly churn rate
+  customer_lifetime_value:
+    years: 5
+    amount: 60000
+    currency: USD
+    formula: Annual revenue per customer * Customer lifetime
+  churn_rate:
+    monthly_rate: 0.016666666666666666
+    formula: 1 / (12 * Customer lifetime)
+  conversion_rate:
+    rate: 0.1
+    basis: Visitors to customers
+  monthly_visitors:
+    rate: 10000
+    period: monthly
+    formula: Estimated traffic from marketing
+  conversion_rates:
+    prospect_acquisition_rate: 0.05
+    acquisition_rate: 0.1
+    activation_rate: 0.1
+  funnel_targets:
+    users_activation_target: 20
+    users_target: 200
+    users_acquisition_target: 4000

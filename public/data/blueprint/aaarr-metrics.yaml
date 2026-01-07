@@ -1,0 +1,61 @@
+type: aaarr-metrics
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-28'
+title: BLUEPRINT Platform Customer Factory
+lean_viability_ref: lean-viability.yaml
+stages:
+  acquisition:
+    stage_goal: Acquire engineering teams through targeted marketing and conversion
+    metrics:
+      - id: aaarr.acquisition.monthly-visitors
+        name: Monthly Website Visitors
+        description: Target monthly visitors required for customer acquisition funnel
+        target:
+          rate: 2000/
+          period: month
+      - id: aaarr.acquisition.conversion-rate
+        name: Visitor to Registered User Conversion Rate
+        description: Percentage of website visitors converting to paying customers
+        target:
+          percentage: 10
+  activation:
+    stage_goal: Activate acquired customers to become active product users
+    metrics:
+      - id: aaarr.activation.users-target
+        name: Users Target
+        description: Target number of activated users
+        target:
+          rate: 20/
+          period: month
+  retention:
+    stage_goal: Retain customers through excellent service and value delivery
+  referral:
+    stage_goal: Grow customer base through referrals and word-of-mouth
+  revenue:
+    stage_goal: Generate recurring revenue from customer subscriptions
+    metrics:
+      - id: aaarr.revenue.annual-revenue-per-customer
+        name: Annual Revenue per Customer
+        description: Target annual revenue from each customer
+        target:
+          amount: 12000
+          currency: USD
+      - id: aaarr.revenue.customer-lifetime-value
+        name: Customer Lifetime Value
+        description: Target lifetime value of each customer
+        target:
+          amount: 60000
+          currency: USD
+      - id: aaarr.revenue.required-customers
+        name: Required Customers
+        description: Total number of customers needed to reach revenue targets
+        target:
+          count: 84
+      - id: aaarr.revenue.monthly-recurring-revenue
+        name: Monthly Recurring Revenue
+        description: Target monthly recurring revenue
+        target:
+          amount: 84000
+          currency: USD
+          period: month

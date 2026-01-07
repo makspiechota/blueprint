@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { processDocLinks } from '../utils/docLinkProcessor';
-
-const API_BASE = 'http://localhost:3001';
+import yaml from 'js-yaml';
 
 interface BusinessData {
   productName?: string;
@@ -13,7 +12,6 @@ interface BusinessData {
   aaarrMetrics?: any;
   policyCharter?: any;
   roadmap?: any;
-  reloadRoadmap?: () => Promise<void>;
 }
 
 const BusinessDataContext = createContext<BusinessData>({
@@ -26,7 +24,6 @@ const BusinessDataContext = createContext<BusinessData>({
   aaarrMetrics: null,
   policyCharter: null,
   roadmap: null,
-  reloadRoadmap: async () => {},
 });
 
 export const useBusinessData = () => {
@@ -83,21 +80,21 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
 const loadData = async (productName: string) => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes] = await Promise.all([
-      fetch(`${API_BASE}/api/yaml/${productName}/north-star.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/lean-canvas.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/architectural-scope.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/lean-viability.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/aaarr-metrics.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/policy-charter.yaml`),
-      fetch(`${API_BASE}/api/roadmap/${productName}`),
+      fetch(`/data/${productName}/north-star.yaml`),
+      fetch(`/data/${productName}/lean-canvas.yaml`),
+      fetch(`/data/${productName}/architectural-scope.yaml`),
+      fetch(`/data/${productName}/lean-viability.yaml`),
+      fetch(`/data/${productName}/aaarr-metrics.yaml`),
+      fetch(`/data/${productName}/policy-charter.yaml`),
+      fetch(`/data/${productName}/roadmap.json`),
     ]);
 
-    const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
-    const leanCanvas = leanCanvasRes.ok ? processObjectDocLinks((await leanCanvasRes.json()).data) : null;
-    const architecturalScope = architecturalScopeRes.ok ? processObjectDocLinks((await architecturalScopeRes.json()).data) : null;
-    const leanViability = leanViabilityRes.ok ? processObjectDocLinks((await leanViabilityRes.json()).data) : null;
-    const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
-    const policyCharterRaw = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
+    const northStar = northStarRes.ok ? processObjectDocLinks(yaml.load(await northStarRes.text())) : null;
+    const leanCanvas = leanCanvasRes.ok ? processObjectDocLinks(yaml.load(await leanCanvasRes.text())) : null;
+    const architecturalScope = architecturalScopeRes.ok ? processObjectDocLinks(yaml.load(await architecturalScopeRes.text())) : null;
+    const leanViability = leanViabilityRes.ok ? processObjectDocLinks(yaml.load(await leanViabilityRes.text())) : null;
+    const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks(yaml.load(await aaarrMetricsRes.text())) : null;
+    const policyCharterRaw = policyCharterRes.ok ? processObjectDocLinks(yaml.load(await policyCharterRes.text())) : null;
     const roadmap = roadmapRes.ok ? (await roadmapRes.json()).data : null;
 
     // Merge goals from architectural-scope into policy-charter
@@ -113,7 +110,7 @@ const loadData = async (productName: string) => {
       roadmap,
     };
   } catch (error) {
-    console.error('Failed to load data from backend:', error);
+    console.error('Failed to load data from static files:', error);
     return {
       northStar: null,
       leanCanvas: null,
@@ -126,21 +123,10 @@ const loadData = async (productName: string) => {
   }
 };
 
-const WS_URL = 'ws://localhost:8080';
 
-// Map filenames to data keys
-const filenameToKey: Record<string, keyof BusinessData> = {
-  'north-star.yaml': 'northStar',
-  'lean-canvas.yaml': 'leanCanvas',
-  'architectural-scope.yaml': 'architecturalScope',
-  'lean-viability.yaml': 'leanViability',
-  'aaarr-metrics.yaml': 'aaarrMetrics',
-  'policy-charter.yaml': 'policyCharter',
-};
 
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [productName, setProductName] = useState('blueprint');
-  const productNameRef = useRef(productName);
   const [data, setData] = useState<BusinessData>({
     northStar: null,
     leanCanvas: null,
@@ -157,93 +143,22 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setProductName(name);
   };
 
-  const reloadRoadmap = async () => {
-    try {
-      const roadmapRes = await fetch(`${API_BASE}/api/roadmap/${productNameRef.current}`);
-      if (roadmapRes.ok) {
-        const roadmap = (await roadmapRes.json()).data;
-        setData(prev => ({ ...prev, roadmap }));
-      }
-    } catch (error) {
-      console.error('Failed to reload roadmap:', error);
-    }
-  };
 
-  useEffect(() => {
-    productNameRef.current = productName;
-  }, [productName]);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const loadedData = await loadData(productName);
-      setData({ ...loadedData, productName, setProductName: setProductNameSafe, reloadRoadmap });
+      setData({ ...loadedData, productName, setProductName: setProductNameSafe });
       setLoading(false);
     };
 
     fetchData();
   }, [productName]);
 
-  // WebSocket for real-time updates
-  useEffect(() => {
-    let ws: WebSocket | null = null;
-    let reconnectTimeout: NodeJS.Timeout;
 
-    const connect = () => {
-      ws = new WebSocket(WS_URL);
-
-      ws.onopen = () => {
-        console.log('WebSocket connected for business data updates');
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type === 'file_update' && message.productName === productNameRef.current) {
-            const key = filenameToKey[message.filename];
-            if (key) {
-              console.log(`Updating ${key} from WebSocket for ${message.productName}`);
-              const processedData = processObjectDocLinks(message.data);
-
-              setData(prev => {
-                // Special handling for policy-charter to merge goals
-                if (key === 'policyCharter') {
-                  const merged = mergeGoalsIntoPolicyCharter(prev.architecturalScope, processedData);
-                  return { ...prev, [key]: merged };
-                }
-                // If architectural-scope changed, also re-merge policy-charter
-                if (key === 'architecturalScope' && prev.policyCharter) {
-                  const mergedPolicyCharter = mergeGoalsIntoPolicyCharter(processedData, prev.policyCharter);
-                  return { ...prev, [key]: processedData, policyCharter: mergedPolicyCharter };
-                }
-                return { ...prev, [key]: processedData };
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error processing WebSocket message:', error);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected, reconnecting in 3s...');
-        reconnectTimeout = setTimeout(connect, 3000);
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    };
-
-    connect();
-
-    return () => {
-      clearTimeout(reconnectTimeout);
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, []);
 
   if (loading) {
     return (

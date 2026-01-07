@@ -1,0 +1,10 @@
+type: user-story
+id: edit-north-star
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Edit North Star
+description: As a product manager, I want to edit the north star document
+status: planned
+story_points: 5
+tasks: []

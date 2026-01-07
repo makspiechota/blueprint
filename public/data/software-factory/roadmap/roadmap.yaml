@@ -1,0 +1,43 @@
+type: roadmap
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+title: A Roadmap for Software Factory, AI-Driven Autonomous SDLC
+description: >
+  Comprehensive roadmap for the Software Factory Product, an AI-driven
+  autonomous Software Development Lifecycle Platform. This roadmap outlines the
+  strategic development plan to achieve $1M annual revenue in 3 years through
+  building trust in AI-generated code, implementing engineering excellence
+  foundations, and delivering no-code tools for configuring AI-agent workflows
+  and comprehensive monitoring of AI artifacts.
+epics:
+  - id: new-1767352026882
+    name: Build a working prototype of an autonomous SDLC pipeline
+    description: >-
+      The very first step will be to showcase a prototype of such autonomous
+      SDLC workflow and prove the potential of it 
+    status: planned
+    path: ./new-1767352026882/epic.yaml
+  - id: new-1767352237020
+    name: >-
+      Build a no-code platform for autonomous SDLC workflows build and
+      configuration
+    description: ''
+    status: planned
+    path: ./new-1767352237020/epic.yaml
+  - id: new-1767354161764
+    name: Integrate with Context Management System (BLUEPRINT)
+    description: >-
+      Integrate with BLUEPRINT product for better context management of the
+      Factory's Agents so they have access to the full context of the developed
+      system
+    status: planned
+    path: ./new-1767354161764/epic.yaml
+  - id: new-1767354093302
+    name: Autonomous Testing
+    description: >-
+      Use framework like TestZeus
+      (https://github.com/test-zeus-ai/testzeus-hercules) for autonomous testing
+      of the developed system
+    status: planned
+    path: ./new-1767354093302/epic.yaml

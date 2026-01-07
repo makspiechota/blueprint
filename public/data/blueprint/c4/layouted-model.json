@@ -1,0 +1,2802 @@
+{
+  "_stage": "layouted",
+  "projectId": "default",
+  "project": {
+    "id": "default",
+    "title": "default"
+  },
+  "specification": {
+    "tags": {},
+    "elements": {
+      "actor": {
+        "style": {
+          "shape": "person",
+          "color": "amber"
+        }
+      },
+      "system": {
+        "style": {
+          "shape": "rectangle",
+          "color": "blue"
+        }
+      },
+      "container": {
+        "style": {
+          "shape": "rectangle",
+          "color": "green"
+        }
+      },
+      "component": {
+        "style": {
+          "shape": "rectangle",
+          "color": "slate"
+        }
+      },
+      "external": {
+        "style": {
+          "shape": "rectangle",
+          "color": "gray"
+        }
+      }
+    },
+    "relationships": {},
+    "deployments": {},
+    "customColors": {}
+  },
+  "elements": {
+    "developer": {
+      "style": {
+        "shape": "person",
+        "color": "amber"
+      },
+      "description": {
+        "txt": "Software engineer using Blueprint for AI-assisted development"
+      },
+      "title": "Developer",
+      "kind": "actor",
+      "id": "developer"
+    },
+    "teamLead": {
+      "style": {
+        "shape": "person",
+        "color": "amber"
+      },
+      "description": {
+        "txt": "Engineering manager overseeing blueprint configuration"
+      },
+      "title": "Team Lead",
+      "kind": "actor",
+      "id": "teamLead"
+    },
+    "architect": {
+      "style": {
+        "shape": "person",
+        "color": "amber"
+      },
+      "description": {
+        "txt": "Software architect designing system architecture"
+      },
+      "title": "Architect",
+      "kind": "actor",
+      "id": "architect"
+    },
+    "businessAnalysts": {
+      "style": {
+        "shape": "person",
+        "color": "amber"
+      },
+      "description": {
+        "txt": "Business analysts defining requirements and processes"
+      },
+      "title": "Business Analysts",
+      "kind": "actor",
+      "id": "businessAnalysts"
+    },
+    "aiAgent": {
+      "style": {
+        "shape": "rectangle",
+        "color": "gray"
+      },
+      "description": {
+        "txt": "Claude Code or other AI development assistant"
+      },
+      "title": "AI Agent",
+      "kind": "external",
+      "id": "aiAgent"
+    },
+    "gitRepo": {
+      "style": {
+        "shape": "rectangle",
+        "color": "gray"
+      },
+      "description": {
+        "txt": "Version control for blueprint files"
+      },
+      "title": "Git Repository",
+      "kind": "external",
+      "id": "gitRepo"
+    },
+    "blueprint": {
+      "style": {
+        "shape": "rectangle",
+        "color": "blue"
+      },
+      "description": {
+        "txt": "Structured business knowledge management system for AI-agent workflows"
+      },
+      "title": "Blueprint Platform",
+      "kind": "system",
+      "id": "blueprint"
+    },
+    "blueprint.frontend": {
+      "style": {
+        "shape": "rectangle",
+        "color": "green"
+      },
+      "description": {
+        "txt": "React-based dashboard for blueprint visualization and editing"
+      },
+      "title": "Frontend App",
+      "kind": "container",
+      "id": "blueprint.frontend"
+    },
+    "blueprint.backend": {
+      "style": {
+        "shape": "rectangle",
+        "color": "green"
+      },
+      "description": {
+        "txt": "Express.js server for file operations and real-time updates"
+      },
+      "title": "Backend API",
+      "kind": "container",
+      "id": "blueprint.backend"
+    },
+    "blueprint.dataLayer": {
+      "style": {
+        "shape": "rectangle",
+        "color": "green"
+      },
+      "description": {
+        "txt": "YAML-based blueprint documents"
+      },
+      "title": "Data Layer",
+      "kind": "container",
+      "id": "blueprint.dataLayer"
+    },
+    "blueprint.frontend.visualizers": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "ReactFlow-based components for each business layer"
+      },
+      "title": "Visualizers",
+      "kind": "component",
+      "id": "blueprint.frontend.visualizers"
+    },
+    "blueprint.frontend.editor": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "In-place editing of blueprint documents"
+      },
+      "title": "YAML Editor",
+      "kind": "component",
+      "id": "blueprint.frontend.editor"
+    },
+    "blueprint.frontend.chat": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Context-aware chat interface for AI assistance"
+      },
+      "title": "AI Chat",
+      "kind": "component",
+      "id": "blueprint.frontend.chat"
+    },
+    "blueprint.backend.yamlApi": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "REST endpoints for reading/writing blueprint files"
+      },
+      "title": "YAML API",
+      "kind": "component",
+      "id": "blueprint.backend.yamlApi"
+    },
+    "blueprint.backend.websocket": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Real-time file change notifications"
+      },
+      "title": "WebSocket Server",
+      "kind": "component",
+      "id": "blueprint.backend.websocket"
+    },
+    "blueprint.backend.fileWatcher": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Monitors blueprint files for external changes"
+      },
+      "title": "File Watcher",
+      "kind": "component",
+      "id": "blueprint.backend.fileWatcher"
+    },
+    "blueprint.dataLayer.northStar": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Vision and mission definition"
+      },
+      "title": "North Star",
+      "kind": "component",
+      "id": "blueprint.dataLayer.northStar"
+    },
+    "blueprint.dataLayer.archScope": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "What, Why, How, Who, When, Where"
+      },
+      "title": "Architectural Scope",
+      "kind": "component",
+      "id": "blueprint.dataLayer.archScope"
+    },
+    "blueprint.dataLayer.leanCanvas": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Business model canvas"
+      },
+      "title": "Lean Canvas",
+      "kind": "component",
+      "id": "blueprint.dataLayer.leanCanvas"
+    },
+    "blueprint.dataLayer.leanViability": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Financial projections and metrics"
+      },
+      "title": "Lean Viability",
+      "kind": "component",
+      "id": "blueprint.dataLayer.leanViability"
+    },
+    "blueprint.dataLayer.aaarrMetrics": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Customer factory funnel metrics"
+      },
+      "title": "AAARR Metrics",
+      "kind": "component",
+      "id": "blueprint.dataLayer.aaarrMetrics"
+    },
+    "blueprint.dataLayer.policyCharter": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Goals, tactics, policies, and risks"
+      },
+      "title": "Policy Charter",
+      "kind": "component",
+      "id": "blueprint.dataLayer.policyCharter"
+    },
+    "blueprint.dataLayer.c4Model": {
+      "style": {
+        "shape": "rectangle",
+        "color": "slate"
+      },
+      "description": {
+        "txt": "Software architecture diagrams"
+      },
+      "title": "C4 Model",
+      "kind": "component",
+      "id": "blueprint.dataLayer.c4Model"
+    }
+  },
+  "relations": {
+    "7kd6y": {
+      "title": "Uses to view and edit blueprints",
+      "source": {
+        "model": "developer"
+      },
+      "target": {
+        "model": "blueprint.frontend"
+      },
+      "id": "7kd6y"
+    },
+    "mvfw8y": {
+      "title": "Configures business context",
+      "source": {
+        "model": "teamLead"
+      },
+      "target": {
+        "model": "blueprint.frontend"
+      },
+      "id": "mvfw8y"
+    },
+    "6uiscl": {
+      "title": "Designs and views system architecture",
+      "source": {
+        "model": "architect"
+      },
+      "target": {
+        "model": "blueprint.frontend"
+      },
+      "id": "6uiscl"
+    },
+    "gu2s2r": {
+      "title": "Defines business requirements and models",
+      "source": {
+        "model": "businessAnalysts"
+      },
+      "target": {
+        "model": "blueprint.frontend"
+      },
+      "id": "gu2s2r"
+    },
+    "7c3rim": {
+      "title": "REST API calls",
+      "source": {
+        "model": "blueprint.frontend"
+      },
+      "target": {
+        "model": "blueprint.backend"
+      },
+      "id": "7c3rim"
+    },
+    "dirq7q": {
+      "title": "Real-time updates",
+      "source": {
+        "model": "blueprint.frontend"
+      },
+      "target": {
+        "model": "blueprint.backend.websocket"
+      },
+      "id": "dirq7q"
+    },
+    "1sifufy": {
+      "title": "Reads/writes",
+      "source": {
+        "model": "blueprint.backend.yamlApi"
+      },
+      "target": {
+        "model": "blueprint.dataLayer"
+      },
+      "id": "1sifufy"
+    },
+    "y2zikg": {
+      "title": "Monitors",
+      "source": {
+        "model": "blueprint.backend.fileWatcher"
+      },
+      "target": {
+        "model": "blueprint.dataLayer"
+      },
+      "id": "y2zikg"
+    },
+    "ww7kh9": {
+      "title": "Triggers updates",
+      "source": {
+        "model": "blueprint.backend.fileWatcher"
+      },
+      "target": {
+        "model": "blueprint.backend.websocket"
+      },
+      "id": "ww7kh9"
+    },
+    "1vqrnlk": {
+      "title": "Queries business context",
+      "source": {
+        "model": "aiAgent"
+      },
+      "target": {
+        "model": "blueprint.backend.yamlApi"
+      },
+      "id": "1vqrnlk"
+    },
+    "8fdjwh": {
+      "title": "Commits changes",
+      "source": {
+        "model": "aiAgent"
+      },
+      "target": {
+        "model": "gitRepo"
+      },
+      "id": "8fdjwh"
+    },
+    "16ltn3h": {
+      "title": "Version controlled",
+      "source": {
+        "model": "blueprint.dataLayer"
+      },
+      "target": {
+        "model": "gitRepo"
+      },
+      "id": "16ltn3h"
+    },
+    "1a8k0um": {
+      "title": "Inline editing",
+      "source": {
+        "model": "blueprint.frontend.visualizers"
+      },
+      "target": {
+        "model": "blueprint.frontend.editor"
+      },
+      "id": "1a8k0um"
+    },
+    "ctbsh4": {
+      "title": "Sends context",
+      "source": {
+        "model": "blueprint.frontend.chat"
+      },
+      "target": {
+        "model": "aiAgent"
+      },
+      "id": "ctbsh4"
+    }
+  },
+  "globals": {
+    "predicates": {},
+    "dynamicPredicates": {},
+    "styles": {}
+  },
+  "views": {
+    "index": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "blueprint",
+      "_stage": "layouted",
+      "sourcePath": "source.likec4",
+      "description": null,
+      "title": "Blueprint Platform - System Context",
+      "id": "index",
+      "autoLayout": {
+        "direction": "TB"
+      },
+      "hash": "bb41ee65fe7514debbaa717e4054cf3e2bba57a5",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1630,
+        "height": 1480
+      },
+      "nodes": [
+        {
+          "id": "developer",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1nwyhub"
+          ],
+          "title": "Developer",
+          "modelRef": "developer",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Software engineer using Blueprint for AI-assisted development"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 35,
+            "y": 54,
+            "width": 251,
+            "height": 66
+          }
+        },
+        {
+          "id": "teamLead",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "frhol0"
+          ],
+          "title": "Team Lead",
+          "modelRef": "teamLead",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Engineering manager overseeing blueprint configuration"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 430,
+          "y": 0,
+          "width": 322,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 287,
+            "height": 66
+          }
+        },
+        {
+          "id": "architect",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1x8mky"
+          ],
+          "title": "Architect",
+          "modelRef": "architect",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Software architect designing system architecture"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 862,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 38,
+            "y": 54,
+            "width": 244,
+            "height": 66
+          }
+        },
+        {
+          "id": "businessAnalysts",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "7q237w"
+          ],
+          "title": "Business Analysts",
+          "modelRef": "businessAnalysts",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Business analysts defining requirements and processes"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 1292,
+          "y": 0,
+          "width": 337,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 302,
+            "height": 66
+          }
+        },
+        {
+          "id": "aiAgent",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "1517y9g"
+          ],
+          "outEdges": [
+            "1up4z8e",
+            "n6u3s9"
+          ],
+          "title": "AI Agent",
+          "modelRef": "aiAgent",
+          "shape": "rectangle",
+          "color": "gray",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Claude Code or other AI development assistant"
+          },
+          "tags": [],
+          "kind": "external",
+          "x": 1238,
+          "y": 655,
+          "width": 355,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 63,
+            "width": 319,
+            "height": 47
+          }
+        },
+        {
+          "id": "blueprint",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "blueprint.frontend",
+            "blueprint.backend",
+            "blueprint.dataLayer"
+          ],
+          "inEdges": [
+            "1nwyhub",
+            "frhol0",
+            "1x8mky",
+            "7q237w",
+            "1up4z8e"
+          ],
+          "outEdges": [
+            "1517y9g",
+            "8vqoi2"
+          ],
+          "title": "Blueprint Platform",
+          "modelRef": "blueprint",
+          "shape": "rectangle",
+          "color": "blue",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Structured business knowledge management system for AI-agent workflows"
+          },
+          "tags": [],
+          "kind": "system",
+          "depth": 1,
+          "navigateTo": "containers",
+          "x": 606,
+          "y": 271,
+          "width": 400,
+          "height": 927,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 131,
+            "height": 15
+          }
+        },
+        {
+          "id": "blueprint.frontend",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1nwyhub",
+            "frhol0",
+            "1x8mky",
+            "7q237w"
+          ],
+          "outEdges": [
+            "imydcw",
+            "1517y9g"
+          ],
+          "title": "Frontend App",
+          "modelRef": "blueprint.frontend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "React-based dashboard for blueprint visualization and editing"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "frontendComponents",
+          "x": 646,
+          "y": 332,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 36,
+            "y": 54,
+            "width": 247,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint.backend",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1up4z8e",
+            "imydcw"
+          ],
+          "outEdges": [
+            "1lor5x9"
+          ],
+          "title": "Backend API",
+          "modelRef": "blueprint.backend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Express.js server for file operations and real-time updates"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "backendComponents",
+          "x": 646,
+          "y": 655,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 26,
+            "y": 54,
+            "width": 267,
+            "height": 65
+          }
+        },
+        {
+          "id": "blueprint.dataLayer",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1lor5x9"
+          ],
+          "outEdges": [
+            "8vqoi2"
+          ],
+          "title": "Data Layer",
+          "modelRef": "blueprint.dataLayer",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "YAML-based blueprint documents"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "dataComponents",
+          "x": 646,
+          "y": 978,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 45,
+            "y": 63,
+            "width": 230,
+            "height": 47
+          }
+        },
+        {
+          "id": "gitRepo",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "8vqoi2",
+            "n6u3s9"
+          ],
+          "outEdges": [],
+          "title": "Git Repository",
+          "modelRef": "gitRepo",
+          "shape": "rectangle",
+          "color": "gray",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Version control for blueprint files"
+          },
+          "tags": [],
+          "kind": "external",
+          "x": 1256,
+          "y": 1300,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 51,
+            "y": 63,
+            "width": 218,
+            "height": 48
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "1nwyhub",
+          "source": "developer",
+          "target": "blueprint.frontend",
+          "label": "Uses to view and edit blueprints",
+          "points": [
+            [
+              310,
+              180
+            ],
+            [
+              358,
+              207
+            ],
+            [
+              411,
+              237
+            ],
+            [
+              461,
+              263
+            ],
+            [
+              518,
+              292
+            ],
+            [
+              581,
+              321
+            ],
+            [
+              637,
+              347
+            ]
+          ],
+          "labelBBox": {
+            "x": 462,
+            "y": 240,
+            "width": 202,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "7kd6y"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "frhol0",
+          "source": "teamLead",
+          "target": "blueprint.frontend",
+          "label": "Configures business context",
+          "points": [
+            [
+              649,
+              180
+            ],
+            [
+              678,
+              224
+            ],
+            [
+              713,
+              278
+            ],
+            [
+              743,
+              324
+            ]
+          ],
+          "labelBBox": {
+            "x": 700,
+            "y": 240,
+            "width": 180,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "mvfw8y"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1x8mky",
+          "source": "architect",
+          "target": "blueprint.frontend",
+          "label": "Designs and views system architecture",
+          "points": [
+            [
+              964,
+              180
+            ],
+            [
+              935,
+              224
+            ],
+            [
+              900,
+              278
+            ],
+            [
+              870,
+              324
+            ]
+          ],
+          "labelBBox": {
+            "x": 922,
+            "y": 240,
+            "width": 246,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "6uiscl"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "7q237w",
+          "source": "businessAnalysts",
+          "target": "blueprint.frontend",
+          "label": "Defines business requirements and models",
+          "points": [
+            [
+              1334,
+              180
+            ],
+            [
+              1291,
+              208
+            ],
+            [
+              1242,
+              238
+            ],
+            [
+              1195,
+              263
+            ],
+            [
+              1125,
+              299
+            ],
+            [
+              1045,
+              333
+            ],
+            [
+              975,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 1234,
+            "y": 240,
+            "width": 272,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "gu2s2r"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1up4z8e",
+          "source": "aiAgent",
+          "target": "blueprint.backend",
+          "label": "Queries business context",
+          "points": [
+            [
+              1239,
+              745
+            ],
+            [
+              1156,
+              745
+            ],
+            [
+              1058,
+              745
+            ],
+            [
+              976,
+              745
+            ]
+          ],
+          "labelBBox": {
+            "x": 1022,
+            "y": 719,
+            "width": 161,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "1vqrnlk"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "imydcw",
+          "source": "blueprint.frontend",
+          "target": "blueprint.backend",
+          "label": "REST API calls",
+          "points": [
+            [
+              806,
+              512
+            ],
+            [
+              806,
+              553
+            ],
+            [
+              806,
+              602
+            ],
+            [
+              806,
+              645
+            ]
+          ],
+          "labelBBox": {
+            "x": 807,
+            "y": 572,
+            "width": 100,
+            "height": 18
+          },
+          "parent": "blueprint",
+          "relations": [
+            "7c3rim",
+            "dirq7q"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1lor5x9",
+          "source": "blueprint.backend",
+          "target": "blueprint.dataLayer",
+          "label": "[...]",
+          "points": [
+            [
+              806,
+              835
+            ],
+            [
+              806,
+              876
+            ],
+            [
+              806,
+              925
+            ],
+            [
+              806,
+              967
+            ]
+          ],
+          "labelBBox": {
+            "x": 807,
+            "y": 893,
+            "width": 25,
+            "height": 18
+          },
+          "parent": "blueprint",
+          "relations": [
+            "1sifufy",
+            "y2zikg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1517y9g",
+          "source": "blueprint.frontend",
+          "target": "aiAgent",
+          "label": "Sends context",
+          "points": [
+            [
+              966,
+              507
+            ],
+            [
+              1049,
+              551
+            ],
+            [
+              1152,
+              605
+            ],
+            [
+              1238,
+              650
+            ]
+          ],
+          "labelBBox": {
+            "x": 1130,
+            "y": 572,
+            "width": 93,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "ctbsh4"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "8vqoi2",
+          "source": "blueprint.dataLayer",
+          "target": "gitRepo",
+          "label": "Version controlled",
+          "points": [
+            [
+              966,
+              1153
+            ],
+            [
+              1052,
+              1198
+            ],
+            [
+              1159,
+              1254
+            ],
+            [
+              1247,
+              1300
+            ]
+          ],
+          "labelBBox": {
+            "x": 1130,
+            "y": 1217,
+            "width": 116,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "16ltn3h"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "n6u3s9",
+          "source": "aiAgent",
+          "target": "gitRepo",
+          "label": "Commits changes",
+          "points": [
+            [
+              1416,
+              835
+            ],
+            [
+              1416,
+              954
+            ],
+            [
+              1416,
+              1166
+            ],
+            [
+              1416,
+              1290
+            ]
+          ],
+          "labelBBox": {
+            "x": 1417,
+            "y": 1056,
+            "width": 116,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "8fdjwh"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "containers": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "blueprint",
+      "_stage": "layouted",
+      "sourcePath": "source.likec4",
+      "description": null,
+      "title": "Blueprint Platform - Containers",
+      "id": "containers",
+      "autoLayout": {
+        "direction": "TB"
+      },
+      "hash": "0e50b121c53e3d3922039ad87fc06fb9a159b28b",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1630,
+        "height": 1206
+      },
+      "nodes": [
+        {
+          "id": "developer",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1nwyhub"
+          ],
+          "title": "Developer",
+          "modelRef": "developer",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Software engineer using Blueprint for AI-assisted development"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 35,
+            "y": 54,
+            "width": 251,
+            "height": 66
+          }
+        },
+        {
+          "id": "teamLead",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "frhol0"
+          ],
+          "title": "Team Lead",
+          "modelRef": "teamLead",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Engineering manager overseeing blueprint configuration"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 430,
+          "y": 0,
+          "width": 322,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 287,
+            "height": 66
+          }
+        },
+        {
+          "id": "architect",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "1x8mky"
+          ],
+          "title": "Architect",
+          "modelRef": "architect",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Software architect designing system architecture"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 862,
+          "y": 0,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 38,
+            "y": 54,
+            "width": 244,
+            "height": 66
+          }
+        },
+        {
+          "id": "businessAnalysts",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "7q237w"
+          ],
+          "title": "Business Analysts",
+          "modelRef": "businessAnalysts",
+          "shape": "person",
+          "color": "amber",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Business analysts defining requirements and processes"
+          },
+          "tags": [],
+          "kind": "actor",
+          "x": 1292,
+          "y": 0,
+          "width": 337,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 302,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "blueprint.frontend",
+            "blueprint.backend",
+            "blueprint.dataLayer"
+          ],
+          "inEdges": [
+            "1nwyhub",
+            "frhol0",
+            "1x8mky",
+            "7q237w",
+            "1up4z8e"
+          ],
+          "outEdges": [
+            "1517y9g"
+          ],
+          "title": "Blueprint Platform",
+          "modelRef": "blueprint",
+          "shape": "rectangle",
+          "color": "blue",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Structured business knowledge management system for AI-agent workflows"
+          },
+          "tags": [],
+          "kind": "system",
+          "depth": 1,
+          "navigateTo": "index",
+          "x": 607,
+          "y": 271,
+          "width": 400,
+          "height": 927,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 131,
+            "height": 15
+          }
+        },
+        {
+          "id": "blueprint.frontend",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1nwyhub",
+            "frhol0",
+            "1x8mky",
+            "7q237w"
+          ],
+          "outEdges": [
+            "imydcw",
+            "1517y9g"
+          ],
+          "title": "Frontend App",
+          "modelRef": "blueprint.frontend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "React-based dashboard for blueprint visualization and editing"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "frontendComponents",
+          "x": 647,
+          "y": 332,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 36,
+            "y": 54,
+            "width": 247,
+            "height": 66
+          }
+        },
+        {
+          "id": "aiAgent",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "1517y9g"
+          ],
+          "outEdges": [
+            "1up4z8e"
+          ],
+          "title": "AI Agent",
+          "modelRef": "aiAgent",
+          "shape": "rectangle",
+          "color": "gray",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Claude Code or other AI development assistant"
+          },
+          "tags": [],
+          "kind": "external",
+          "x": 72,
+          "y": 332,
+          "width": 355,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 63,
+            "width": 319,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.backend",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "imydcw",
+            "1up4z8e"
+          ],
+          "outEdges": [
+            "1lor5x9"
+          ],
+          "title": "Backend API",
+          "modelRef": "blueprint.backend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Express.js server for file operations and real-time updates"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "backendComponents",
+          "x": 647,
+          "y": 655,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 26,
+            "y": 54,
+            "width": 267,
+            "height": 65
+          }
+        },
+        {
+          "id": "blueprint.dataLayer",
+          "parent": "blueprint",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "1lor5x9"
+          ],
+          "outEdges": [],
+          "title": "Data Layer",
+          "modelRef": "blueprint.dataLayer",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "YAML-based blueprint documents"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "dataComponents",
+          "x": 647,
+          "y": 978,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 45,
+            "y": 63,
+            "width": 230,
+            "height": 47
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "imydcw",
+          "source": "blueprint.frontend",
+          "target": "blueprint.backend",
+          "label": "REST API calls",
+          "points": [
+            [
+              807,
+              512
+            ],
+            [
+              807,
+              553
+            ],
+            [
+              807,
+              602
+            ],
+            [
+              807,
+              645
+            ]
+          ],
+          "labelBBox": {
+            "x": 808,
+            "y": 572,
+            "width": 100,
+            "height": 18
+          },
+          "parent": "blueprint",
+          "relations": [
+            "7c3rim",
+            "dirq7q"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1lor5x9",
+          "source": "blueprint.backend",
+          "target": "blueprint.dataLayer",
+          "label": "[...]",
+          "points": [
+            [
+              807,
+              835
+            ],
+            [
+              807,
+              876
+            ],
+            [
+              807,
+              925
+            ],
+            [
+              807,
+              967
+            ]
+          ],
+          "labelBBox": {
+            "x": 808,
+            "y": 893,
+            "width": 25,
+            "height": 18
+          },
+          "parent": "blueprint",
+          "relations": [
+            "1sifufy",
+            "y2zikg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1nwyhub",
+          "source": "developer",
+          "target": "blueprint.frontend",
+          "label": "Uses to view and edit blueprints",
+          "points": [
+            [
+              306,
+              180
+            ],
+            [
+              355,
+              208
+            ],
+            [
+              410,
+              238
+            ],
+            [
+              462,
+              263
+            ],
+            [
+              471,
+              267
+            ],
+            [
+              474,
+              267
+            ],
+            [
+              483,
+              271
+            ],
+            [
+              534,
+              292
+            ],
+            [
+              588,
+              317
+            ],
+            [
+              638,
+              340
+            ]
+          ],
+          "labelBBox": {
+            "x": 463,
+            "y": 240,
+            "width": 202,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "7kd6y"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "frhol0",
+          "source": "teamLead",
+          "target": "blueprint.frontend",
+          "label": "Configures business context",
+          "points": [
+            [
+              649,
+              180
+            ],
+            [
+              678,
+              224
+            ],
+            [
+              713,
+              278
+            ],
+            [
+              743,
+              324
+            ]
+          ],
+          "labelBBox": {
+            "x": 700,
+            "y": 240,
+            "width": 180,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "mvfw8y"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1x8mky",
+          "source": "architect",
+          "target": "blueprint.frontend",
+          "label": "Designs and views system architecture",
+          "points": [
+            [
+              964,
+              180
+            ],
+            [
+              935,
+              224
+            ],
+            [
+              900,
+              278
+            ],
+            [
+              871,
+              324
+            ]
+          ],
+          "labelBBox": {
+            "x": 922,
+            "y": 240,
+            "width": 246,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "6uiscl"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "7q237w",
+          "source": "businessAnalysts",
+          "target": "blueprint.frontend",
+          "label": "Defines business requirements and models",
+          "points": [
+            [
+              1335,
+              180
+            ],
+            [
+              1292,
+              208
+            ],
+            [
+              1243,
+              238
+            ],
+            [
+              1196,
+              263
+            ],
+            [
+              1126,
+              299
+            ],
+            [
+              1046,
+              333
+            ],
+            [
+              976,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 1235,
+            "y": 240,
+            "width": 272,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "gu2s2r"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1517y9g",
+          "source": "blueprint.frontend",
+          "target": "aiAgent",
+          "label": "Sends context",
+          "points": [
+            [
+              647,
+              422
+            ],
+            [
+              582,
+              422
+            ],
+            [
+              506,
+              422
+            ],
+            [
+              438,
+              422
+            ]
+          ],
+          "labelBBox": {
+            "x": 491,
+            "y": 396,
+            "width": 93,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "ctbsh4"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "1up4z8e",
+          "source": "aiAgent",
+          "target": "blueprint.backend",
+          "label": "Queries business context",
+          "points": [
+            [
+              404,
+              512
+            ],
+            [
+              479,
+              555
+            ],
+            [
+              568,
+              606
+            ],
+            [
+              644,
+              650
+            ]
+          ],
+          "labelBBox": {
+            "x": 546,
+            "y": 572,
+            "width": 161,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "1vqrnlk"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "frontendComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "blueprint.frontend",
+      "_stage": "layouted",
+      "sourcePath": "source.likec4",
+      "description": null,
+      "title": "Frontend Components",
+      "id": "frontendComponents",
+      "autoLayout": {
+        "direction": "TB"
+      },
+      "hash": "9be35db3bf0e2ae87f99e0a81670bfb145179283",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1405,
+        "height": 550
+      },
+      "nodes": [
+        {
+          "id": "blueprint.frontend",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "blueprint.frontend.visualizers",
+            "blueprint.frontend.chat",
+            "blueprint.frontend.editor"
+          ],
+          "inEdges": [],
+          "outEdges": [
+            "imydcw"
+          ],
+          "title": "Frontend App",
+          "modelRef": "blueprint.frontend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "React-based dashboard for blueprint visualization and editing"
+          },
+          "tags": [],
+          "kind": "container",
+          "depth": 1,
+          "x": 8,
+          "y": 8,
+          "width": 1389,
+          "height": 281,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 91,
+            "height": 15
+          }
+        },
+        {
+          "id": "blueprint.frontend.visualizers",
+          "parent": "blueprint.frontend",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "m140vc"
+          ],
+          "title": "Visualizers",
+          "modelRef": "blueprint.frontend.visualizers",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "ReactFlow-based components for each business layer"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 48,
+          "y": 69,
+          "width": 364,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 328,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint.frontend.chat",
+          "parent": "blueprint.frontend",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "AI Chat",
+          "modelRef": "blueprint.frontend.chat",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Context-aware chat interface for AI assistance"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 1037,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 42,
+            "y": 54,
+            "width": 236,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint.backend",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "imydcw"
+          ],
+          "outEdges": [],
+          "title": "Backend API",
+          "modelRef": "blueprint.backend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Express.js server for file operations and real-time updates"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "backendComponents",
+          "x": 607,
+          "y": 370,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 26,
+            "y": 54,
+            "width": 267,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint.frontend.editor",
+          "parent": "blueprint.frontend",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "m140vc"
+          ],
+          "outEdges": [],
+          "title": "YAML Editor",
+          "modelRef": "blueprint.frontend.editor",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "In-place editing of blueprint documents"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 607,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 29,
+            "y": 63,
+            "width": 262,
+            "height": 48
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "m140vc",
+          "source": "blueprint.frontend.visualizers",
+          "target": "blueprint.frontend.editor",
+          "label": "Inline editing",
+          "points": [
+            [
+              412,
+              159
+            ],
+            [
+              472,
+              159
+            ],
+            [
+              538,
+              159
+            ],
+            [
+              597,
+              159
+            ]
+          ],
+          "labelBBox": {
+            "x": 468,
+            "y": 133,
+            "width": 83,
+            "height": 18
+          },
+          "parent": "blueprint.frontend",
+          "relations": [
+            "1a8k0um"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "imydcw",
+          "source": "blueprint.frontend",
+          "target": "blueprint.backend",
+          "label": "REST API calls",
+          "points": [
+            [
+              767,
+              289
+            ],
+            [
+              767,
+              313
+            ],
+            [
+              767,
+              337
+            ],
+            [
+              767,
+              360
+            ]
+          ],
+          "labelBBox": {
+            "x": 666,
+            "y": 307,
+            "width": 100,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "7c3rim",
+            "dirq7q"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "backendComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "blueprint.backend",
+      "_stage": "layouted",
+      "sourcePath": "source.likec4",
+      "description": null,
+      "title": "Backend Components",
+      "id": "backendComponents",
+      "autoLayout": {
+        "direction": "TB"
+      },
+      "hash": "55e39620f97226c9687c919d5b3534b47169ad7d",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1411,
+        "height": 572
+      },
+      "nodes": [
+        {
+          "id": "blueprint.backend",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "blueprint.backend.fileWatcher",
+            "blueprint.backend.yamlApi",
+            "blueprint.backend.websocket"
+          ],
+          "inEdges": [],
+          "outEdges": [
+            "7fipgy",
+            "yx1uej"
+          ],
+          "title": "Backend API",
+          "modelRef": "blueprint.backend",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Express.js server for file operations and real-time updates"
+          },
+          "tags": [],
+          "kind": "container",
+          "depth": 1,
+          "x": 8,
+          "y": 8,
+          "width": 1395,
+          "height": 281,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 80,
+            "height": 15
+          }
+        },
+        {
+          "id": "blueprint.backend.fileWatcher",
+          "parent": "blueprint.backend",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "133xzgn",
+            "yx1uej"
+          ],
+          "title": "File Watcher",
+          "modelRef": "blueprint.backend.fileWatcher",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Monitors blueprint files for external changes"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 48,
+          "y": 69,
+          "width": 330,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 63,
+            "width": 294,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.backend.yamlApi",
+          "parent": "blueprint.backend",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [
+            "7fipgy"
+          ],
+          "title": "YAML API",
+          "modelRef": "blueprint.backend.yamlApi",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "REST endpoints for reading/writing blueprint files"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 1029,
+          "y": 69,
+          "width": 334,
+          "height": 180,
+          "labelBBox": {
+            "x": 18,
+            "y": 54,
+            "width": 298,
+            "height": 66
+          }
+        },
+        {
+          "id": "blueprint.backend.websocket",
+          "parent": "blueprint.backend",
+          "level": 1,
+          "children": [],
+          "inEdges": [
+            "133xzgn"
+          ],
+          "outEdges": [],
+          "title": "WebSocket Server",
+          "modelRef": "blueprint.backend.websocket",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Real-time file change notifications"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 599,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 46,
+            "y": 63,
+            "width": 228,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer",
+          "parent": null,
+          "level": 0,
+          "children": [],
+          "inEdges": [
+            "7fipgy",
+            "yx1uej"
+          ],
+          "outEdges": [],
+          "title": "Data Layer",
+          "modelRef": "blueprint.dataLayer",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "YAML-based blueprint documents"
+          },
+          "tags": [],
+          "kind": "container",
+          "navigateTo": "dataComponents",
+          "x": 544,
+          "y": 392,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 45,
+            "y": 63,
+            "width": 230,
+            "height": 48
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "133xzgn",
+          "source": "blueprint.backend.fileWatcher",
+          "target": "blueprint.backend.websocket",
+          "label": "Triggers updates",
+          "points": [
+            [
+              378,
+              159
+            ],
+            [
+              445,
+              159
+            ],
+            [
+              522,
+              159
+            ],
+            [
+              589,
+              159
+            ]
+          ],
+          "labelBBox": {
+            "x": 434,
+            "y": 133,
+            "width": 109,
+            "height": 18
+          },
+          "parent": "blueprint.backend",
+          "relations": [
+            "ww7kh9"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "7fipgy",
+          "source": "blueprint.backend.yamlApi",
+          "target": "blueprint.dataLayer",
+          "label": "Reads/writes",
+          "points": [
+            [
+              1060,
+              249
+            ],
+            [
+              994,
+              292
+            ],
+            [
+              915,
+              343
+            ],
+            [
+              849,
+              387
+            ]
+          ],
+          "labelBBox": {
+            "x": 966,
+            "y": 309,
+            "width": 85,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "1sifufy"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        },
+        {
+          "id": "yx1uej",
+          "source": "blueprint.backend.fileWatcher",
+          "target": "blueprint.dataLayer",
+          "label": "Monitors",
+          "points": [
+            [
+              349,
+              249
+            ],
+            [
+              415,
+              292
+            ],
+            [
+              493,
+              343
+            ],
+            [
+              560,
+              387
+            ]
+          ],
+          "labelBBox": {
+            "x": 474,
+            "y": 309,
+            "width": 58,
+            "height": 18
+          },
+          "parent": null,
+          "relations": [
+            "y2zikg"
+          ],
+          "color": "gray",
+          "line": "dashed",
+          "head": "normal"
+        }
+      ]
+    },
+    "dataComponents": {
+      "_type": "element",
+      "tags": null,
+      "links": null,
+      "viewOf": "blueprint.dataLayer",
+      "_stage": "layouted",
+      "sourcePath": "source.likec4",
+      "description": null,
+      "title": "Data Layer Components",
+      "id": "dataComponents",
+      "autoLayout": {
+        "direction": "TB"
+      },
+      "hash": "b74ffb0ea6912efeb64cda0040e595206f547770",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1276,
+        "height": 897
+      },
+      "nodes": [
+        {
+          "id": "blueprint.dataLayer",
+          "parent": null,
+          "level": 0,
+          "children": [
+            "blueprint.dataLayer.northStar",
+            "blueprint.dataLayer.archScope",
+            "blueprint.dataLayer.leanCanvas",
+            "blueprint.dataLayer.leanViability",
+            "blueprint.dataLayer.aaarrMetrics",
+            "blueprint.dataLayer.policyCharter",
+            "blueprint.dataLayer.c4Model"
+          ],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "Data Layer",
+          "modelRef": "blueprint.dataLayer",
+          "shape": "rectangle",
+          "color": "green",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "YAML-based blueprint documents"
+          },
+          "tags": [],
+          "kind": "container",
+          "depth": 1,
+          "x": 8,
+          "y": 8,
+          "width": 1260,
+          "height": 881,
+          "labelBBox": {
+            "x": 6,
+            "y": 0,
+            "width": 75,
+            "height": 15
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.northStar",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "North Star",
+          "modelRef": "blueprint.dataLayer.northStar",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Vision and mission definition"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 48,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 63,
+            "y": 63,
+            "width": 193,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.archScope",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "Architectural Scope",
+          "modelRef": "blueprint.dataLayer.archScope",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "What, Why, How, Who, When, Where"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 478,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 33,
+            "y": 63,
+            "width": 255,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.leanCanvas",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "Lean Canvas",
+          "modelRef": "blueprint.dataLayer.leanCanvas",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Business model canvas"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 908,
+          "y": 69,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 79,
+            "y": 63,
+            "width": 162,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.leanViability",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "Lean Viability",
+          "modelRef": "blueprint.dataLayer.leanViability",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Financial projections and metrics"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 48,
+          "y": 369,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 49,
+            "y": 63,
+            "width": 222,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.aaarrMetrics",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "AAARR Metrics",
+          "modelRef": "blueprint.dataLayer.aaarrMetrics",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Customer factory funnel metrics"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 478,
+          "y": 369,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 52,
+            "y": 63,
+            "width": 216,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.policyCharter",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "Policy Charter",
+          "modelRef": "blueprint.dataLayer.policyCharter",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Goals, tactics, policies, and risks"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 908,
+          "y": 369,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 50,
+            "y": 63,
+            "width": 221,
+            "height": 48
+          }
+        },
+        {
+          "id": "blueprint.dataLayer.c4Model",
+          "parent": "blueprint.dataLayer",
+          "level": 1,
+          "children": [],
+          "inEdges": [],
+          "outEdges": [],
+          "title": "C4 Model",
+          "modelRef": "blueprint.dataLayer.c4Model",
+          "shape": "rectangle",
+          "color": "slate",
+          "style": {
+            "opacity": 15,
+            "size": "md"
+          },
+          "description": {
+            "txt": "Software architecture diagrams"
+          },
+          "tags": [],
+          "kind": "component",
+          "x": 48,
+          "y": 669,
+          "width": 320,
+          "height": 180,
+          "labelBBox": {
+            "x": 54,
+            "y": 63,
+            "width": 212,
+            "height": 48
+          }
+        }
+      ],
+      "edges": []
+    }
+  },
+  "deployments": {
+    "elements": {},
+    "relations": {}
+  },
+  "imports": {}
+}

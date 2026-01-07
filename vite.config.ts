@@ -15,7 +15,10 @@ export default defineConfig({
       },
     }),
   ],
+  // Github Pages configuration
+  base: process.env.NODE_ENV === 'production' ? '/blueprint/' : '/',
   build: {
+    outDir: 'dist',
     rollupOptions: {
       external: ['@opencode-ai/sdk'],
     },

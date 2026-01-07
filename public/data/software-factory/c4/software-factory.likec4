@@ -1,0 +1,201 @@
+// Software Factory - AI-Driven Autonomous SDLC Platform
+// C4 Architecture Model
+// Based on the product's north star, architectural scope, and roadmap
+specification {
+  element actor {
+    style {
+      shape person
+      color amber
+    }
+  }
+  element system {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
+  element container {
+    style {
+      shape rectangle
+      color green
+    }
+  }
+  element component {
+    style {
+      shape rectangle
+      color slate
+    }
+  }
+  element external {
+    style {
+      shape rectangle
+      color gray
+    }
+  }
+}
+model {
+  // Actors
+  actor engineer "Engineer" {
+    description "Software engineer overseeing autonomous SDLC workflows"
+  }
+  actor teamLead "Team Lead" {
+    description "Engineering manager configuring and monitoring AI workflows"
+  }
+  actor architect "System Architect" {
+    description "Technical architect designing autonomous development processes"
+  }
+  actor devops "DevOps Engineer" {
+    description "Infrastructure and deployment specialist"
+  }
+  // External Systems
+  external aiProvider "AI Provider" {
+    description "Claude Code, OpenAI GPT, or other AI coding assistants"
+  }
+  external gitRepo "Git Repository" {
+    description "Version control for generated code and configurations"
+  }
+  external cicd "CI/CD Pipeline" {
+    description "Continuous integration and deployment systems"
+  }
+  external testFramework "Testing Framework" {
+    description "TestZeus or other autonomous testing platforms"
+  }
+  external monitoring "Monitoring System" {
+    description "Application performance monitoring and alerting"
+  }
+  external blueprintSystem "Blueprint Context System" {
+    description "Structured business context and requirements management"
+  }
+  // Main System
+  system softwareFactory "Software Factory Platform" {
+    description "AI-driven autonomous Software Development Lifecycle platform that transforms manual development into automated workflows"
+    container dashboard "Dashboard UI" {
+      description "React-based web interface for workflow configuration, monitoring, and oversight"
+      component workflowDesigner "Workflow Designer" {
+        description "No-code visual designer for configuring AI agent workflows"
+      }
+      component backlogManager "Backlog Manager" {
+        description "Task scheduling and prioritization interface for AI agents"
+      }
+      component monitoringDashboard "Monitoring Dashboard" {
+        description "Real-time monitoring of AI agent activities and system health"
+      }
+      component blueprintViewer "Blueprint Viewer" {
+        description "Integration with Blueprint system for context visualization"
+      }
+    }
+    container orchestrationEngine "Orchestration Engine" {
+      description "Backend service coordinating AI agents through SDLC phases"
+      component workflowOrchestrator "Workflow Orchestrator" {
+        description "Manages execution flow through planning, development, testing, deployment phases"
+      }
+      component agentCoordinator "Agent Coordinator" {
+        description "Manages multiple AI agents and their interactions"
+      }
+      component qualityGate "Quality Gate" {
+        description "Automated code review and validation checkpoints"
+      }
+      component deploymentManager "Deployment Manager" {
+        description "Handles automated deployment with feature flags"
+      }
+    }
+    container aiRuntime "AI Agent Runtime" {
+      description "Execution environment for AI development agents"
+      component codeGenerator "Code Generator Agent" {
+        description "AI agent responsible for autonomous code generation and refactoring"
+      }
+      component testGenerator "Test Generator Agent" {
+        description "AI agent that creates comprehensive test suites"
+      }
+      component reviewerAgent "Code Review Agent" {
+        description "AI agent performing automated code quality assessment"
+      }
+      component deploymentAgent "Deployment Agent" {
+        description "AI agent managing deployment automation and rollback"
+      }
+    }
+    container contextManager "Context Manager" {
+      description "Integration layer with Blueprint system for business context"
+      component blueprintIntegrator "Blueprint Integrator" {
+        description "API client for accessing structured business requirements and context"
+      }
+      component contextCache "Context Cache" {
+        description "Local caching of blueprint data for AI agent access"
+      }
+      component requirementMapper "Requirement Mapper" {
+        description "Translates business requirements into technical specifications"
+      }
+    }
+    container dataStore "Data Store" {
+      description "Persistent storage for workflows, configurations, and artifacts"
+      component workflowConfig "Workflow Configurations" {
+        description "YAML-based workflow definitions and agent configurations"
+      }
+      component artifactStore "Artifact Store" {
+        description "Storage for generated code, test results, and deployment artifacts"
+      }
+      component metricsStore "Metrics Store" {
+        description "Performance metrics and monitoring data"
+      }
+    }
+  }
+  // Relationships
+  engineer -> softwareFactory.dashboard "Configures and monitors AI workflows"
+  teamLead -> softwareFactory.dashboard "Oversees autonomous development processes"
+  architect -> softwareFactory.dashboard "Designs workflow templates and quality gates"
+  devops -> softwareFactory.dashboard "Manages deployment configurations and monitoring"
+  softwareFactory.dashboard -> softwareFactory.orchestrationEngine "Sends workflow configurations"
+  softwareFactory.orchestrationEngine -> softwareFactory.aiRuntime "Orchestrates AI agent execution"
+  softwareFactory.orchestrationEngine -> softwareFactory.contextManager "Accesses business context"
+  softwareFactory.orchestrationEngine -> softwareFactory.dataStore "Persists configurations and artifacts"
+  softwareFactory.aiRuntime -> aiProvider "Executes AI-powered development tasks"
+  softwareFactory.aiRuntime -> gitRepo "Commits generated code"
+  softwareFactory.aiRuntime -> cicd "Triggers automated builds"
+  softwareFactory.aiRuntime -> testFramework "Runs autonomous testing"
+  softwareFactory.contextManager -> blueprintSystem "Retrieves business context and requirements"
+  softwareFactory.orchestrationEngine -> monitoring "Sends health and performance metrics"
+  monitoring -> softwareFactory.dashboard "Provides monitoring data"
+  // Internal component relationships
+  softwareFactory.dashboard.workflowDesigner -> softwareFactory.orchestrationEngine.workflowOrchestrator "Defines workflows"
+  softwareFactory.dashboard.backlogManager -> softwareFactory.orchestrationEngine.workflowOrchestrator "Schedules tasks"
+  softwareFactory.dashboard.monitoringDashboard -> softwareFactory.orchestrationEngine.agentCoordinator "Monitors agents"
+  softwareFactory.orchestrationEngine.workflowOrchestrator -> softwareFactory.aiRuntime.codeGenerator "Initiates development"
+  softwareFactory.orchestrationEngine.qualityGate -> softwareFactory.aiRuntime.reviewerAgent "Triggers review"
+  softwareFactory.orchestrationEngine.deploymentManager -> softwareFactory.aiRuntime.deploymentAgent "Manages deployment"
+  softwareFactory.contextManager.requirementMapper -> softwareFactory.aiRuntime.codeGenerator "Provides technical specs"
+}
+views {
+  view index of softwareFactory {
+    title "Software Factory - System Context"
+    include *
+    include engineer, teamLead, architect, devops
+    include aiProvider, gitRepo, cicd, testFramework, monitoring, blueprintSystem
+  }
+  view containers of softwareFactory {
+    title "Software Factory - Containers"
+    include softwareFactory, softwareFactory.*
+    include engineer, teamLead, architect, devops
+    include aiProvider, gitRepo, cicd, testFramework, monitoring, blueprintSystem
+  }
+  view orchestrationComponents of softwareFactory.orchestrationEngine {
+    title "Orchestration Engine Components"
+    include softwareFactory.orchestrationEngine, softwareFactory.orchestrationEngine.*
+    include softwareFactory.dashboard, softwareFactory.aiRuntime, softwareFactory.contextManager
+  }
+  view aiAgents of softwareFactory.aiRuntime {
+    title "AI Agent Runtime Components"
+    include softwareFactory.aiRuntime, softwareFactory.aiRuntime.*
+    include softwareFactory.orchestrationEngine, aiProvider, gitRepo, cicd, testFramework
+  }
+  view dashboardComponents of softwareFactory.dashboard {
+    title "Dashboard UI Components"
+    include softwareFactory.dashboard, softwareFactory.dashboard.*
+    include engineer, teamLead, architect, devops
+    include softwareFactory.orchestrationEngine
+  }
+  view contextIntegration of softwareFactory.contextManager {
+    title "Context Management Integration"
+    include softwareFactory.contextManager, softwareFactory.contextManager.*
+    include blueprintSystem, softwareFactory.orchestrationEngine
+  }
+}

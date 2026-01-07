@@ -1,0 +1,8 @@
+type: user-story
+id: new-1767353594094
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: As an operator I want every approved code to be merged into the main branch
+status: planned
+tasks: []

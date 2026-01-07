@@ -1,0 +1,213 @@
+{
+  "data": {
+    "type": "roadmap",
+    "productName": "blueprint",
+    "version": "1.0",
+    "last_updated": "2026-01-06",
+    "title": "Blueprint Product Roadmap",
+    "description": "Strategic roadmap for the Blueprint SaaS platform development.\nThis roadmap defines epics, features, user stories, and AI-executable tasks\nin a hierarchical structure optimized for both human planning and AI execution.\n",
+    "epics": [
+      {
+        "id": "new-1767354367239",
+        "name": "Create Prototype",
+        "description": "Create a very early prototype to:\n1. prove the value of such Context Management Tool\n2. Share the product with Mentors",
+        "status": "in_progress",
+        "path": "./new-1767354367239/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": [
+          {
+            "id": "new-1767354648588",
+            "name": "Host the Prototype",
+            "status": "planned",
+            "path": "./new-1767354648588/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          }
+        ]
+      },
+      {
+        "id": "new-1767354740686",
+        "name": "Educational Content Layer",
+        "description": "Educational Content is very important in product acquisition funnel. We want Blueprint to support its development supported by AI (just like we do primarily for software development itself)",
+        "status": "planned",
+        "path": "./new-1767354740686/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": [
+          {
+            "id": "new-1767354774861",
+            "name": "Tripwire Product",
+            "description": "For now the idea is written down as .md file. But we want all such important things to be defined as DSL so it is well structured, we can visualize and modify it ",
+            "status": "planned",
+            "path": "./new-1767354774861/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          }
+        ]
+      },
+      {
+        "id": "new-1767354443570",
+        "name": "Strategic Domain Driven Design Layers",
+        "status": "planned",
+        "path": "./new-1767354443570/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": [
+          {
+            "id": "new-1767354451091",
+            "name": "Subdomains",
+            "description": "1. AI-Generated Business'es Subdomains based on the previous business'es Blueprint Layers analysis\n2. Visualize the Layer\n3. Enable manual modifications",
+            "status": "planned",
+            "path": "./new-1767354451091/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          },
+          {
+            "id": "new-1767354572088",
+            "name": "Bounded Contexts",
+            "description": "1. AI-Generated Business'es Bounded Contexts based on the previous business'es Blueprint Layers analysis\n2. Visualize the Layer\n3. Enable manual modifications",
+            "status": "planned",
+            "path": "./new-1767354572088/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          },
+          {
+            "id": "new-1767354673646",
+            "name": "Contexts Map",
+            "description": "1. AI-Generated Business'es Contexts Map based on the previous business'es Blueprint Layers analysis\n2. Visualize the Layer\n3. Enable manual modifications",
+            "status": "planned",
+            "path": "./new-1767354673646/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          },
+          {
+            "id": "new-1767700885729",
+            "name": "Event Storming",
+            "status": "planned",
+            "path": "./new-1767700885729/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          }
+        ]
+      },
+      {
+        "id": "new-1767354919415",
+        "name": "Backlog",
+        "status": "planned",
+        "path": "./new-1767354919415/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": [
+          {
+            "id": "new-1767354940566",
+            "name": "Split Backlog functionality from Roadmap",
+            "status": "planned",
+            "path": "./new-1767354940566/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          },
+          {
+            "id": "new-1767711195421",
+            "name": "Jira Integration",
+            "description": "We want Jira users to easily integrate with their Blueprint (so they can easily synchronize their Jira tickets with the Blueprint Backlog and the other way around)",
+            "status": "planned",
+            "path": "./new-1767711195421/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          },
+          {
+            "id": "new-1767354966948",
+            "name": "Integrate Behavior Driven Development specifications for items in Backlog",
+            "description": "This aims to allow better context management for AI-Agents working on chunk of work from the Backlog",
+            "status": "planned",
+            "path": "./new-1767354966948/feature.yaml",
+            "type": "feature",
+            "productName": "blueprint",
+            "version": "1.0",
+            "last_updated": "2026-01-06",
+            "user_stories": []
+          }
+        ]
+      },
+      {
+        "id": "new-1767710239335",
+        "name": "Terraform Visualizer",
+        "status": "planned",
+        "path": "./new-1767710239335/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": []
+      },
+      {
+        "id": "new-1767711046345",
+        "name": "Integrate with external analytics systems",
+        "description": "We want Blueprint layers (e.g. Customers Factory) to be powered with the actual product's analytics data (e.g. what is the actual conversion rate for our landing page) so the AI Agents operating on the business layer (e.g. Roadmap/Backlog) can create informed epic/ticket ideas to improve the metrics for the specified goals",
+        "status": "planned",
+        "path": "./new-1767711046345/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": []
+      },
+      {
+        "id": "new-1767707095517",
+        "name": "Possibility to create custom Blueprint Layers",
+        "description": "We need plugin architecture to allow for building custom Blueprint Layers",
+        "status": "planned",
+        "path": "./new-1767707095517/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": []
+      },
+      {
+        "id": "new-1767707253802",
+        "name": "Custom Layers Marketplace",
+        "status": "planned",
+        "path": "./new-1767707253802/epic.yaml",
+        "type": "epic",
+        "productName": "blueprint",
+        "version": "1.0",
+        "last_updated": "2026-01-06",
+        "features": []
+      }
+    ]
+  }
+}

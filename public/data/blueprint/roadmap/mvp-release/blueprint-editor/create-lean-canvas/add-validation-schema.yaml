@@ -1,0 +1,11 @@
+type: task
+id: add-validation-schema
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Add JSON Schema Validation
+description: |
+  Implement client-side validation using the JSON schema
+  to provide immediate feedback during editing.
+status: planned
+estimated_hours: 2

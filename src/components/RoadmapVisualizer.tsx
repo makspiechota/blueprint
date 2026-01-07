@@ -267,7 +267,7 @@ const TreeNode: React.FC<{
 
 const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
   const { openChat } = useChat();
-  const { productName, reloadRoadmap } = useBusinessData();
+  const { productName } = useBusinessData();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedListItem, setSelectedListItem] = useState<TreeItem | null>(null);
@@ -968,10 +968,7 @@ const RoadmapVisualizer: React.FC<RoadmapVisualizerProps> = ({ data }) => {
         throw new Error('Failed to save roadmap');
       }
 
-       // Reload roadmap data to refresh the UI
-       if (reloadRoadmap) {
-         await reloadRoadmap();
-       }
+
     } catch (error) {
       console.error('Error saving roadmap:', error);
       alert('Failed to save roadmap. Check console for details.');

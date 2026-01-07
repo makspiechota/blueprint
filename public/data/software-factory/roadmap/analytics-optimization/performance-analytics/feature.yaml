@@ -1,0 +1,12 @@
+type: feature
+id: performance-analytics
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: Performance Analytics
+description: |
+  Provide insights into workflow efficiency, error rates, and productivity
+  gains through comprehensive analytics and reporting tools.
+status: planned
+priority: medium
+user_stories: []

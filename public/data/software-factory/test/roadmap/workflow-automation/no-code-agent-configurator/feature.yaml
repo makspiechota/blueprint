@@ -1,0 +1,12 @@
+type: feature
+id: no-code-agent-configurator
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: No-Code Agent Configurator
+description: |
+  Build an intuitive drag-and-drop interface for configuring AI agents
+  with prompts, models, and workflow parameters without coding knowledge.
+status: planned
+priority: high
+user_stories: []
