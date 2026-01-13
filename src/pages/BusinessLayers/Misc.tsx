@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useParams } from 'react-router';
-import ReactMarkdown from 'react-markdown';
 import MDEditor from '@uiw/react-md-editor';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 import { useBusinessData } from '../../context/BusinessDataContext';
 import { aiService } from '../../services/aiService';
 import ChatButton from '../../components/ChatButton';
@@ -291,8 +291,12 @@ const Misc: React.FC = () => {
                 />
               </div>
             ) : (
-               <div className="prose prose-sm max-w-none">
-                 <ReactMarkdown>{content}</ReactMarkdown>
+               <div data-color-mode={isDarkMode ? 'dark' : 'light'}>
+                 <MarkdownPreview
+                   source={content}
+                   className="!bg-transparent"
+                   style={{ backgroundColor: 'transparent' }}
+                 />
                </div>
             )}
           </div>

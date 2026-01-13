@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import MDEditor from '@uiw/react-md-editor';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 import ChatButton from './ChatButton';
 import { useChat } from '../context/ChatContext';
 
@@ -199,10 +199,12 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
             />
           </div>
         ) : (
-          <div className="p-6 overflow-auto h-full">
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <ReactMarkdown>{editedContent}</ReactMarkdown>
-            </div>
+          <div className="p-6 overflow-auto h-full" data-color-mode={isDarkMode ? 'dark' : 'light'}>
+            <MarkdownPreview
+              source={editedContent}
+              className="!bg-transparent"
+              style={{ backgroundColor: 'transparent' }}
+            />
           </div>
         )}
       </div>
