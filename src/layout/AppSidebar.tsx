@@ -126,7 +126,6 @@ const baseEducationalLayersItems: NavItem[] = [
     icon: <PencilIcon />,
     name: "Tripwire",
     path: "/tripwire",
-    comingSoon: true,
   },
 ];
 
