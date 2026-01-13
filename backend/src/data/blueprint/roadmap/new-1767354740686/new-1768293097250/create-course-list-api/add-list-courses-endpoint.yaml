@@ -1,0 +1,28 @@
+type: task
+id: add-list-courses-endpoint
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Add List Courses Endpoint
+description: |
+  Create GET /api/tripwire/:productName/courses endpoint.
+
+  Response format:
+  {
+    "data": [
+      {
+        "id": "software-factory-2027",
+        "title": "Software Factory 2027",
+        "subtitle": "...",
+        "modulesCount": 8,
+        "price": 27,
+        "status": "draft"
+      }
+    ]
+  }
+
+  - Scan tripwire/courses/ directory for subdirectories
+  - Load course.yaml from each to get metadata
+  - Return array of course summaries
+status: completed
+estimated_hours: 2

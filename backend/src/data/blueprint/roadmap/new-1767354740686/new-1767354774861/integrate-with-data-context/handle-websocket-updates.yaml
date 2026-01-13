@@ -2,7 +2,7 @@ type: task
 id: handle-websocket-updates
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Handle WebSocket Updates for Tripwire
 description: |
   Extend WebSocket handler in BusinessDataContext for tripwire.

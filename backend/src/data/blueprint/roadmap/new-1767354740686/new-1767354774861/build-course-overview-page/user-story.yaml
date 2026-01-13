@@ -2,7 +2,7 @@ type: user-story
 id: build-course-overview-page
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Build Course Overview Page
 description: |
   As a content creator,

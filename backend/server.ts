@@ -939,16 +939,22 @@ app.put('/api/roadmap/:productName', (req, res) => {
 });
 
 // ==================
-// Tripwire Course API (Educational Content Layer)
+// Tripwire Course API (Educational Content Layer) - Multi-Course Support
 // ==================
 
-// Helper to get tripwire directory for a product
+// Helper to get tripwire base directory for a product
 const getTripwireDir = (productName: string) => path.join(yamlDir, productName, 'tripwire');
 
+// Helper to get courses directory for a product
+const getCoursesDir = (productName: string) => path.join(getTripwireDir(productName), 'courses');
+
+// Helper to get a specific course directory
+const getCourseDir = (productName: string, courseId: string) => path.join(getCoursesDir(productName), courseId);
+
 // Helper to load course data with modules
-const loadCourseData = (productName: string) => {
-  const tripwireDir = getTripwireDir(productName);
-  const courseFile = path.join(tripwireDir, 'course.yaml');
+const loadCourseData = (productName: string, courseId: string) => {
+  const courseDir = getCourseDir(productName, courseId);
+  const courseFile = path.join(courseDir, 'course.yaml');
 
   if (!fs.existsSync(courseFile)) {
     return null;
@@ -957,10 +963,13 @@ const loadCourseData = (productName: string) => {
   const courseContent = fs.readFileSync(courseFile, 'utf8');
   const course = yaml.load(courseContent) as any;
 
+  // Ensure course has the id
+  course.id = courseId;
+
   // Load each module's metadata
   if (course.modules) {
     course.modules = course.modules.map((moduleRef: any) => {
-      const modulePath = path.join(tripwireDir, moduleRef.path?.replace('./', '') || `modules/${moduleRef.id}/module.yaml`);
+      const modulePath = path.join(courseDir, moduleRef.path?.replace('./', '') || `modules/${moduleRef.id}/module.yaml`);
       if (fs.existsSync(modulePath)) {
         const moduleContent = fs.readFileSync(modulePath, 'utf8');
         const moduleData = yaml.load(moduleContent) as any;
@@ -973,11 +982,102 @@ const loadCourseData = (productName: string) => {
   return course;
 };
 
-// GET /api/tripwire/:productName/course - Get course overview with modules
-app.get('/api/tripwire/:productName/course', (req, res) => {
+// GET /api/tripwire/:productName/courses - List all courses
+app.get('/api/tripwire/:productName/courses', (req, res) => {
   try {
     const { productName } = req.params;
-    const course = loadCourseData(productName);
+    const coursesDir = getCoursesDir(productName);
+
+    if (!fs.existsSync(coursesDir)) {
+      return res.json({ data: [] });
+    }
+
+    const courseDirs = fs.readdirSync(coursesDir, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name)
+      .sort();
+
+    const courses = courseDirs.map(courseId => {
+      const courseFile = path.join(coursesDir, courseId, 'course.yaml');
+      if (fs.existsSync(courseFile)) {
+        const content = fs.readFileSync(courseFile, 'utf8');
+        const course = yaml.load(content) as any;
+        // Return summary data
+        return {
+          id: courseId,
+          title: course.title,
+          subtitle: course.subtitle,
+          price: course.price,
+          currency: course.currency,
+          duration: course.duration,
+          modulesCount: course.modules?.length || 0,
+          status: course.status || 'draft'
+        };
+      }
+      return { id: courseId, title: courseId, modulesCount: 0, status: 'draft' };
+    });
+
+    res.json({ data: courses });
+  } catch (error) {
+    console.error('Error listing courses:', error);
+    res.status(500).json({ error: 'Failed to list courses' });
+  }
+});
+
+// POST /api/tripwire/:productName/courses - Create new course
+app.post('/api/tripwire/:productName/courses', (req, res) => {
+  try {
+    const { productName } = req.params;
+    const { id, title, subtitle, price, currency, duration, description } = req.body;
+
+    if (!id || !title) {
+      return res.status(400).json({ error: 'Course ID and title are required' });
+    }
+
+    const courseDir = getCourseDir(productName, id);
+
+    if (fs.existsSync(courseDir)) {
+      return res.status(409).json({ error: 'Course already exists' });
+    }
+
+    // Create course directory structure
+    fs.mkdirSync(courseDir, { recursive: true });
+    fs.mkdirSync(path.join(courseDir, 'modules'), { recursive: true });
+
+    // Create initial course.yaml
+    const courseData = {
+      type: 'course',
+      id,
+      productName,
+      version: '1.0',
+      title,
+      subtitle: subtitle || '',
+      price: price || 0,
+      currency: currency || 'USD',
+      duration: duration || '',
+      description: description || '',
+      outcomes: [],
+      modules: []
+    };
+
+    const yamlContent = yaml.dump(courseData);
+    fs.writeFileSync(path.join(courseDir, 'course.yaml'), yamlContent, 'utf8');
+
+    // Broadcast update
+    broadcastTripwireUpdate(productName, null, 'courses', { action: 'created', courseId: id });
+
+    res.json({ success: true, message: 'Course created successfully', data: courseData });
+  } catch (error) {
+    console.error('Error creating course:', error);
+    res.status(500).json({ error: 'Failed to create course' });
+  }
+});
+
+// GET /api/tripwire/:productName/courses/:courseId - Get course overview with modules
+app.get('/api/tripwire/:productName/courses/:courseId', (req, res) => {
+  try {
+    const { productName, courseId } = req.params;
+    const course = loadCourseData(productName, courseId);
 
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
@@ -990,27 +1090,27 @@ app.get('/api/tripwire/:productName/course', (req, res) => {
   }
 });
 
-// PUT /api/tripwire/:productName/course - Update course metadata
-app.put('/api/tripwire/:productName/course', (req, res) => {
+// PUT /api/tripwire/:productName/courses/:courseId - Update course metadata
+app.put('/api/tripwire/:productName/courses/:courseId', (req, res) => {
   try {
-    const { productName } = req.params;
+    const { productName, courseId } = req.params;
     const { data } = req.body;
 
     if (!data) {
       return res.status(400).json({ error: 'Data is required' });
     }
 
-    const tripwireDir = getTripwireDir(productName);
-    const courseFile = path.join(tripwireDir, 'course.yaml');
+    const courseDir = getCourseDir(productName, courseId);
+    const courseFile = path.join(courseDir, 'course.yaml');
 
-    // Ensure directory exists
-    if (!fs.existsSync(tripwireDir)) {
-      fs.mkdirSync(tripwireDir, { recursive: true });
+    if (!fs.existsSync(courseDir)) {
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     // Extract only course-level data (not full module data)
     const courseData = {
       type: 'course',
+      id: courseId,
       productName: data.productName || productName,
       version: data.version || '1.0',
       title: data.title,
@@ -1032,7 +1132,7 @@ app.put('/api/tripwire/:productName/course', (req, res) => {
     fs.writeFileSync(courseFile, yamlContent, 'utf8');
 
     // Broadcast update
-    broadcastTripwireUpdate(productName, 'course.yaml', courseData);
+    broadcastTripwireUpdate(productName, courseId, 'course.yaml', courseData);
 
     res.json({ success: true, message: 'Course updated successfully' });
   } catch (error) {
@@ -1041,12 +1141,35 @@ app.put('/api/tripwire/:productName/course', (req, res) => {
   }
 });
 
-// GET /api/tripwire/:productName/modules - List all modules
-app.get('/api/tripwire/:productName/modules', (req, res) => {
+// DELETE /api/tripwire/:productName/courses/:courseId - Delete course
+app.delete('/api/tripwire/:productName/courses/:courseId', (req, res) => {
   try {
-    const { productName } = req.params;
-    const tripwireDir = getTripwireDir(productName);
-    const modulesDir = path.join(tripwireDir, 'modules');
+    const { productName, courseId } = req.params;
+    const courseDir = getCourseDir(productName, courseId);
+
+    if (!fs.existsSync(courseDir)) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    // Recursively delete course directory
+    fs.rmSync(courseDir, { recursive: true, force: true });
+
+    // Broadcast update
+    broadcastTripwireUpdate(productName, null, 'courses', { action: 'deleted', courseId });
+
+    res.json({ success: true, message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ error: 'Failed to delete course' });
+  }
+});
+
+// GET /api/tripwire/:productName/courses/:courseId/modules - List all modules in a course
+app.get('/api/tripwire/:productName/courses/:courseId/modules', (req, res) => {
+  try {
+    const { productName, courseId } = req.params;
+    const courseDir = getCourseDir(productName, courseId);
+    const modulesDir = path.join(courseDir, 'modules');
 
     if (!fs.existsSync(modulesDir)) {
       return res.json({ modules: [] });
@@ -1073,12 +1196,12 @@ app.get('/api/tripwire/:productName/modules', (req, res) => {
   }
 });
 
-// GET /api/tripwire/:productName/modules/:moduleId - Get module details
-app.get('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
+// GET /api/tripwire/:productName/courses/:courseId/modules/:moduleId - Get module details
+app.get('/api/tripwire/:productName/courses/:courseId/modules/:moduleId', (req, res) => {
   try {
-    const { productName, moduleId } = req.params;
-    const tripwireDir = getTripwireDir(productName);
-    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+    const { productName, courseId, moduleId } = req.params;
+    const courseDir = getCourseDir(productName, courseId);
+    const moduleFile = path.join(courseDir, 'modules', moduleId, 'module.yaml');
 
     if (!fs.existsSync(moduleFile)) {
       return res.status(404).json({ error: 'Module not found' });
@@ -1088,7 +1211,7 @@ app.get('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
     const moduleData = yaml.load(content) as any;
 
     // Load actual content file lists from filesystem
-    const moduleDir = path.join(tripwireDir, 'modules', moduleId);
+    const moduleDir = path.join(courseDir, 'modules', moduleId);
     const contentTypes = ['lectures', 'prompts', 'templates'];
 
     contentTypes.forEach(type => {
@@ -1115,18 +1238,18 @@ app.get('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
   }
 });
 
-// PUT /api/tripwire/:productName/modules/:moduleId - Update module metadata
-app.put('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
+// PUT /api/tripwire/:productName/courses/:courseId/modules/:moduleId - Update module metadata
+app.put('/api/tripwire/:productName/courses/:courseId/modules/:moduleId', (req, res) => {
   try {
-    const { productName, moduleId } = req.params;
+    const { productName, courseId, moduleId } = req.params;
     const { data } = req.body;
 
     if (!data) {
       return res.status(400).json({ error: 'Data is required' });
     }
 
-    const tripwireDir = getTripwireDir(productName);
-    const moduleDir = path.join(tripwireDir, 'modules', moduleId);
+    const courseDir = getCourseDir(productName, courseId);
+    const moduleDir = path.join(courseDir, 'modules', moduleId);
     const moduleFile = path.join(moduleDir, 'module.yaml');
 
     // Ensure directory exists
@@ -1138,7 +1261,7 @@ app.put('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
     fs.writeFileSync(moduleFile, yamlContent, 'utf8');
 
     // Broadcast update
-    broadcastTripwireUpdate(productName, `modules/${moduleId}/module.yaml`, data);
+    broadcastTripwireUpdate(productName, courseId, `modules/${moduleId}/module.yaml`, data);
 
     res.json({ success: true, message: 'Module updated successfully' });
   } catch (error) {
@@ -1147,15 +1270,15 @@ app.put('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
   }
 });
 
-// GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Get content file
-app.get('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+// GET /api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId - Get content file
+app.get('/api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId', (req, res) => {
   try {
-    const { productName, moduleId, type, contentId } = req.params;
-    const tripwireDir = getTripwireDir(productName);
-    const contentFile = path.join(tripwireDir, 'modules', moduleId, type, `${contentId}.md`);
+    const { productName, courseId, moduleId, type, contentId } = req.params;
+    const courseDir = getCourseDir(productName, courseId);
+    const contentFile = path.join(courseDir, 'modules', moduleId, type, `${contentId}.md`);
 
     // Security: prevent directory traversal
-    const expectedBase = path.join(tripwireDir, 'modules', moduleId, type);
+    const expectedBase = path.join(courseDir, 'modules', moduleId, type);
     if (!contentFile.startsWith(expectedBase)) {
       return res.status(403).json({ error: 'Access denied' });
     }
@@ -1169,6 +1292,7 @@ app.get('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, r
       id: contentId,
       type,
       moduleId,
+      courseId,
       filename: `${contentId}.md`,
       content
     });
@@ -1178,18 +1302,18 @@ app.get('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, r
   }
 });
 
-// PUT /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Update content file
-app.put('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+// PUT /api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId - Update content file
+app.put('/api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId', (req, res) => {
   try {
-    const { productName, moduleId, type, contentId } = req.params;
+    const { productName, courseId, moduleId, type, contentId } = req.params;
     const { content } = req.body;
 
     if (content === undefined) {
       return res.status(400).json({ error: 'Content is required' });
     }
 
-    const tripwireDir = getTripwireDir(productName);
-    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const courseDir = getCourseDir(productName, courseId);
+    const typeDir = path.join(courseDir, 'modules', moduleId, type);
     const contentFile = path.join(typeDir, `${contentId}.md`);
 
     // Security: prevent directory traversal
@@ -1205,7 +1329,7 @@ app.put('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, r
     fs.writeFileSync(contentFile, content, 'utf8');
 
     // Broadcast update
-    broadcastTripwireUpdate(productName, `modules/${moduleId}/${type}/${contentId}.md`, { content });
+    broadcastTripwireUpdate(productName, courseId, `modules/${moduleId}/${type}/${contentId}.md`, { content });
 
     res.json({ success: true, message: 'Content updated successfully' });
   } catch (error) {
@@ -1214,18 +1338,18 @@ app.put('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, r
   }
 });
 
-// POST /api/tripwire/:productName/modules/:moduleId/:type - Create new content file
-app.post('/api/tripwire/:productName/modules/:moduleId/:type', (req, res) => {
+// POST /api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type - Create new content file
+app.post('/api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type', (req, res) => {
   try {
-    const { productName, moduleId, type } = req.params;
+    const { productName, courseId, moduleId, type } = req.params;
     const { id, name, content } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Content ID is required' });
     }
 
-    const tripwireDir = getTripwireDir(productName);
-    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const courseDir = getCourseDir(productName, courseId);
+    const typeDir = path.join(courseDir, 'modules', moduleId, type);
     const contentFile = path.join(typeDir, `${id}.md`);
 
     // Security: prevent directory traversal
@@ -1245,7 +1369,7 @@ app.post('/api/tripwire/:productName/modules/:moduleId/:type', (req, res) => {
     fs.writeFileSync(contentFile, content || `# ${name || id}\n\nContent goes here...`, 'utf8');
 
     // Update module.yaml to include new content reference
-    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+    const moduleFile = path.join(courseDir, 'modules', moduleId, 'module.yaml');
     if (fs.existsSync(moduleFile)) {
       const moduleContent = fs.readFileSync(moduleFile, 'utf8');
       const moduleData = yaml.load(moduleContent) as any;
@@ -1267,12 +1391,12 @@ app.post('/api/tripwire/:productName/modules/:moduleId/:type', (req, res) => {
   }
 });
 
-// DELETE /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Delete content file
-app.delete('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+// DELETE /api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId - Delete content file
+app.delete('/api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId', (req, res) => {
   try {
-    const { productName, moduleId, type, contentId } = req.params;
-    const tripwireDir = getTripwireDir(productName);
-    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const { productName, courseId, moduleId, type, contentId } = req.params;
+    const courseDir = getCourseDir(productName, courseId);
+    const typeDir = path.join(courseDir, 'modules', moduleId, type);
     const contentFile = path.join(typeDir, `${contentId}.md`);
 
     // Security: prevent directory traversal
@@ -1287,7 +1411,7 @@ app.delete('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req
     fs.unlinkSync(contentFile);
 
     // Update module.yaml to remove content reference
-    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+    const moduleFile = path.join(courseDir, 'modules', moduleId, 'module.yaml');
     if (fs.existsSync(moduleFile)) {
       const moduleContent = fs.readFileSync(moduleFile, 'utf8');
       const moduleData = yaml.load(moduleContent) as any;
@@ -1304,11 +1428,12 @@ app.delete('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req
   }
 });
 
-// Function to broadcast tripwire updates
-const broadcastTripwireUpdate = (productName: string, filename: string, data: any) => {
+// Function to broadcast tripwire updates (updated signature for multi-course)
+const broadcastTripwireUpdate = (productName: string, courseId: string | null, filename: string, data: any) => {
   const message = JSON.stringify({
     type: 'tripwire_update',
     productName,
+    courseId,
     filename,
     data,
     timestamp: new Date().toISOString()

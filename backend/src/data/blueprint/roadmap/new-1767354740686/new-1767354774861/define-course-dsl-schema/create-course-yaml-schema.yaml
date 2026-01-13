@@ -2,7 +2,7 @@ type: task
 id: create-course-yaml-schema
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Create JSON Schema for course.yaml
 description: |
   Create a JSON Schema file that validates course.yaml structure.

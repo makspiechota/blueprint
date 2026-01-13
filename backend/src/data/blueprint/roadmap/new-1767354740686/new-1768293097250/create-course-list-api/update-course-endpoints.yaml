@@ -1,0 +1,20 @@
+type: task
+id: update-course-endpoints
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Update Course Endpoints with Course ID
+description: |
+  Update existing endpoints to include courseId in path.
+
+  New routes:
+  - GET /api/tripwire/:productName/courses/:courseId
+  - PUT /api/tripwire/:productName/courses/:courseId
+  - GET /api/tripwire/:productName/courses/:courseId/modules/:moduleId
+  - GET/PUT /api/tripwire/:productName/courses/:courseId/modules/:moduleId/:type/:contentId
+
+  - Update path resolution to use courseId
+  - Maintain backwards compatibility during transition
+  - Update WebSocket broadcast to include courseId
+status: completed
+estimated_hours: 2

@@ -2,7 +2,7 @@ type: task
 id: add-tripwire-loading
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Add Tripwire Data Loading
 description: |
   Add tripwire data loading to BusinessDataContext.

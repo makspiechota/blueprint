@@ -2,19 +2,29 @@ type: user-story
 id: create-backend-api-endpoints
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Create Backend API Endpoints
-description: |
+description: >
   As a developer,
+
   I want API endpoints for reading and writing course data,
+
   So that the frontend can manage course content with proper validation.
 
+
   Acceptance Criteria:
+
   - GET /api/tripwire/:productName/course - returns course.yaml data
+
   - GET /api/tripwire/:productName/modules - returns all modules metadata
+
   - GET /api/tripwire/:productName/modules/:moduleId - returns module detail
-  - GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId - returns content
+
+  - GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId - returns
+  content
+
   - PUT endpoints for updating course, module, and content
+
   - WebSocket broadcast on file changes
 status: completed
 story_points: 8

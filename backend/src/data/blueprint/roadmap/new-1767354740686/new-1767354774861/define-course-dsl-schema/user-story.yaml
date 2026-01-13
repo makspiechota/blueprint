@@ -2,17 +2,26 @@ type: user-story
 id: define-course-dsl-schema
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Define Course DSL Schema
-description: |
+description: >
   As a product owner,
+
   I want a well-defined YAML schema for course content,
+
   So that course structure is consistent, validated, and AI-parseable.
 
+
   Acceptance Criteria:
-  - course.yaml schema defines: title, version, price, target_audience, description, modules list
-  - module.yaml schema defines: title, duration, purpose, deliverables, lectures/prompts/templates lists
+
+  - course.yaml schema defines: title, version, price, target_audience,
+  description, modules list
+
+  - module.yaml schema defines: title, duration, purpose, deliverables,
+  lectures/prompts/templates lists
+
   - JSON Schema files created for validation
+
   - Schema supports hierarchical navigation (course → modules → content items)
 status: completed
 story_points: 3

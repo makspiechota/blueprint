@@ -2,7 +2,7 @@ type: task
 id: integrate-ai-chat
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Integrate AI Chat for Content
 description: |
   Integrate AI chat functionality for content editing.

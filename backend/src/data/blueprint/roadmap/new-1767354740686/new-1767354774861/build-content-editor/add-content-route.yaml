@@ -2,7 +2,7 @@ type: task
 id: add-content-route
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Add Content Editor Route
 description: |
   Add route for content editor in App.tsx.

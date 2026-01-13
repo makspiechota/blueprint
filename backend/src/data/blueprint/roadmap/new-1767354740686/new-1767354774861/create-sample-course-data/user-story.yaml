@@ -2,18 +2,27 @@ type: user-story
 id: create-sample-course-data
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Create Sample Course Data
-description: |
+description: >
   As a content creator,
+
   I want sample course data following the DSL schema,
+
   So that I can understand the structure and start authoring my course.
 
+
   Acceptance Criteria:
-  - Directory structure: tripwire/course.yaml + tripwire/modules/{01-xxx, 02-xxx, ...}
+
+  - Directory structure: tripwire/course.yaml + tripwire/modules/{01-xxx,
+  02-xxx, ...}
+
   - Sample course.yaml with "Software Factory 2027" metadata
+
   - At least 2 sample modules with module.yaml
+
   - Sample lecture, prompt, and template .md files
+
   - Content migrated from existing leaders-tripwire-product-idea.md
 status: completed
 story_points: 5

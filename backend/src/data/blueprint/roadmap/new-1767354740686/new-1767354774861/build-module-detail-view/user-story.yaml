@@ -2,7 +2,7 @@ type: user-story
 id: build-module-detail-view
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Build Module Detail View
 description: |
   As a content creator,

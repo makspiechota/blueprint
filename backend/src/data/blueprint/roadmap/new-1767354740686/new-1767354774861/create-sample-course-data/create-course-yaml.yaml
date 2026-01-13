@@ -2,7 +2,7 @@ type: task
 id: create-course-yaml
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Create course.yaml with SF2027 Metadata
 description: |
   Create the main course.yaml file with Software Factory 2027 course metadata.

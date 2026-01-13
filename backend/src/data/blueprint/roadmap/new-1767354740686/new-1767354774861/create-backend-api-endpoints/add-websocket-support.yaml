@@ -2,7 +2,7 @@ type: task
 id: add-websocket-support
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-12'
+last_updated: '2026-01-13'
 name: Add WebSocket Support for Tripwire
 description: |
   Extend WebSocket file watcher to support tripwire directory.
