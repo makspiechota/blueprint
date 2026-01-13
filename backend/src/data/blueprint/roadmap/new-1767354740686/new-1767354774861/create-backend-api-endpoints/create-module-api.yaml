@@ -1,0 +1,20 @@
+type: task
+id: create-module-api
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Create Module API Endpoints
+description: |
+  Create API endpoints for module-level operations.
+
+  Endpoints:
+  - GET /api/tripwire/:productName/modules
+    Returns list of all modules with metadata
+
+  - GET /api/tripwire/:productName/modules/:moduleId
+    Returns single module detail (module.yaml + content lists)
+
+  - PUT /api/tripwire/:productName/modules/:moduleId
+    Updates module.yaml
+status: completed
+estimated_hours: 3

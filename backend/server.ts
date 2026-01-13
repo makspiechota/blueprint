@@ -938,6 +938,389 @@ app.put('/api/roadmap/:productName', (req, res) => {
   }
 });
 
+// ==================
+// Tripwire Course API (Educational Content Layer)
+// ==================
+
+// Helper to get tripwire directory for a product
+const getTripwireDir = (productName: string) => path.join(yamlDir, productName, 'tripwire');
+
+// Helper to load course data with modules
+const loadCourseData = (productName: string) => {
+  const tripwireDir = getTripwireDir(productName);
+  const courseFile = path.join(tripwireDir, 'course.yaml');
+
+  if (!fs.existsSync(courseFile)) {
+    return null;
+  }
+
+  const courseContent = fs.readFileSync(courseFile, 'utf8');
+  const course = yaml.load(courseContent) as any;
+
+  // Load each module's metadata
+  if (course.modules) {
+    course.modules = course.modules.map((moduleRef: any) => {
+      const modulePath = path.join(tripwireDir, moduleRef.path?.replace('./', '') || `modules/${moduleRef.id}/module.yaml`);
+      if (fs.existsSync(modulePath)) {
+        const moduleContent = fs.readFileSync(modulePath, 'utf8');
+        const moduleData = yaml.load(moduleContent) as any;
+        return { ...moduleRef, ...moduleData };
+      }
+      return moduleRef;
+    });
+  }
+
+  return course;
+};
+
+// GET /api/tripwire/:productName/course - Get course overview with modules
+app.get('/api/tripwire/:productName/course', (req, res) => {
+  try {
+    const { productName } = req.params;
+    const course = loadCourseData(productName);
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    res.json({ data: course });
+  } catch (error) {
+    console.error('Error loading course:', error);
+    res.status(500).json({ error: 'Failed to load course' });
+  }
+});
+
+// PUT /api/tripwire/:productName/course - Update course metadata
+app.put('/api/tripwire/:productName/course', (req, res) => {
+  try {
+    const { productName } = req.params;
+    const { data } = req.body;
+
+    if (!data) {
+      return res.status(400).json({ error: 'Data is required' });
+    }
+
+    const tripwireDir = getTripwireDir(productName);
+    const courseFile = path.join(tripwireDir, 'course.yaml');
+
+    // Ensure directory exists
+    if (!fs.existsSync(tripwireDir)) {
+      fs.mkdirSync(tripwireDir, { recursive: true });
+    }
+
+    // Extract only course-level data (not full module data)
+    const courseData = {
+      type: 'course',
+      productName: data.productName || productName,
+      version: data.version || '1.0',
+      title: data.title,
+      subtitle: data.subtitle,
+      price: data.price,
+      currency: data.currency,
+      duration: data.duration,
+      target_audience: data.target_audience,
+      description: data.description,
+      outcomes: data.outcomes,
+      modules: (data.modules || []).map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        path: m.path || `./modules/${m.id}/module.yaml`
+      }))
+    };
+
+    const yamlContent = yaml.dump(courseData);
+    fs.writeFileSync(courseFile, yamlContent, 'utf8');
+
+    // Broadcast update
+    broadcastTripwireUpdate(productName, 'course.yaml', courseData);
+
+    res.json({ success: true, message: 'Course updated successfully' });
+  } catch (error) {
+    console.error('Error saving course:', error);
+    res.status(500).json({ error: 'Failed to save course' });
+  }
+});
+
+// GET /api/tripwire/:productName/modules - List all modules
+app.get('/api/tripwire/:productName/modules', (req, res) => {
+  try {
+    const { productName } = req.params;
+    const tripwireDir = getTripwireDir(productName);
+    const modulesDir = path.join(tripwireDir, 'modules');
+
+    if (!fs.existsSync(modulesDir)) {
+      return res.json({ modules: [] });
+    }
+
+    const moduleDirs = fs.readdirSync(modulesDir, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name)
+      .sort();
+
+    const modules = moduleDirs.map(dir => {
+      const moduleFile = path.join(modulesDir, dir, 'module.yaml');
+      if (fs.existsSync(moduleFile)) {
+        const content = fs.readFileSync(moduleFile, 'utf8');
+        return yaml.load(content);
+      }
+      return { id: dir, name: dir };
+    });
+
+    res.json({ modules });
+  } catch (error) {
+    console.error('Error listing modules:', error);
+    res.status(500).json({ error: 'Failed to list modules' });
+  }
+});
+
+// GET /api/tripwire/:productName/modules/:moduleId - Get module details
+app.get('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
+  try {
+    const { productName, moduleId } = req.params;
+    const tripwireDir = getTripwireDir(productName);
+    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+
+    if (!fs.existsSync(moduleFile)) {
+      return res.status(404).json({ error: 'Module not found' });
+    }
+
+    const content = fs.readFileSync(moduleFile, 'utf8');
+    const moduleData = yaml.load(content) as any;
+
+    // Load actual content file lists from filesystem
+    const moduleDir = path.join(tripwireDir, 'modules', moduleId);
+    const contentTypes = ['lectures', 'prompts', 'templates'];
+
+    contentTypes.forEach(type => {
+      const typeDir = path.join(moduleDir, type);
+      if (fs.existsSync(typeDir)) {
+        const files = fs.readdirSync(typeDir)
+          .filter(f => f.endsWith('.md'))
+          .map(f => ({
+            id: f.replace('.md', ''),
+            name: f.replace('.md', '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+            path: `./${type}/${f}`
+          }));
+        // Merge with YAML-defined items or use filesystem list
+        if (!moduleData[type] || moduleData[type].length === 0) {
+          moduleData[type] = files;
+        }
+      }
+    });
+
+    res.json({ data: moduleData });
+  } catch (error) {
+    console.error('Error loading module:', error);
+    res.status(500).json({ error: 'Failed to load module' });
+  }
+});
+
+// PUT /api/tripwire/:productName/modules/:moduleId - Update module metadata
+app.put('/api/tripwire/:productName/modules/:moduleId', (req, res) => {
+  try {
+    const { productName, moduleId } = req.params;
+    const { data } = req.body;
+
+    if (!data) {
+      return res.status(400).json({ error: 'Data is required' });
+    }
+
+    const tripwireDir = getTripwireDir(productName);
+    const moduleDir = path.join(tripwireDir, 'modules', moduleId);
+    const moduleFile = path.join(moduleDir, 'module.yaml');
+
+    // Ensure directory exists
+    if (!fs.existsSync(moduleDir)) {
+      fs.mkdirSync(moduleDir, { recursive: true });
+    }
+
+    const yamlContent = yaml.dump(data);
+    fs.writeFileSync(moduleFile, yamlContent, 'utf8');
+
+    // Broadcast update
+    broadcastTripwireUpdate(productName, `modules/${moduleId}/module.yaml`, data);
+
+    res.json({ success: true, message: 'Module updated successfully' });
+  } catch (error) {
+    console.error('Error saving module:', error);
+    res.status(500).json({ error: 'Failed to save module' });
+  }
+});
+
+// GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Get content file
+app.get('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+  try {
+    const { productName, moduleId, type, contentId } = req.params;
+    const tripwireDir = getTripwireDir(productName);
+    const contentFile = path.join(tripwireDir, 'modules', moduleId, type, `${contentId}.md`);
+
+    // Security: prevent directory traversal
+    const expectedBase = path.join(tripwireDir, 'modules', moduleId, type);
+    if (!contentFile.startsWith(expectedBase)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(contentFile)) {
+      return res.status(404).json({ error: 'Content not found' });
+    }
+
+    const content = fs.readFileSync(contentFile, 'utf8');
+    res.json({
+      id: contentId,
+      type,
+      moduleId,
+      filename: `${contentId}.md`,
+      content
+    });
+  } catch (error) {
+    console.error('Error loading content:', error);
+    res.status(500).json({ error: 'Failed to load content' });
+  }
+});
+
+// PUT /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Update content file
+app.put('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+  try {
+    const { productName, moduleId, type, contentId } = req.params;
+    const { content } = req.body;
+
+    if (content === undefined) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const tripwireDir = getTripwireDir(productName);
+    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const contentFile = path.join(typeDir, `${contentId}.md`);
+
+    // Security: prevent directory traversal
+    if (!contentFile.startsWith(typeDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(typeDir)) {
+      fs.mkdirSync(typeDir, { recursive: true });
+    }
+
+    fs.writeFileSync(contentFile, content, 'utf8');
+
+    // Broadcast update
+    broadcastTripwireUpdate(productName, `modules/${moduleId}/${type}/${contentId}.md`, { content });
+
+    res.json({ success: true, message: 'Content updated successfully' });
+  } catch (error) {
+    console.error('Error saving content:', error);
+    res.status(500).json({ error: 'Failed to save content' });
+  }
+});
+
+// POST /api/tripwire/:productName/modules/:moduleId/:type - Create new content file
+app.post('/api/tripwire/:productName/modules/:moduleId/:type', (req, res) => {
+  try {
+    const { productName, moduleId, type } = req.params;
+    const { id, name, content } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Content ID is required' });
+    }
+
+    const tripwireDir = getTripwireDir(productName);
+    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const contentFile = path.join(typeDir, `${id}.md`);
+
+    // Security: prevent directory traversal
+    if (!contentFile.startsWith(typeDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Ensure directory exists
+    if (!fs.existsSync(typeDir)) {
+      fs.mkdirSync(typeDir, { recursive: true });
+    }
+
+    if (fs.existsSync(contentFile)) {
+      return res.status(409).json({ error: 'Content already exists' });
+    }
+
+    fs.writeFileSync(contentFile, content || `# ${name || id}\n\nContent goes here...`, 'utf8');
+
+    // Update module.yaml to include new content reference
+    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+    if (fs.existsSync(moduleFile)) {
+      const moduleContent = fs.readFileSync(moduleFile, 'utf8');
+      const moduleData = yaml.load(moduleContent) as any;
+      if (!moduleData[type]) {
+        moduleData[type] = [];
+      }
+      moduleData[type].push({
+        id,
+        name: name || id,
+        path: `./${type}/${id}.md`
+      });
+      fs.writeFileSync(moduleFile, yaml.dump(moduleData), 'utf8');
+    }
+
+    res.json({ success: true, message: 'Content created successfully' });
+  } catch (error) {
+    console.error('Error creating content:', error);
+    res.status(500).json({ error: 'Failed to create content' });
+  }
+});
+
+// DELETE /api/tripwire/:productName/modules/:moduleId/:type/:contentId - Delete content file
+app.delete('/api/tripwire/:productName/modules/:moduleId/:type/:contentId', (req, res) => {
+  try {
+    const { productName, moduleId, type, contentId } = req.params;
+    const tripwireDir = getTripwireDir(productName);
+    const typeDir = path.join(tripwireDir, 'modules', moduleId, type);
+    const contentFile = path.join(typeDir, `${contentId}.md`);
+
+    // Security: prevent directory traversal
+    if (!contentFile.startsWith(typeDir)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (!fs.existsSync(contentFile)) {
+      return res.status(404).json({ error: 'Content not found' });
+    }
+
+    fs.unlinkSync(contentFile);
+
+    // Update module.yaml to remove content reference
+    const moduleFile = path.join(tripwireDir, 'modules', moduleId, 'module.yaml');
+    if (fs.existsSync(moduleFile)) {
+      const moduleContent = fs.readFileSync(moduleFile, 'utf8');
+      const moduleData = yaml.load(moduleContent) as any;
+      if (moduleData[type]) {
+        moduleData[type] = moduleData[type].filter((item: any) => item.id !== contentId);
+        fs.writeFileSync(moduleFile, yaml.dump(moduleData), 'utf8');
+      }
+    }
+
+    res.json({ success: true, message: 'Content deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting content:', error);
+    res.status(500).json({ error: 'Failed to delete content' });
+  }
+});
+
+// Function to broadcast tripwire updates
+const broadcastTripwireUpdate = (productName: string, filename: string, data: any) => {
+  const message = JSON.stringify({
+    type: 'tripwire_update',
+    productName,
+    filename,
+    data,
+    timestamp: new Date().toISOString()
+  });
+
+  clients.forEach((client: any) => {
+    if (client.readyState === 1) {
+      client.send(message);
+    }
+  });
+};
+
 // Serve schemas
 app.get('/schemas/:type.yaml', (req, res) => {
   try {

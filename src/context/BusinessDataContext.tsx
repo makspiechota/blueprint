@@ -14,6 +14,8 @@ interface BusinessData {
   policyCharter?: any;
   roadmap?: any;
   reloadRoadmap?: () => Promise<void>;
+  tripwire?: any;
+  reloadTripwire?: () => Promise<void>;
 }
 
 const BusinessDataContext = createContext<BusinessData>({
@@ -27,6 +29,8 @@ const BusinessDataContext = createContext<BusinessData>({
   policyCharter: null,
   roadmap: null,
   reloadRoadmap: async () => {},
+  tripwire: null,
+  reloadTripwire: async () => {},
 });
 
 export const useBusinessData = () => {
@@ -82,7 +86,7 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
 
 const loadData = async (productName: string) => {
   try {
-    const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes] = await Promise.all([
+    const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes, tripwireRes] = await Promise.all([
       fetch(`${API_BASE}/api/yaml/${productName}/north-star.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/lean-canvas.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/architectural-scope.yaml`),
@@ -90,6 +94,7 @@ const loadData = async (productName: string) => {
       fetch(`${API_BASE}/api/yaml/${productName}/aaarr-metrics.yaml`),
       fetch(`${API_BASE}/api/yaml/${productName}/policy-charter.yaml`),
       fetch(`${API_BASE}/api/roadmap/${productName}`),
+      fetch(`${API_BASE}/api/tripwire/${productName}/course`),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
@@ -99,6 +104,7 @@ const loadData = async (productName: string) => {
     const aaarrMetrics = aaarrMetricsRes.ok ? processObjectDocLinks((await aaarrMetricsRes.json()).data) : null;
     const policyCharterRaw = policyCharterRes.ok ? processObjectDocLinks((await policyCharterRes.json()).data) : null;
     const roadmap = roadmapRes.ok ? (await roadmapRes.json()).data : null;
+    const tripwire = tripwireRes.ok ? (await tripwireRes.json()).data : null;
 
     // Merge goals from architectural-scope into policy-charter
     const policyCharter = mergeGoalsIntoPolicyCharter(architecturalScope, policyCharterRaw);
@@ -111,6 +117,7 @@ const loadData = async (productName: string) => {
       aaarrMetrics,
       policyCharter,
       roadmap,
+      tripwire,
     };
   } catch (error) {
     console.error('Failed to load data from backend:', error);
@@ -122,6 +129,7 @@ const loadData = async (productName: string) => {
       aaarrMetrics: null,
       policyCharter: null,
       roadmap: null,
+      tripwire: null,
     };
   }
 };
@@ -149,6 +157,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     aaarrMetrics: null,
     policyCharter: null,
     roadmap: null,
+    tripwire: null,
   });
   const [loading, setLoading] = useState(true);
 
@@ -169,6 +178,18 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
+  const reloadTripwire = async () => {
+    try {
+      const tripwireRes = await fetch(`${API_BASE}/api/tripwire/${productNameRef.current}/course`);
+      if (tripwireRes.ok) {
+        const tripwire = (await tripwireRes.json()).data;
+        setData(prev => ({ ...prev, tripwire }));
+      }
+    } catch (error) {
+      console.error('Failed to reload tripwire:', error);
+    }
+  };
+
   useEffect(() => {
     productNameRef.current = productName;
   }, [productName]);
@@ -177,7 +198,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const fetchData = async () => {
       setLoading(true);
       const loadedData = await loadData(productName);
-      setData({ ...loadedData, productName, setProductName: setProductNameSafe, reloadRoadmap });
+      setData({ ...loadedData, productName, setProductName: setProductNameSafe, reloadRoadmap, reloadTripwire });
       setLoading(false);
     };
 
@@ -219,6 +240,12 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 return { ...prev, [key]: processedData };
               });
             }
+          }
+          // Handle tripwire updates
+          if (message.type === 'tripwire_update' && message.productName === productNameRef.current) {
+            console.log(`Tripwire update from WebSocket: ${message.filename}`);
+            // Reload full tripwire data for simplicity (could be optimized for specific updates)
+            reloadTripwire();
           }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);

@@ -14,6 +14,7 @@ import Misc from "./pages/BusinessLayers/Misc";
 import Roadmap from "./pages/BusinessLayers/Roadmap";
 import ComingSoon from "./pages/BusinessLayers/ComingSoon";
 import C4 from "./pages/SoftwareLayers/C4";
+import Tripwire from "./pages/SoftwareLayers/Tripwire";
 
 export default function App() {
   return (
@@ -41,7 +42,7 @@ export default function App() {
               {/* Software Layers */}
               <Route path="/:productName/c4" element={<C4 />} />
               <Route path="/:productName/terraform" element={<ComingSoon />} />
-              <Route path="/:productName/tripwire" element={<ComingSoon />} />
+              <Route path="/:productName/tripwire" element={<Tripwire />} />
              <Route path="/:productName/c4" element={<C4 />} />
           </Route>
 

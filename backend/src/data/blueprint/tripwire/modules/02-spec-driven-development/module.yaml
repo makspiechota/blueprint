@@ -1,0 +1,32 @@
+type: module
+id: 02-spec-driven-development
+name: "Spec-Driven Development"
+duration: 30 min
+purpose: |
+  Define what to build before building it. AI agents need specifications, not vague requests.
+  This module teaches you how to write specifications that AI can execute against.
+deliverables:
+  - Specification Template (Notion/Markdown)
+  - Acceptance Criteria Checklist
+  - Feature Specification Example Library
+lectures:
+  - id: the-principle
+    name: "The Principle: Why Specs Matter for AI"
+    path: ./lectures/the-principle.md
+  - id: implementation
+    name: "Implementation: Writing AI-Executable Specs"
+    path: ./lectures/implementation.md
+  - id: hands-on-exercise
+    name: "Hands-On Exercise"
+    path: ./lectures/hands-on-exercise.md
+prompts:
+  - id: spec-clarity-checker
+    name: Spec Clarity Checker
+    path: ./prompts/spec-clarity-checker.md
+  - id: spec-generator
+    name: Spec Generator
+    path: ./prompts/spec-generator.md
+templates:
+  - id: specification-template
+    name: Specification Template
+    path: ./templates/specification-template.md

@@ -1,0 +1,24 @@
+type: task
+id: create-course-yaml-schema
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Create JSON Schema for course.yaml
+description: |
+  Create a JSON Schema file that validates course.yaml structure.
+
+  Schema should define:
+  - type: "course"
+  - productName: string
+  - version: string
+  - title: string (course title)
+  - subtitle: string (tagline)
+  - price: number
+  - currency: string
+  - duration: string (e.g., "4-5 hours")
+  - target_audience: object with profile, why_they_buy
+  - description: string (markdown)
+  - outcomes: array of strings
+  - modules: array of module references with id, name, path
+status: completed
+estimated_hours: 2

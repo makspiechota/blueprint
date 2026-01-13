@@ -1,0 +1,30 @@
+type: user-story
+id: build-course-overview-page
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Build Course Overview Page
+description: |
+  As a content creator,
+  I want to see a course overview with module cards,
+  So that I can navigate the course structure at a glance.
+
+  Acceptance Criteria:
+  - Course header shows title, subtitle, price, duration
+  - Grid layout of module cards (similar to other layer visualizers)
+  - Each module card shows: name, duration, status indicator
+  - Clicking a module card navigates to module detail view
+  - Edit button to modify course.yaml metadata
+  - Chat button for AI assistance
+status: completed
+story_points: 5
+tasks:
+  - id: create-tripwire-page
+    name: Create Tripwire Page Component
+    path: ./create-tripwire-page.yaml
+  - id: create-course-visualizer
+    name: Create CourseVisualizer Component
+    path: ./create-course-visualizer.yaml
+  - id: create-module-card
+    name: Create ModuleCard Component
+    path: ./create-module-card.yaml

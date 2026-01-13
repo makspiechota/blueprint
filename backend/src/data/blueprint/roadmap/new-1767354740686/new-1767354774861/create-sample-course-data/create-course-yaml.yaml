@@ -1,0 +1,18 @@
+type: task
+id: create-course-yaml
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Create course.yaml with SF2027 Metadata
+description: |
+  Create the main course.yaml file with Software Factory 2027 course metadata.
+
+  Include:
+  - Title: "Software Factory 2027"
+  - Subtitle: "Join the movement. Build your autonomous SDLC."
+  - Price: $27
+  - Duration: 4-5 hours
+  - Target audience: Engineering Leaders
+  - 8 module references
+status: completed
+estimated_hours: 1

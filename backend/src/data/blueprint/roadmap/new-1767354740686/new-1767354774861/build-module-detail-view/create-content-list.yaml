@@ -1,0 +1,18 @@
+type: task
+id: create-content-list
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Create ContentList Component
+description: |
+  Create reusable ContentList component for displaying
+  lectures, prompts, or templates within a module.
+
+  Features:
+  - Collapsible section with header (Lectures, Prompts, Templates)
+  - List of content items with name
+  - Click to open content editor
+  - Add new content item action
+  - Drag-and-drop reordering (future)
+status: completed
+estimated_hours: 3

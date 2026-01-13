@@ -1,0 +1,16 @@
+type: task
+id: add-content-route
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Add Content Editor Route
+description: |
+  Add route for content editor in App.tsx.
+
+  Route pattern:
+  /:productName/tripwire/modules/:moduleId/:contentType/:contentId
+
+  Where contentType is: lectures | prompts | templates
+  And contentId is the filename without extension
+status: completed
+estimated_hours: 1

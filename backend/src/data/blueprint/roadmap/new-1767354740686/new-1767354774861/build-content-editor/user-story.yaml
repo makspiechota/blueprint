@@ -1,0 +1,30 @@
+type: user-story
+id: build-content-editor
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Build Content Editor
+description: |
+  As a content creator,
+  I want to edit markdown content for lectures, prompts, and templates,
+  So that I can author and refine course materials with AI assistance.
+
+  Acceptance Criteria:
+  - Full-screen markdown editor (similar to misc document editing)
+  - Live preview of rendered markdown
+  - Save changes to backend
+  - Chat button for AI assistance with content
+  - Breadcrumb navigation back to module
+  - Auto-save or explicit save button
+status: completed
+story_points: 5
+tasks:
+  - id: create-content-editor
+    name: Create ContentEditor Component
+    path: ./create-content-editor.yaml
+  - id: add-content-route
+    name: Add Content Editor Route
+    path: ./add-content-route.yaml
+  - id: integrate-ai-chat
+    name: Integrate AI Chat for Content
+    path: ./integrate-ai-chat.yaml

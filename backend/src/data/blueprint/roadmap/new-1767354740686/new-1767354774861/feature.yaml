@@ -2,11 +2,49 @@ type: feature
 id: new-1767354774861
 productName: blueprint
 version: '1.0'
-last_updated: '2026-01-06'
+last_updated: '2026-01-12'
 name: Tripwire Product
 description: >-
-  For now the idea is written down as .md file. But we want all such important
-  things to be defined as DSL so it is well structured, we can visualize and
-  modify it 
-status: planned
-user_stories: []
+  Course content authoring layer for Blueprint. Enables structured creation
+  and management of educational content (like "Software Factory 2027" tripwire
+  course) with hierarchical navigation: Course → Modules → Lectures/Prompts/Templates.
+
+  The DSL uses YAML for metadata (course.yaml, module.yaml) and Markdown for
+  content. Visualization supports drill-down navigation with AI-assisted editing.
+status: completed
+user_stories:
+  - id: define-course-dsl-schema
+    name: Define Course DSL Schema
+    description: Create YAML schemas for course and module metadata
+    status: completed
+    path: ./define-course-dsl-schema/user-story.yaml
+  - id: create-sample-course-data
+    name: Create Sample Course Data
+    description: Set up directory structure with Software Factory 2027 sample data
+    status: completed
+    path: ./create-sample-course-data/user-story.yaml
+  - id: build-course-overview-page
+    name: Build Course Overview Page
+    description: Top-level view showing course meta and module cards grid
+    status: completed
+    path: ./build-course-overview-page/user-story.yaml
+  - id: build-module-detail-view
+    name: Build Module Detail View
+    description: Drill-down view showing lectures, prompts, and templates
+    status: completed
+    path: ./build-module-detail-view/user-story.yaml
+  - id: build-content-editor
+    name: Build Content Editor
+    description: Markdown editor for individual content items with AI assistance
+    status: completed
+    path: ./build-content-editor/user-story.yaml
+  - id: create-backend-api-endpoints
+    name: Create Backend API Endpoints
+    description: API for reading and writing hierarchical course data
+    status: completed
+    path: ./create-backend-api-endpoints/user-story.yaml
+  - id: integrate-with-data-context
+    name: Integrate with Data Context
+    description: Add tripwire to BusinessDataContext with WebSocket support
+    status: completed
+    path: ./integrate-with-data-context/user-story.yaml

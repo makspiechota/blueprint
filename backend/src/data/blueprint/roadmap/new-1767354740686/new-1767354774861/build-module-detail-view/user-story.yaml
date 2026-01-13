@@ -1,0 +1,30 @@
+type: user-story
+id: build-module-detail-view
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-12'
+name: Build Module Detail View
+description: |
+  As a content creator,
+  I want to drill into a module and see its lectures, prompts, and templates,
+  So that I can navigate to specific content items for editing.
+
+  Acceptance Criteria:
+  - Module header with name, duration, purpose
+  - Three collapsible sections: Lectures, Prompts, Templates
+  - Each section lists content items with name and edit action
+  - Clicking an item opens the content editor
+  - Breadcrumb navigation back to course overview
+  - Edit module.yaml metadata capability
+status: completed
+story_points: 5
+tasks:
+  - id: create-module-visualizer
+    name: Create ModuleVisualizer Component
+    path: ./create-module-visualizer.yaml
+  - id: create-content-list
+    name: Create ContentList Component
+    path: ./create-content-list.yaml
+  - id: add-module-route
+    name: Add Module Detail Route
+    path: ./add-module-route.yaml
