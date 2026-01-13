@@ -1,0 +1,34 @@
+type: module
+id: 02-small-batch-workflow
+name: "Module 2: Small Batch Workflow"
+description: |
+  Claude Code excels at focused, well-scoped tasks. It struggles with sprawling,
+  ambiguous work. The art is in the decomposition.
+duration: 45 minutes
+learning_outcomes:
+  - Understand why large prompts produce worse results (context degradation)
+  - Apply the 30-Minute Rule for batch sizing
+  - Break features into Claude-Code-sized chunks
+  - Master the Commit Rhythm (one batch = one commit = one reviewable unit)
+  - Maintain momentum across multiple small batches
+lectures:
+  - id: context-degradation
+    name: Why Small Batches Win
+    path: ./lectures/context-degradation.md
+  - id: thirty-minute-rule
+    name: The 30-Minute Rule
+    path: ./lectures/thirty-minute-rule.md
+  - id: decomposition-strategies
+    name: Decomposition Strategies
+    path: ./lectures/decomposition-strategies.md
+prompts:
+  - id: small-batch-framework
+    name: Small Batch Prompt Framework
+    path: ./prompts/small-batch-framework.md
+  - id: scope-negotiation
+    name: Scope Negotiation
+    path: ./prompts/scope-negotiation.md
+templates:
+  - id: batch-decomposition-worksheet
+    name: Batch Decomposition Worksheet
+    path: ./templates/batch-decomposition-worksheet.md
