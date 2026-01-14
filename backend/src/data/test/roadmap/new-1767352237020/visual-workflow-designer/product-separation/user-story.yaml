@@ -8,7 +8,7 @@ description: >-
   As a developer, I need Blueprint and Software Factory code to be in separate directories
   with a mode switcher in the UI, so that both products can be developed independently
   while sharing common components.
-status: planned
+status: in_progress
 acceptance_criteria:
   - Shared components extracted to shared/ directory
   - Blueprint-specific code in blueprint/ directory
@@ -17,8 +17,8 @@ acceptance_criteria:
   - Clicking mode switcher toggles between Blueprint and Software Factory
   - Each mode has its own navigation menu
   - Mode preference persisted in localStorage
-  - Separate backends on different ports (Blueprint: 3001, Factory: 3002)
-  - Separate WebSocket servers (Blueprint: 8080, Factory: 8081)
+  - "Separate backends on different ports (Blueprint: 3001, Factory: 3002)"
+  - "Separate WebSocket servers (Blueprint: 8080, Factory: 8081)"
   - Frontend switches API base URL based on mode
 tasks:
   - id: extract-shared
@@ -47,7 +47,7 @@ tasks:
     description: >-
       Replace logo with mode switcher component. Toggle between Blueprint/Factory modes.
       Update navigation menu based on mode. Persist preference in localStorage
-    status: planned
+    status: completed
     estimate: 3h
   - id: factory-backend
     name: Create Software Factory backend
@@ -61,9 +61,9 @@ tasks:
     name: Implement API base URL switching
     description: >-
       Frontend detects current mode and switches API_BASE and WS_URL accordingly.
-      Blueprint mode: localhost:3001, ws://localhost:8080.
-      Factory mode: localhost:3002, ws://localhost:8081
-    status: planned
+      Blueprint mode uses localhost 3001 and ws 8080.
+      Factory mode uses localhost 3002 and ws 8081.
+    status: completed
     estimate: 1h
 related:
   - adr: misc/adr-repository-structure.md

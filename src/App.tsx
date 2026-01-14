@@ -4,6 +4,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { BusinessDataProvider } from "./context/BusinessDataContext";
 import { ChatProvider } from "./context/ChatContext";
+import { ModeProvider } from "./context/ModeContext";
 import NorthStar from "./pages/BusinessLayers/NorthStar";
 import LeanCanvas from "./pages/BusinessLayers/LeanCanvas";
 import ArchitecturalScope from "./pages/BusinessLayers/ArchitecturalScope";
@@ -15,12 +16,14 @@ import Roadmap from "./pages/BusinessLayers/Roadmap";
 import ComingSoon from "./pages/BusinessLayers/ComingSoon";
 import C4 from "./pages/SoftwareLayers/C4";
 import Tripwire from "./pages/SoftwareLayers/Tripwire";
+import WorkflowDesigner from "./pages/SoftwareFactory/WorkflowDesigner";
 
 export default function App() {
   return (
-    <BusinessDataProvider>
-      <ChatProvider>
-        <Router>
+    <ModeProvider>
+      <BusinessDataProvider>
+        <ChatProvider>
+          <Router>
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
@@ -44,13 +47,19 @@ export default function App() {
               <Route path="/:productName/terraform" element={<ComingSoon />} />
               <Route path="/:productName/tripwire" element={<Tripwire />} />
              <Route path="/:productName/c4" element={<C4 />} />
+              {/* Software Factory Routes */}
+              <Route path="/factory/workflows" element={<WorkflowDesigner />} />
+              <Route path="/factory/workflows/:workflowId" element={<WorkflowDesigner />} />
+              <Route path="/factory/executions" element={<ComingSoon />} />
+              <Route path="/factory/templates" element={<ComingSoon />} />
           </Route>
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Router>
-      </ChatProvider>
-    </BusinessDataProvider>
+          </Router>
+        </ChatProvider>
+      </BusinessDataProvider>
+    </ModeProvider>
   );
 }

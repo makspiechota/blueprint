@@ -17,9 +17,13 @@ import {
   FileIcon,
   ListIcon,
   PencilIcon,
+  BoxCubeIcon,
+  PlugInIcon,
+  BoltIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useBusinessData } from "../context/BusinessDataContext";
+import { useMode } from "../context/ModeContext";
 import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -137,9 +141,87 @@ const baseMiscItems: NavItem[] = [
   },
 ];
 
+// Software Factory navigation items
+const factoryWorkflowItems: NavItem[] = [
+  {
+    icon: <BoxCubeIcon />,
+    name: "Workflows",
+    path: "/factory/workflows",
+  },
+  {
+    icon: <BoltIcon />,
+    name: "Executions",
+    path: "/factory/executions",
+    comingSoon: true,
+  },
+  {
+    icon: <GridIcon />,
+    name: "Templates",
+    path: "/factory/templates",
+    comingSoon: true,
+  },
+];
+
+const factoryProviderItems: NavItem[] = [
+  {
+    icon: <PlugInIcon />,
+    name: "Providers",
+    path: "/factory/providers",
+    comingSoon: true,
+  },
+];
+
+// Compact mode switcher for sidebar
+const ModeSwitcherCompact: React.FC<{ isExpanded: boolean }> = ({
+  isExpanded,
+}) => {
+  const { mode, toggleMode } = useMode();
+  const isBlueprint = mode === "blueprint";
+
+  return (
+    <button
+      onClick={toggleMode}
+      className={`flex items-center gap-2 px-2 py-2 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+        isBlueprint
+          ? "text-blue-600 dark:text-blue-400"
+          : "text-purple-600 dark:text-purple-400"
+      }`}
+      title={`Switch to ${isBlueprint ? "Software Factory" : "Blueprint"}`}
+    >
+      {isBlueprint ? (
+        <DocsIcon className="w-8 h-8 flex-shrink-0" />
+      ) : (
+        <BoxCubeIcon className="w-8 h-8 flex-shrink-0" />
+      )}
+      {isExpanded && (
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-bold whitespace-nowrap">
+            {isBlueprint ? "BLUEPRINT" : "FACTORY"}
+          </span>
+          <svg
+            className="w-4 h-4 opacity-50"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 16L12 21L17 16M7 8L12 3L17 8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      )}
+    </button>
+  );
+};
+
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const { productName } = useBusinessData();
+  const { mode } = useMode();
   const location = useLocation();
 
   const navItems = useMemo(
@@ -431,104 +513,136 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex ${
+        className={`py-6 flex ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-              <DocsIcon className="w-8 h-8" />
-              <span className="text-xl font-bold">BLUEPRINT</span>
-            </div>
-          ) : (
-            <DocsIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-          )}
-        </Link>
+        <ModeSwitcherCompact
+          isExpanded={isExpanded || isHovered || isMobileOpen}
+        />
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Business Layers"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>
-            <div className="mt-6">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "DOMAIN DRIVEN DESIGN LAYERS"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(dddLayerItems, "others")}
-            </div>
-            <div className="mt-6">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Software Layers"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(softwareLayerItems, "others")}
-            </div>
-            <div className="mt-6">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Educational Layers"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(educationalLayerItems, "others")}
-            </div>
-            <div className="mt-6">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Misc"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(miscItems, "others")}
-            </div>
+            {mode === "blueprint" ? (
+              <>
+                <div>
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Business Layers"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(navItems, "main")}
+                </div>
+                <div className="mt-6">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "DOMAIN DRIVEN DESIGN LAYERS"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(dddLayerItems, "others")}
+                </div>
+                <div className="mt-6">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Software Layers"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(softwareLayerItems, "others")}
+                </div>
+                <div className="mt-6">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Educational Layers"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(educationalLayerItems, "others")}
+                </div>
+                <div className="mt-6">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Misc"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(miscItems, "others")}
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Workflows"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(factoryWorkflowItems, "main")}
+                </div>
+                <div className="mt-6">
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                      !isExpanded && !isHovered
+                        ? "lg:justify-center"
+                        : "justify-start"
+                    }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      "Configuration"
+                    ) : (
+                      <HorizontaLDots className="size-6" />
+                    )}
+                  </h2>
+                  {renderMenuItems(factoryProviderItems, "others")}
+                </div>
+              </>
+            )}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}

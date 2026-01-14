@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { processDocLinks } from '../utils/docLinkProcessor';
-
-const API_BASE = 'http://localhost:3001';
+import { useMode } from './ModeContext';
 
 interface BusinessData {
   productName?: string;
@@ -84,17 +83,17 @@ const mergeGoalsIntoPolicyCharter = (architecturalScope: any, policyCharter: any
   };
 };
 
-const loadData = async (productName: string) => {
+const loadData = async (productName: string, apiBaseUrl: string) => {
   try {
     const [northStarRes, leanCanvasRes, architecturalScopeRes, leanViabilityRes, aaarrMetricsRes, policyCharterRes, roadmapRes, coursesRes] = await Promise.all([
-      fetch(`${API_BASE}/api/yaml/${productName}/north-star.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/lean-canvas.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/architectural-scope.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/lean-viability.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/aaarr-metrics.yaml`),
-      fetch(`${API_BASE}/api/yaml/${productName}/policy-charter.yaml`),
-      fetch(`${API_BASE}/api/roadmap/${productName}`),
-      fetch(`${API_BASE}/api/tripwire/${productName}/courses`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/north-star.yaml`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/lean-canvas.yaml`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/architectural-scope.yaml`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/lean-viability.yaml`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/aaarr-metrics.yaml`),
+      fetch(`${apiBaseUrl}/api/yaml/${productName}/policy-charter.yaml`),
+      fetch(`${apiBaseUrl}/api/roadmap/${productName}`),
+      fetch(`${apiBaseUrl}/api/tripwire/${productName}/courses`),
     ]);
 
     const northStar = northStarRes.ok ? processObjectDocLinks((await northStarRes.json()).data) : null;
@@ -134,8 +133,6 @@ const loadData = async (productName: string) => {
   }
 };
 
-const WS_URL = 'ws://localhost:8080';
-
 // Map filenames to data keys
 const filenameToKey: Record<string, keyof BusinessData> = {
   'north-star.yaml': 'northStar',
@@ -147,8 +144,10 @@ const filenameToKey: Record<string, keyof BusinessData> = {
 };
 
 export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { apiBaseUrl, wsUrl, mode } = useMode();
   const [productName, setProductName] = useState('blueprint');
   const productNameRef = useRef(productName);
+  const apiBaseUrlRef = useRef(apiBaseUrl);
   const [data, setData] = useState<BusinessData>({
     northStar: null,
     leanCanvas: null,
@@ -161,14 +160,19 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
   });
   const [loading, setLoading] = useState(true);
 
+  // Keep refs in sync
+  useEffect(() => {
+    apiBaseUrlRef.current = apiBaseUrl;
+  }, [apiBaseUrl]);
+
   const setProductNameSafe = (name: string) => {
     // Allow any product name
     setProductName(name);
   };
 
-  const reloadRoadmap = async () => {
+  const reloadRoadmap = useCallback(async () => {
     try {
-      const roadmapRes = await fetch(`${API_BASE}/api/roadmap/${productNameRef.current}`);
+      const roadmapRes = await fetch(`${apiBaseUrlRef.current}/api/roadmap/${productNameRef.current}`);
       if (roadmapRes.ok) {
         const roadmap = (await roadmapRes.json()).data;
         setData(prev => ({ ...prev, roadmap }));
@@ -176,11 +180,11 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error('Failed to reload roadmap:', error);
     }
-  };
+  }, []);
 
-  const reloadCourses = async () => {
+  const reloadCourses = useCallback(async () => {
     try {
-      const coursesRes = await fetch(`${API_BASE}/api/tripwire/${productNameRef.current}/courses`);
+      const coursesRes = await fetch(`${apiBaseUrlRef.current}/api/tripwire/${productNameRef.current}/courses`);
       if (coursesRes.ok) {
         const courses = (await coursesRes.json()).data;
         setData(prev => ({ ...prev, courses }));
@@ -188,30 +192,42 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error('Failed to reload courses:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     productNameRef.current = productName;
   }, [productName]);
 
+  // Reload data when product name or mode changes
   useEffect(() => {
+    // Only load Blueprint data when in Blueprint mode
+    if (mode !== 'blueprint') {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
-      const loadedData = await loadData(productName);
+      const loadedData = await loadData(productName, apiBaseUrl);
       setData({ ...loadedData, productName, setProductName: setProductNameSafe, reloadRoadmap, reloadCourses });
       setLoading(false);
     };
 
     fetchData();
-  }, [productName]);
+  }, [productName, apiBaseUrl, mode, reloadRoadmap, reloadCourses]);
 
-  // WebSocket for real-time updates
+  // WebSocket for real-time updates (only for Blueprint mode)
   useEffect(() => {
+    // Only connect WebSocket in Blueprint mode
+    if (mode !== 'blueprint') {
+      return;
+    }
+
     let ws: WebSocket | null = null;
     let reconnectTimeout: NodeJS.Timeout;
 
     const connect = () => {
-      ws = new WebSocket(WS_URL);
+      ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         console.log('WebSocket connected for business data updates');
@@ -270,7 +286,7 @@ export const BusinessDataProvider: React.FC<{ children: React.ReactNode }> = ({ 
         ws.close();
       }
     };
-  }, []);
+  }, [wsUrl, mode, reloadCourses]);
 
   if (loading) {
     return (
