@@ -1,6 +1,6 @@
-// Software Factory - AI-Driven Autonomous SDLC Platform
-// C4 Architecture Model
-// Based on the product's north star, architectural scope, and roadmap
+// Software Factory - AI Workflow Orchestration Platform
+// C4 Architecture Model - Prototype (Simple but Future-Proof)
+
 specification {
   element actor {
     style {
@@ -33,169 +33,161 @@ specification {
     }
   }
 }
+
 model {
   // Actors
   actor engineer "Engineer" {
-    description "Software engineer overseeing autonomous SDLC workflows"
+    description "Designs workflows, monitors execution, reviews outputs"
   }
-  actor teamLead "Team Lead" {
-    description "Engineering manager configuring and monitoring AI workflows"
-  }
-  actor architect "System Architect" {
-    description "Technical architect designing autonomous development processes"
-  }
-  actor devops "DevOps Engineer" {
-    description "Infrastructure and deployment specialist"
-  }
+
   // External Systems
-  external aiProvider "AI Provider" {
-    description "Claude Code, OpenAI GPT, or other AI coding assistants"
+  external claudeCode "Claude Code" {
+    description "Anthropic's AI coding agent - called via -p headless mode"
+  }
+  external openCode "OpenCode" {
+    description "Open source AI coding agent - called via SDK"
   }
   external gitRepo "Git Repository" {
-    description "Version control for generated code and configurations"
+    description "Target codebase for AI agents to work on"
   }
-  external cicd "CI/CD Pipeline" {
-    description "Continuous integration and deployment systems"
+  external blueprintPlatform "Blueprint Platform" {
+    description "Business context (separate mode in same app)"
   }
-  external testFramework "Testing Framework" {
-    description "TestZeus or other autonomous testing platforms"
-  }
-  external monitoring "Monitoring System" {
-    description "Application performance monitoring and alerting"
-  }
-  external blueprintSystem "Blueprint Context System" {
-    description "Structured business context and requirements management"
-  }
+
   // Main System
-  system softwareFactory "Software Factory Platform" {
-    description "AI-driven autonomous Software Development Lifecycle platform that transforms manual development into automated workflows"
-    container dashboard "Dashboard UI" {
-      description "React-based web interface for workflow configuration, monitoring, and oversight"
+  system softwareFactory "Software Factory" {
+    description "Visual workflow orchestration for AI coding agents"
+
+    // UI Container
+    container ui "Software Factory UI" {
+      description "React-based workflow designer and execution monitor"
+
       component workflowDesigner "Workflow Designer" {
-        description "No-code visual designer for configuring AI agent workflows"
+        description "React Flow based drag-drop editor. Creates workflow.yaml with agent nodes, connections, and per-agent provider config"
       }
-      component backlogManager "Backlog Manager" {
-        description "Task scheduling and prioritization interface for AI agents"
-      }
-      component monitoringDashboard "Monitoring Dashboard" {
-        description "Real-time monitoring of AI agent activities and system health"
-      }
-      component blueprintViewer "Blueprint Viewer" {
-        description "Integration with Blueprint system for context visualization"
+      component executionView "Execution View" {
+        description "Shows current workflow state, step progress, agent outputs (console-style for prototype)"
       }
     }
-    container orchestrationEngine "Orchestration Engine" {
-      description "Backend service coordinating AI agents through SDLC phases"
-      component workflowOrchestrator "Workflow Orchestrator" {
-        description "Manages execution flow through planning, development, testing, deployment phases"
+
+    // Workflow Runner Container
+    container workflowRunner "Workflow Runner" {
+      description "Interprets workflow.yaml and orchestrates execution"
+
+      component workflowInterpreter "Workflow Interpreter" {
+        description "Parses workflow.yaml, manages execution state, iterates through steps"
       }
-      component agentCoordinator "Agent Coordinator" {
-        description "Manages multiple AI agents and their interactions"
+      component stepExecutor "Step Executor" {
+        description "Executes single step: assembles prompt, calls adapter, processes output"
       }
-      component qualityGate "Quality Gate" {
-        description "Automated code review and validation checkpoints"
-      }
-      component deploymentManager "Deployment Manager" {
-        description "Handles automated deployment with feature flags"
-      }
-    }
-    container aiRuntime "AI Agent Runtime" {
-      description "Execution environment for AI development agents"
-      component codeGenerator "Code Generator Agent" {
-        description "AI agent responsible for autonomous code generation and refactoring"
-      }
-      component testGenerator "Test Generator Agent" {
-        description "AI agent that creates comprehensive test suites"
-      }
-      component reviewerAgent "Code Review Agent" {
-        description "AI agent performing automated code quality assessment"
-      }
-      component deploymentAgent "Deployment Agent" {
-        description "AI agent managing deployment automation and rollback"
+      component eventEmitter "Event Emitter" {
+        description "Emits execution events via WebSocket (separate channel from Blueprint)"
       }
     }
-    container contextManager "Context Manager" {
-      description "Integration layer with Blueprint system for business context"
-      component blueprintIntegrator "Blueprint Integrator" {
-        description "API client for accessing structured business requirements and context"
+
+    // Provider Adapters Container
+    container providerAdapters "Provider Adapters" {
+      description "Polymorphic adapters implementing ProviderInterface. Factory returns adapter based on agent config"
+
+      component providerInterface "ProviderInterface" {
+        description "interface ProviderAdapter { execute(prompt, context, config): AgentResult }"
       }
-      component contextCache "Context Cache" {
-        description "Local caching of blueprint data for AI agent access"
+      component claudeCodeAdapter "Claude Code Adapter" {
+        description "Implements ProviderInterface. Calls Claude Code via -p flag"
       }
-      component requirementMapper "Requirement Mapper" {
-        description "Translates business requirements into technical specifications"
+      component openCodeAdapter "OpenCode Adapter" {
+        description "Implements ProviderInterface. Calls OpenCode via SDK"
+      }
+      component fallbackAdapter "Fallback Adapter" {
+        description "Implements ProviderInterface. Wraps primary + fallback adapter, switches on limit errors"
       }
     }
-    container dataStore "Data Store" {
-      description "Persistent storage for workflows, configurations, and artifacts"
-      component workflowConfig "Workflow Configurations" {
-        description "YAML-based workflow definitions and agent configurations"
+
+    // Workflow Store (simple file-based for prototype)
+    container workflowStore "Workflow Store" {
+      description "File-based storage for workflows (YAML files)"
+
+      component workflowFiles "Workflow Files" {
+        description "workflow.yaml files defining agent sequences, prompts, provider config"
       }
-      component artifactStore "Artifact Store" {
-        description "Storage for generated code, test results, and deployment artifacts"
-      }
-      component metricsStore "Metrics Store" {
-        description "Performance metrics and monitoring data"
+      component agentTemplates "Agent Templates" {
+        description "Reusable agent configurations (spec-writer, coder, tester, reviewer)"
       }
     }
   }
-  // Relationships
-  engineer -> softwareFactory.dashboard "Configures and monitors AI workflows"
-  teamLead -> softwareFactory.dashboard "Oversees autonomous development processes"
-  architect -> softwareFactory.dashboard "Designs workflow templates and quality gates"
-  devops -> softwareFactory.dashboard "Manages deployment configurations and monitoring"
-  softwareFactory.dashboard -> softwareFactory.orchestrationEngine "Sends workflow configurations"
-  softwareFactory.orchestrationEngine -> softwareFactory.aiRuntime "Orchestrates AI agent execution"
-  softwareFactory.orchestrationEngine -> softwareFactory.contextManager "Accesses business context"
-  softwareFactory.orchestrationEngine -> softwareFactory.dataStore "Persists configurations and artifacts"
-  softwareFactory.aiRuntime -> aiProvider "Executes AI-powered development tasks"
-  softwareFactory.aiRuntime -> gitRepo "Commits generated code"
-  softwareFactory.aiRuntime -> cicd "Triggers automated builds"
-  softwareFactory.aiRuntime -> testFramework "Runs autonomous testing"
-  softwareFactory.contextManager -> blueprintSystem "Retrieves business context and requirements"
-  softwareFactory.orchestrationEngine -> monitoring "Sends health and performance metrics"
-  monitoring -> softwareFactory.dashboard "Provides monitoring data"
-  // Internal component relationships
-  softwareFactory.dashboard.workflowDesigner -> softwareFactory.orchestrationEngine.workflowOrchestrator "Defines workflows"
-  softwareFactory.dashboard.backlogManager -> softwareFactory.orchestrationEngine.workflowOrchestrator "Schedules tasks"
-  softwareFactory.dashboard.monitoringDashboard -> softwareFactory.orchestrationEngine.agentCoordinator "Monitors agents"
-  softwareFactory.orchestrationEngine.workflowOrchestrator -> softwareFactory.aiRuntime.codeGenerator "Initiates development"
-  softwareFactory.orchestrationEngine.qualityGate -> softwareFactory.aiRuntime.reviewerAgent "Triggers review"
-  softwareFactory.orchestrationEngine.deploymentManager -> softwareFactory.aiRuntime.deploymentAgent "Manages deployment"
-  softwareFactory.contextManager.requirementMapper -> softwareFactory.aiRuntime.codeGenerator "Provides technical specs"
+
+  // ==================== RELATIONSHIPS ====================
+
+  // Actor -> UI
+  engineer -> softwareFactory.ui "Designs workflows, triggers execution, reviews outputs"
+
+  // UI -> Workflow Runner
+  softwareFactory.ui -> softwareFactory.workflowRunner "Triggers workflow execution"
+  softwareFactory.ui -> softwareFactory.workflowStore "Saves/loads workflow definitions"
+
+  // Workflow Runner -> Adapters (depends on abstraction)
+  softwareFactory.workflowRunner.stepExecutor -> softwareFactory.providerAdapters.providerInterface "calls execute()"
+  softwareFactory.workflowRunner -> softwareFactory.workflowStore "Reads workflow definitions"
+
+  // Adapters -> External Providers
+  softwareFactory.providerAdapters.claudeCodeAdapter -> claudeCode "claude -p 'prompt'"
+  softwareFactory.providerAdapters.openCodeAdapter -> openCode "SDK calls"
+
+  // AI Providers work on the Git repo (not our system)
+  claudeCode -> gitRepo "Reads/writes code"
+  openCode -> gitRepo "Reads/writes code"
+
+  // Context from Blueprint (future integration point)
+  softwareFactory.ui -> blueprintPlatform "Fetches specs, requirements (future)"
+
+  // ==================== INTERNAL RELATIONSHIPS ====================
+
+  // UI internal
+  softwareFactory.ui.workflowDesigner -> softwareFactory.workflowStore.workflowFiles "Saves workflow.yaml"
+
+  // Workflow Runner internal
+  softwareFactory.workflowRunner.workflowInterpreter -> softwareFactory.workflowRunner.stepExecutor "Delegates step execution"
+  softwareFactory.workflowRunner.stepExecutor -> softwareFactory.workflowRunner.eventEmitter "Emits step events"
+  softwareFactory.workflowRunner.eventEmitter -> softwareFactory.ui.executionView "WebSocket: step_started, step_completed, output, error"
+
+  // Provider Adapters internal (polymorphism - adapters implement interface)
+  softwareFactory.providerAdapters.claudeCodeAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.openCodeAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.claudeCodeAdapter "primary"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.openCodeAdapter "fallback"
 }
+
 views {
   view index of softwareFactory {
     title "Software Factory - System Context"
+    description "High-level view: Engineer uses Software Factory to orchestrate AI coding agents"
     include *
-    include engineer, teamLead, architect, devops
-    include aiProvider, gitRepo, cicd, testFramework, monitoring, blueprintSystem
+    include engineer
+    include claudeCode, openCode, gitRepo, blueprintPlatform
   }
+
   view containers of softwareFactory {
     title "Software Factory - Containers"
+    description "UI, Workflow Runner, Provider Adapters, Workflow Store"
     include softwareFactory, softwareFactory.*
-    include engineer, teamLead, architect, devops
-    include aiProvider, gitRepo, cicd, testFramework, monitoring, blueprintSystem
+    include engineer
+    include claudeCode, openCode, gitRepo, blueprintPlatform
   }
-  view orchestrationComponents of softwareFactory.orchestrationEngine {
-    title "Orchestration Engine Components"
-    include softwareFactory.orchestrationEngine, softwareFactory.orchestrationEngine.*
-    include softwareFactory.dashboard, softwareFactory.aiRuntime, softwareFactory.contextManager
+
+  view adaptersDetail of softwareFactory.providerAdapters {
+    title "Provider Adapters - Components"
+    description "Adapter interface with Claude Code and OpenCode implementations"
+    include softwareFactory.providerAdapters, softwareFactory.providerAdapters.*
+    include softwareFactory.workflowRunner
+    include claudeCode, openCode
   }
-  view aiAgents of softwareFactory.aiRuntime {
-    title "AI Agent Runtime Components"
-    include softwareFactory.aiRuntime, softwareFactory.aiRuntime.*
-    include softwareFactory.orchestrationEngine, aiProvider, gitRepo, cicd, testFramework
-  }
-  view dashboardComponents of softwareFactory.dashboard {
-    title "Dashboard UI Components"
-    include softwareFactory.dashboard, softwareFactory.dashboard.*
-    include engineer, teamLead, architect, devops
-    include softwareFactory.orchestrationEngine
-  }
-  view contextIntegration of softwareFactory.contextManager {
-    title "Context Management Integration"
-    include softwareFactory.contextManager, softwareFactory.contextManager.*
-    include blueprintSystem, softwareFactory.orchestrationEngine
+
+  view uiDetail of softwareFactory.ui {
+    title "UI - Components"
+    description "Workflow Designer (React Flow) and Execution View"
+    include softwareFactory.ui, softwareFactory.ui.*
+    include engineer
+    include softwareFactory.workflowRunner, softwareFactory.workflowStore
   }
 }

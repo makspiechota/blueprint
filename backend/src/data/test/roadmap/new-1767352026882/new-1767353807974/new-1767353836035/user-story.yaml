@@ -2,7 +2,7 @@ type: user-story
 id: new-1767353836035
 productName: test
 version: '1.0'
-last_updated: '2026-01-02'
+last_updated: '2026-01-14'
 name: >-
   As an operator I want the Factory's Agents to use best Engineering Excellence
   practices when implementing a chunk of work

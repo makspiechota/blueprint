@@ -1,0 +1,34 @@
+type: feature
+id: workflow-runner
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Workflow Runner
+description: >-
+  Backend service that interprets workflow.yaml and orchestrates execution.
+  Parses workflow definitions, manages execution state, iterates through steps,
+  and emits events via WebSocket for real-time UI updates.
+status: planned
+user_stories:
+  - id: workflow-interpreter
+    name: Parse and execute workflow definitions
+    description: >-
+      As the system, I need to parse workflow.yaml files and execute steps in order,
+      so that designed workflows can be run autonomously.
+    status: planned
+    path: ./workflow-interpreter/user-story.yaml
+  - id: step-execution
+    name: Execute individual workflow steps
+    description: >-
+      As the system, I need to execute each step by assembling context,
+      calling the provider adapter, and processing output,
+      so that each agent in the workflow performs its task.
+    status: planned
+    path: ./step-execution/user-story.yaml
+  - id: event-emitter
+    name: Emit execution events via WebSocket
+    description: >-
+      As an engineer, I want to receive real-time events about workflow execution,
+      so that the UI can show live progress and streaming output.
+    status: planned
+    path: ./event-emitter/user-story.yaml

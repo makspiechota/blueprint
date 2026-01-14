@@ -1,0 +1,39 @@
+type: user-story
+id: agent-node-config
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Configure agent nodes
+description: >-
+  As an engineer, I want to configure each agent node with prompt, provider
+  (claudeCode | openCode | claudeCodeWithFallback), and other settings,
+  so that each step in the workflow knows what to do and which AI to use.
+status: planned
+acceptance_criteria:
+  - Click node to open configuration panel
+  - Can set agent name and description
+  - Can select provider mode (claudeCode, openCode, claudeCodeWithFallback)
+  - Can write/edit prompt template with variable interpolation ({{input}}, {{steps.prev.output}})
+  - Can set timeout and retry settings
+  - Configuration is persisted when saving workflow
+tasks:
+  - id: config-panel
+    name: Create node configuration panel
+    description: Slide-out panel that opens when node is selected, shows all configurable fields
+    status: planned
+    estimate: 3h
+  - id: provider-selector
+    name: Implement provider mode selector
+    description: Dropdown with claudeCode, openCode, claudeCodeWithFallback options with descriptions
+    status: planned
+    estimate: 1h
+  - id: prompt-editor
+    name: Create prompt template editor
+    description: Textarea with syntax highlighting for variables, autocomplete for available variables
+    status: planned
+    estimate: 3h
+  - id: variable-interpolation
+    name: Define variable interpolation syntax
+    description: Document and implement {{input}}, {{steps.stepId.output}}, {{context.field}} syntax
+    status: planned
+    estimate: 2h

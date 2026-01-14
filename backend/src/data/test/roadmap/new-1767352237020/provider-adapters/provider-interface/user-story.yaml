@@ -1,0 +1,36 @@
+type: user-story
+id: provider-interface
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Define provider interface
+description: >-
+  As a developer, I need a common interface for all provider adapters,
+  so that the workflow runner can work with any provider polymorphically.
+status: planned
+acceptance_criteria:
+  - TypeScript interface defines execute() method signature
+  - execute() accepts prompt, context, and config
+  - Returns Promise<AgentResult> with output, status, metadata
+  - AgentResult includes streaming support via AsyncIterator
+  - Interface supports abort signal for cancellation
+tasks:
+  - id: interface-definition
+    name: Define ProviderAdapter interface
+    description: >-
+      Create TypeScript interface with execute(prompt, context, config): Promise<AgentResult>
+      and executeStream() for streaming support
+    status: planned
+    estimate: 1h
+  - id: result-types
+    name: Define AgentResult and related types
+    description: >-
+      Create types for AgentResult (output, status, duration, tokens),
+      AgentError (type, message, retryable), ExecutionContext
+    status: planned
+    estimate: 1h
+  - id: abort-support
+    name: Add AbortSignal support
+    description: Interface accepts AbortSignal for cancellation, adapters must respect it
+    status: planned
+    estimate: 1h

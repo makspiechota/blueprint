@@ -2,7 +2,7 @@ type: user-story
 id: new-1767353902954
 productName: test
 version: '1.0'
-last_updated: '2026-01-02'
+last_updated: '2026-01-14'
 name: >-
   As an operator I want the Factory's Agents to automatically pickup a backlog's
   chunk of work once it is marked as ready
