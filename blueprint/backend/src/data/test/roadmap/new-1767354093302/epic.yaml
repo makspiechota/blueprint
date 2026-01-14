@@ -1,0 +1,12 @@
+type: epic
+id: new-1767354093302
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Autonomous Testing
+description: >-
+  Use framework like TestZeus
+  (https://github.com/test-zeus-ai/testzeus-hercules) for autonomous testing of
+  the developed system
+status: planned
+features: []

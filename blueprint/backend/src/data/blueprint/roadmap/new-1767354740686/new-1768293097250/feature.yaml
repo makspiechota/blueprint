@@ -1,0 +1,24 @@
+type: feature
+id: new-1768293097250
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Multiple Tripwire Products
+description: >-
+  Support multiple tripwire courses per product. Currently the implementation
+  allows only one course. This feature adds the ability to create, list, and
+  manage multiple courses with a course selector UI as the entry point.
+status: completed
+user_stories:
+  - id: update-data-structure
+    name: Update Data Structure for Multiple Courses
+    path: ./update-data-structure/user-story.yaml
+  - id: create-course-list-api
+    name: Create Course List API
+    path: ./create-course-list-api/user-story.yaml
+  - id: build-course-selector-ui
+    name: Build Course Selector UI
+    path: ./build-course-selector-ui/user-story.yaml
+  - id: update-data-context
+    name: Update Data Context for Multiple Courses
+    path: ./update-data-context/user-story.yaml

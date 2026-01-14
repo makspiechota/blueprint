@@ -1,0 +1,40 @@
+type: user-story
+id: event-emitter
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Emit execution events via WebSocket
+description: >-
+  As an engineer, I want to receive real-time events about workflow execution,
+  so that the UI can show live progress and streaming output.
+status: planned
+acceptance_criteria:
+  - WebSocket channel separate from Blueprint updates
+  - Emits workflow_started, workflow_completed, workflow_failed events
+  - Emits step_started, step_completed, step_failed events with step ID
+  - Streams agent output chunks as output events
+  - Events include timestamps and execution ID
+  - Supports multiple concurrent workflow executions
+tasks:
+  - id: websocket-channel
+    name: Set up Software Factory WebSocket channel
+    description: Create separate WebSocket namespace/channel for workflow events, reuse existing WS infrastructure
+    status: planned
+    estimate: 2h
+  - id: event-types
+    name: Define event type schemas
+    description: >-
+      TypeScript types for all events: WorkflowStarted, StepStarted, Output,
+      StepCompleted, StepFailed, WorkflowCompleted, WorkflowFailed
+    status: planned
+    estimate: 1h
+  - id: event-emitter-service
+    name: Create EventEmitter service
+    description: Service that broadcasts events to all connected clients for a given execution ID
+    status: planned
+    estimate: 2h
+  - id: output-streaming
+    name: Implement output streaming
+    description: Stream agent output chunks to WebSocket as they arrive from provider
+    status: planned
+    estimate: 2h

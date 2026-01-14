@@ -1,0 +1,43 @@
+type: user-story
+id: opencode-adapter
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Implement OpenCode adapter
+description: >-
+  As the system, I need to call OpenCode via SDK,
+  so that workflows can use OpenCode as an alternative provider.
+status: planned
+acceptance_criteria:
+  - Uses @opencode-ai/sdk for programmatic control
+  - Creates session, sends prompt, retrieves result
+  - Supports streaming output via SDK events
+  - Handles model configuration from agent config
+  - Detects quota/limit errors for fallback handling
+  - Respects timeout and abort signal
+tasks:
+  - id: sdk-integration
+    name: Integrate OpenCode SDK
+    description: Set up SDK client, handle authentication, test basic connectivity
+    status: planned
+    estimate: 2h
+  - id: session-management
+    name: Implement session management
+    description: Create session per execution, send prompts, handle session lifecycle
+    status: planned
+    estimate: 2h
+  - id: streaming-output
+    name: Handle streaming output
+    description: Subscribe to SDK events, emit output chunks, build final result
+    status: planned
+    estimate: 2h
+  - id: model-configuration
+    name: Support model configuration
+    description: Pass model selection from agent config to OpenCode SDK
+    status: planned
+    estimate: 1h
+  - id: opencode-errors
+    name: Handle OpenCode-specific errors
+    description: Parse SDK errors, detect quota limits, connection issues
+    status: planned
+    estimate: 1h

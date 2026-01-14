@@ -1,0 +1,23 @@
+type: task
+id: create-content-api
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create Content API Endpoints
+description: |
+  Create API endpoints for content-level operations.
+
+  Endpoints:
+  - GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId
+    Returns markdown content for lecture/prompt/template
+
+  - PUT /api/tripwire/:productName/modules/:moduleId/:type/:contentId
+    Updates markdown content
+
+  - POST /api/tripwire/:productName/modules/:moduleId/:type
+    Creates new content item
+
+  - DELETE /api/tripwire/:productName/modules/:moduleId/:type/:contentId
+    Deletes content item
+status: completed
+estimated_hours: 3

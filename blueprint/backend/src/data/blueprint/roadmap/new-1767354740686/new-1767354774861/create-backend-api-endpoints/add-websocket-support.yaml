@@ -1,0 +1,16 @@
+type: task
+id: add-websocket-support
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Add WebSocket Support for Tripwire
+description: |
+  Extend WebSocket file watcher to support tripwire directory.
+
+  Features:
+  - Watch tripwire/ directory for changes
+  - Broadcast updates for course.yaml, module.yaml, and content files
+  - Include file type and path in WebSocket message
+  - Handle nested directory structure
+status: completed
+estimated_hours: 2

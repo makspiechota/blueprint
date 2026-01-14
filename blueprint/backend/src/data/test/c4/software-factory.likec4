@@ -1,0 +1,193 @@
+// Software Factory - AI Workflow Orchestration Platform
+// C4 Architecture Model - Prototype (Simple but Future-Proof)
+
+specification {
+  element actor {
+    style {
+      shape person
+      color amber
+    }
+  }
+  element system {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
+  element container {
+    style {
+      shape rectangle
+      color green
+    }
+  }
+  element component {
+    style {
+      shape rectangle
+      color slate
+    }
+  }
+  element external {
+    style {
+      shape rectangle
+      color gray
+    }
+  }
+}
+
+model {
+  // Actors
+  actor engineer "Engineer" {
+    description "Designs workflows, monitors execution, reviews outputs"
+  }
+
+  // External Systems
+  external claudeCode "Claude Code" {
+    description "Anthropic's AI coding agent - called via -p headless mode"
+  }
+  external openCode "OpenCode" {
+    description "Open source AI coding agent - called via SDK"
+  }
+  external gitRepo "Git Repository" {
+    description "Target codebase for AI agents to work on"
+  }
+  external blueprintPlatform "Blueprint Platform" {
+    description "Business context (separate mode in same app)"
+  }
+
+  // Main System
+  system softwareFactory "Software Factory" {
+    description "Visual workflow orchestration for AI coding agents"
+
+    // UI Container
+    container ui "Software Factory UI" {
+      description "React-based workflow designer and execution monitor"
+
+      component workflowDesigner "Workflow Designer" {
+        description "React Flow based drag-drop editor. Creates workflow.yaml with agent nodes, connections, and per-agent provider config"
+      }
+      component executionView "Execution View" {
+        description "Shows current workflow state, step progress, agent outputs (console-style for prototype)"
+      }
+    }
+
+    // Workflow Runner Container
+    container workflowRunner "Workflow Runner" {
+      description "Interprets workflow.yaml and orchestrates execution"
+
+      component workflowInterpreter "Workflow Interpreter" {
+        description "Parses workflow.yaml, manages execution state, iterates through steps"
+      }
+      component stepExecutor "Step Executor" {
+        description "Executes single step: assembles prompt, calls adapter, processes output"
+      }
+      component eventEmitter "Event Emitter" {
+        description "Emits execution events via WebSocket (separate channel from Blueprint)"
+      }
+    }
+
+    // Provider Adapters Container
+    container providerAdapters "Provider Adapters" {
+      description "Polymorphic adapters implementing ProviderInterface. Factory returns adapter based on agent config"
+
+      component providerInterface "ProviderInterface" {
+        description "interface ProviderAdapter { execute(prompt, context, config): AgentResult }"
+      }
+      component claudeCodeAdapter "Claude Code Adapter" {
+        description "Implements ProviderInterface. Calls Claude Code via -p flag"
+      }
+      component openCodeAdapter "OpenCode Adapter" {
+        description "Implements ProviderInterface. Calls OpenCode via SDK"
+      }
+      component fallbackAdapter "Fallback Adapter" {
+        description "Implements ProviderInterface. Wraps primary + fallback adapter, switches on limit errors"
+      }
+    }
+
+    // Workflow Store (simple file-based for prototype)
+    container workflowStore "Workflow Store" {
+      description "File-based storage for workflows (YAML files)"
+
+      component workflowFiles "Workflow Files" {
+        description "workflow.yaml files defining agent sequences, prompts, provider config"
+      }
+      component agentTemplates "Agent Templates" {
+        description "Reusable agent configurations (spec-writer, coder, tester, reviewer)"
+      }
+    }
+  }
+
+  // ==================== RELATIONSHIPS ====================
+
+  // Actor -> UI
+  engineer -> softwareFactory.ui "Designs workflows, triggers execution, reviews outputs"
+
+  // UI -> Workflow Runner
+  softwareFactory.ui -> softwareFactory.workflowRunner "Triggers workflow execution"
+  softwareFactory.ui -> softwareFactory.workflowStore "Saves/loads workflow definitions"
+
+  // Workflow Runner -> Adapters (depends on abstraction)
+  softwareFactory.workflowRunner.stepExecutor -> softwareFactory.providerAdapters.providerInterface "calls execute()"
+  softwareFactory.workflowRunner -> softwareFactory.workflowStore "Reads workflow definitions"
+
+  // Adapters -> External Providers
+  softwareFactory.providerAdapters.claudeCodeAdapter -> claudeCode "claude -p 'prompt'"
+  softwareFactory.providerAdapters.openCodeAdapter -> openCode "SDK calls"
+
+  // AI Providers work on the Git repo (not our system)
+  claudeCode -> gitRepo "Reads/writes code"
+  openCode -> gitRepo "Reads/writes code"
+
+  // Context from Blueprint (future integration point)
+  softwareFactory.ui -> blueprintPlatform "Fetches specs, requirements (future)"
+
+  // ==================== INTERNAL RELATIONSHIPS ====================
+
+  // UI internal
+  softwareFactory.ui.workflowDesigner -> softwareFactory.workflowStore.workflowFiles "Saves workflow.yaml"
+
+  // Workflow Runner internal
+  softwareFactory.workflowRunner.workflowInterpreter -> softwareFactory.workflowRunner.stepExecutor "Delegates step execution"
+  softwareFactory.workflowRunner.stepExecutor -> softwareFactory.workflowRunner.eventEmitter "Emits step events"
+  softwareFactory.workflowRunner.eventEmitter -> softwareFactory.ui.executionView "WebSocket: step_started, step_completed, output, error"
+
+  // Provider Adapters internal (polymorphism - adapters implement interface)
+  softwareFactory.providerAdapters.claudeCodeAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.openCodeAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.providerInterface "implements"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.claudeCodeAdapter "primary"
+  softwareFactory.providerAdapters.fallbackAdapter -> softwareFactory.providerAdapters.openCodeAdapter "fallback"
+}
+
+views {
+  view index of softwareFactory {
+    title "Software Factory - System Context"
+    description "High-level view: Engineer uses Software Factory to orchestrate AI coding agents"
+    include *
+    include engineer
+    include claudeCode, openCode, gitRepo, blueprintPlatform
+  }
+
+  view containers of softwareFactory {
+    title "Software Factory - Containers"
+    description "UI, Workflow Runner, Provider Adapters, Workflow Store"
+    include softwareFactory, softwareFactory.*
+    include engineer
+    include claudeCode, openCode, gitRepo, blueprintPlatform
+  }
+
+  view adaptersDetail of softwareFactory.providerAdapters {
+    title "Provider Adapters - Components"
+    description "Adapter interface with Claude Code and OpenCode implementations"
+    include softwareFactory.providerAdapters, softwareFactory.providerAdapters.*
+    include softwareFactory.workflowRunner
+    include claudeCode, openCode
+  }
+
+  view uiDetail of softwareFactory.ui {
+    title "UI - Components"
+    description "Workflow Designer (React Flow) and Execution View"
+    include softwareFactory.ui, softwareFactory.ui.*
+    include engineer
+    include softwareFactory.workflowRunner, softwareFactory.workflowStore
+  }
+}

@@ -1,0 +1,9 @@
+type: task
+id: string
+productName: string
+version: string
+last_updated: string
+name: string
+description: string
+status: string
+estimated_hours: number

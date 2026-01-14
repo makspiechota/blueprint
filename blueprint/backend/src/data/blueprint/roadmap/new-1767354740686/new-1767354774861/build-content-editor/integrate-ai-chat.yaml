@@ -1,0 +1,17 @@
+type: task
+id: integrate-ai-chat
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Integrate AI Chat for Content
+description: |
+  Integrate AI chat functionality for content editing.
+
+  Features:
+  - Chat button that opens AI assistant
+  - Pass current content as context
+  - Suggested prompts: "Improve this lecture", "Add examples",
+    "Make more concise", "Generate exercises"
+  - Apply AI suggestions to editor
+status: completed
+estimated_hours: 2

@@ -1,0 +1,16 @@
+type: task
+id: migrate-existing-course
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Migrate Existing Course to New Structure
+description: |
+  Move the existing "Software Factory 2027" course to the new structure.
+
+  Steps:
+  - Create tripwire/courses/ directory
+  - Move existing course.yaml and modules/ to courses/software-factory-2027/
+  - Update any hardcoded paths
+  - Verify course still loads correctly
+status: completed
+estimated_hours: 1

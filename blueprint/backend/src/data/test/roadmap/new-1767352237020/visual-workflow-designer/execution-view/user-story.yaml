@@ -1,0 +1,44 @@
+type: user-story
+id: execution-view
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Monitor workflow execution
+description: >-
+  As an engineer, I want to see real-time progress of workflow execution
+  with step status, agent outputs, and errors via WebSocket,
+  so that I can monitor and debug autonomous workflows.
+status: planned
+acceptance_criteria:
+  - Workflow canvas shows current step highlighted
+  - Completed steps show green checkmark, failed show red X
+  - Console panel shows streaming output from current agent
+  - Can see full output history for each completed step
+  - Errors are displayed with context and stack trace
+  - Can abort running workflow
+tasks:
+  - id: execution-websocket
+    name: Set up WebSocket connection for execution events
+    description: Connect to Software Factory WebSocket channel, handle step_started, step_completed, output, error events
+    status: planned
+    estimate: 2h
+  - id: canvas-status-overlay
+    name: Add execution status overlay to canvas
+    description: Highlight current node, show status icons on completed/failed nodes, animate running state
+    status: planned
+    estimate: 2h
+  - id: output-console
+    name: Create output console panel
+    description: Scrollable panel showing streaming output, supports ANSI colors, auto-scroll with pause option
+    status: planned
+    estimate: 3h
+  - id: step-history
+    name: Implement step output history
+    description: Click completed step to see its full input/output, timing, and any errors
+    status: planned
+    estimate: 2h
+  - id: abort-workflow
+    name: Add abort workflow button
+    description: Button to cancel running workflow, sends abort signal to backend
+    status: planned
+    estimate: 1h

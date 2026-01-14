@@ -20,7 +20,15 @@
     "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["shared/*"],
+      "@blueprint/*": ["blueprint/src/*"],
+      "@factory/*": ["software-factory/src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "shared", "blueprint/src", "software-factory/src"]
 }

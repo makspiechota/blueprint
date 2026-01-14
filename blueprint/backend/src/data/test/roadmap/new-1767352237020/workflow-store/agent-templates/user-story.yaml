@@ -1,0 +1,40 @@
+type: user-story
+id: agent-templates
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Reusable agent templates
+description: >-
+  As an engineer, I want pre-built agent templates for common tasks,
+  so that I can quickly build workflows without configuring from scratch.
+status: planned
+acceptance_criteria:
+  - Templates available in node palette
+  - Dragging template creates pre-configured agent node
+  - Templates include: spec-writer, coder, tester, reviewer, deployer
+  - Each template has sensible default prompt and provider config
+  - Can create custom templates from existing nodes
+tasks:
+  - id: template-schema
+    name: Define agent template schema
+    description: Create schema for agent templates (name, icon, defaultPrompt, defaultProvider, defaultTools)
+    status: planned
+    estimate: 1h
+  - id: built-in-templates
+    name: Create built-in agent templates
+    description: >-
+      Create templates: spec-writer (writes acceptance tests),
+      coder (implements to pass tests), tester (runs tests),
+      reviewer (reviews code), deployer (deploys changes)
+    status: planned
+    estimate: 3h
+  - id: template-palette
+    name: Show templates in node palette
+    description: Group templates in palette, show icon and description on hover
+    status: planned
+    estimate: 2h
+  - id: custom-templates
+    name: Allow saving custom templates
+    description: Right-click node -> Save as template, stored in user templates
+    status: planned
+    estimate: 2h

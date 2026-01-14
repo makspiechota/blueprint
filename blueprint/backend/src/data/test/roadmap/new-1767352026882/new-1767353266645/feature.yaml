@@ -1,0 +1,15 @@
+type: feature
+id: new-1767353266645
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Feature Flags
+status: planned
+user_stories:
+  - id: new-1767353620659
+    name: >-
+      As an operator I want every new chunk of code to be hidden behing a
+      Feature Flag
+    description: So I can safely roll it out (or back) on production
+    status: planned
+    path: ./new-1767353620659/user-story.yaml

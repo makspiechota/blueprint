@@ -1,0 +1,18 @@
+type: task
+id: extend-business-data-interface
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Extend BusinessData Interface
+description: |
+  Extend BusinessData interface in BusinessDataContext.tsx.
+
+  Add:
+  - tripwire: TripwireData | null
+  - currentModule: ModuleData | null
+  - currentContent: ContentData | null
+
+  Define TripwireData, ModuleData, ContentData interfaces
+  matching the YAML schema.
+status: completed
+estimated_hours: 2

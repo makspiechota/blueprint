@@ -1,0 +1,23 @@
+type: task
+id: create-directory-structure
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create Tripwire Directory Structure
+description: |
+  Create the hierarchical directory structure for course content.
+
+  Structure:
+  backend/src/data/{productName}/tripwire/
+  ├── course.yaml
+  └── modules/
+      ├── 01-assessment-vision/
+      │   ├── module.yaml
+      │   ├── lectures/
+      │   ├── prompts/
+      │   └── templates/
+      ├── 02-spec-driven-development/
+      │   └── ...
+      └── ...
+status: completed
+estimated_hours: 1

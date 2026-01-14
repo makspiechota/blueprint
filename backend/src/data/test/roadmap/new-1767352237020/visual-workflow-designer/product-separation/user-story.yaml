@@ -40,7 +40,7 @@ tasks:
     description: >-
       Create software-factory/ directory with src/ and backend/ subdirectories.
       Set up initial routing and placeholder pages
-    status: planned
+    status: in_progress
     estimate: 2h
   - id: mode-switcher
     name: Implement mode switcher in header

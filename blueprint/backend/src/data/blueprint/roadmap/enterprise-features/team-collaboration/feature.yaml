@@ -1,0 +1,20 @@
+type: feature
+id: team-collaboration
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Team Collaboration
+description: |
+  Enable multiple team members to work on blueprints simultaneously
+  with real-time updates, comments, and change tracking.
+status: planned
+user_stories:
+  - id: invite-team-members
+    name: Invite Team Members
+    description: |
+      As a team lead,
+      I want to invite team members to collaborate on blueprints,
+      So that we can work together on product documentation.
+    status: planned
+    story_points: 5
+    path: ./invite-team-members/user-story.yaml

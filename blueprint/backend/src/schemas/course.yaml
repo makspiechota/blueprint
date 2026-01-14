@@ -1,0 +1,51 @@
+type: object
+required:
+  - type
+  - productName
+  - title
+properties:
+  type:
+    type: string
+    const: course
+  productName:
+    type: string
+  version:
+    type: string
+  title:
+    type: string
+  subtitle:
+    type: string
+  price:
+    type: number
+  currency:
+    type: string
+    default: USD
+  duration:
+    type: string
+  target_audience:
+    type: object
+    properties:
+      profile:
+        type: string
+      why_they_buy:
+        type: string
+  description:
+    type: string
+  outcomes:
+    type: array
+    items:
+      type: string
+  modules:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string

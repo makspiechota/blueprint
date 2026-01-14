@@ -1,0 +1,38 @@
+type: user-story
+id: fallback-adapter
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Implement fallback adapter
+description: >-
+  As an engineer, I want Claude Code to fall back to OpenCode when hitting limits,
+  so that workflows continue without manual intervention.
+status: planned
+acceptance_criteria:
+  - Wraps primary adapter (Claude Code) and fallback adapter (OpenCode)
+  - Tries primary adapter first
+  - On limit error from primary, automatically retries with fallback
+  - Emits event indicating fallback was triggered
+  - Preserves streaming behavior through fallback
+  - Configurable which errors trigger fallback
+tasks:
+  - id: decorator-pattern
+    name: Implement decorator pattern
+    description: FallbackAdapter wraps two ProviderAdapters, delegates execute() calls
+    status: planned
+    estimate: 2h
+  - id: fallback-detection
+    name: Detect fallback-triggering errors
+    description: Check AgentError.type for 'rate_limit', 'quota_exceeded', etc.
+    status: planned
+    estimate: 1h
+  - id: transparent-retry
+    name: Implement transparent retry with fallback
+    description: On limit error, call fallback adapter with same prompt/context
+    status: planned
+    estimate: 2h
+  - id: fallback-event
+    name: Emit fallback event
+    description: Emit event when fallback is triggered so UI can show it happened
+    status: planned
+    estimate: 1h

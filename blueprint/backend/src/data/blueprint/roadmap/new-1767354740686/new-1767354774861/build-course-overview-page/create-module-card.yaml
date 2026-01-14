@@ -1,0 +1,17 @@
+type: task
+id: create-module-card
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create ModuleCard Component
+description: |
+  Create ModuleCard component for displaying module summary.
+
+  Features:
+  - Module name and duration
+  - Content count (lectures, prompts, templates)
+  - Progress/status indicator
+  - Click to navigate to module detail view
+  - Hover effects and visual styling
+status: completed
+estimated_hours: 2

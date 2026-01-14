@@ -1,0 +1,63 @@
+type: object
+required:
+  - type
+  - id
+  - name
+properties:
+  type:
+    type: string
+    const: module
+  id:
+    type: string
+  name:
+    type: string
+  duration:
+    type: string
+  purpose:
+    type: string
+  deliverables:
+    type: array
+    items:
+      type: string
+  lectures:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+  prompts:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+  templates:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string

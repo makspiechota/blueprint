@@ -1,0 +1,11 @@
+type: task
+id: implement-lean-canvas-form
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Implement Lean Canvas Form Component
+description: |
+  Create a React component for editing lean canvas documents.
+  The form should provide a structured interface for all lean canvas sections.
+status: in_progress
+estimated_hours: 4

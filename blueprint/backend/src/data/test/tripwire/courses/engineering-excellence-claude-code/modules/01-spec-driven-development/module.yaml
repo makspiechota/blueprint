@@ -1,0 +1,34 @@
+type: module
+id: 01-spec-driven-development
+name: "Module 1: Spec-Driven Development"
+description: |
+  Never ask Claude Code to implement something you can't verify.
+  Write the test first. The test IS the specification.
+duration: 45 minutes
+learning_outcomes:
+  - Understand why "write a function that does X" fails and "make this test pass" succeeds
+  - Master the Test-First Loop: Red -> Claude Code -> Green -> Refactor
+  - Write specs Claude Code can execute against (executable specifications)
+  - Know when to write the test yourself vs. asking Claude Code to write it
+  - Apply the "Two Agents" pattern for adversarial validation
+lectures:
+  - id: why-specs-matter
+    name: Why Specs Matter
+    path: ./lectures/why-specs-matter.md
+  - id: test-first-loop
+    name: The Test-First Loop
+    path: ./lectures/test-first-loop.md
+  - id: two-agents-pattern
+    name: The Two Agents Pattern
+    path: ./lectures/two-agents-pattern.md
+prompts:
+  - id: make-this-test-pass
+    name: Make This Test Pass
+    path: ./prompts/make-this-test-pass.md
+  - id: test-first-typescript
+    name: Test-First TypeScript
+    path: ./prompts/test-first-typescript.md
+templates:
+  - id: spec-writing-checklist
+    name: Spec Writing Checklist
+    path: ./templates/spec-writing-checklist.md

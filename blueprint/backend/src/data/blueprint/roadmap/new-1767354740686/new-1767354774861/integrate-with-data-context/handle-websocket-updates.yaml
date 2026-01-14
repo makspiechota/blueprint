@@ -1,0 +1,18 @@
+type: task
+id: handle-websocket-updates
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Handle WebSocket Updates for Tripwire
+description: |
+  Extend WebSocket handler in BusinessDataContext for tripwire.
+
+  Handle events:
+  - tripwire/course.yaml changes → reload course data
+  - tripwire/modules/*/module.yaml changes → reload module data
+  - tripwire/modules/*/{lectures,prompts,templates}/*.md changes
+    → reload specific content
+
+  Map file paths to context state updates.
+status: completed
+estimated_hours: 2

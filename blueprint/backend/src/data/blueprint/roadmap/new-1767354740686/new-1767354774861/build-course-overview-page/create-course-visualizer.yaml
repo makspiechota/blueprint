@@ -1,0 +1,17 @@
+type: task
+id: create-course-visualizer
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create CourseVisualizer Component
+description: |
+  Create CourseVisualizer component at src/components/CourseVisualizer.tsx
+
+  Features:
+  - Course header with meta (title, subtitle, price, duration)
+  - Edit course metadata functionality
+  - Download course.yaml button
+  - Chat integration for AI assistance
+  - Grid layout of ModuleCard components
+status: completed
+estimated_hours: 4

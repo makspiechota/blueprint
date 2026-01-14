@@ -1,0 +1,50 @@
+type: course
+id: engineering-excellence-claude-code
+productName: test
+version: '1.0'
+title: Engineering Excellence for Claude Code
+subtitle: The 3 Practices That Separate 10x Results from Frustration
+price: 47
+currency: USD
+duration: 3 hours
+target_audience:
+  profile: |
+    Senior engineers (5+ years experience) who want to master AI-augmented development.
+    Already using Claude Code, knows there's untapped potential. Values engineering craft,
+    not just shipping fast. Sees AI as career accelerator, not threat.
+  why_they_buy: |
+    "I've been using Claude Code for months but I know I'm not getting the full value.
+    This promises to unlock it through practices I already respect (TDD, small batches).
+    And it'll make me better at my craft regardless of AI."
+description: |
+  Claude Code is incredibly powerful. But most engineers use it like a fancy autocomplete.
+  They're using a manufacturing robot as a typewriter.
+
+  The engineers who get 10x results from Claude Code aren't better prompters. They're better
+  engineers. They apply the same practices that made them effective before AI - and those
+  practices make AI exponentially more effective.
+
+  Three practices. That's all it takes:
+  1. Spec-Driven Development - Write the test first, let Claude Code implement
+  2. Small Batch Workflow - Break work into 30-minute chunks Claude Code can execute reliably
+  3. Context Management - Give Claude Code the architectural knowledge it needs
+
+  These aren't AI tricks. They're engineering fundamentals that happen to unlock AI's full potential.
+outcomes:
+  - Master the Test-First Loop with Claude Code (Red -> Claude Code -> Green -> Refactor)
+  - Break any feature into Claude-Code-sized batches using the 30-Minute Rule
+  - Create a Project Context Document and CLAUDE.md for your codebase
+  - Implement the complete workflow from Context to Spec to Small Batch to Review
+modules:
+  - id: 01-spec-driven-development
+    name: "Module 1: Spec-Driven Development"
+    path: ./modules/01-spec-driven-development/module.yaml
+  - id: 02-small-batch-workflow
+    name: "Module 2: Small Batch Workflow"
+    path: ./modules/02-small-batch-workflow/module.yaml
+  - id: 03-context-management
+    name: "Module 3: Context Management"
+    path: ./modules/03-context-management/module.yaml
+  - id: 04-integration
+    name: "Bonus: The Integration"
+    path: ./modules/04-integration/module.yaml

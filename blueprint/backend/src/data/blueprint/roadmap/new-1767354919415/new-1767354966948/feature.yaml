@@ -1,0 +1,11 @@
+type: feature
+id: new-1767354966948
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Integrate Behavior Driven Development specifications for items in Backlog
+description: >-
+  This aims to allow better context management for AI-Agents working on chunk of
+  work from the Backlog
+status: planned
+user_stories: []

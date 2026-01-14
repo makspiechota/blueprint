@@ -1,0 +1,17 @@
+type: task
+id: create-course-api
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create Course API Endpoints
+description: |
+  Create API endpoints for course-level operations in server.ts.
+
+  Endpoints:
+  - GET /api/tripwire/:productName/course
+    Returns course.yaml parsed as JSON
+
+  - PUT /api/tripwire/:productName/course
+    Updates course.yaml with validation
+status: completed
+estimated_hours: 2

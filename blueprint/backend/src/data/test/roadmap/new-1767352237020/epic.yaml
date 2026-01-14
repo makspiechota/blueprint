@@ -1,0 +1,41 @@
+type: epic
+id: no-code-workflow-platform
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Build a no-code platform for autonomous SDLC workflows
+description: >-
+  Visual workflow orchestration platform for AI coding agents.
+  Enables engineers to design, execute, and monitor autonomous workflows
+  using a drag-drop interface. Provider-agnostic with support for
+  Claude Code, OpenCode, and fallback modes.
+status: planned
+features:
+  - id: visual-workflow-designer
+    name: Visual Workflow Designer
+    description: >-
+      React Flow based drag-drop editor for designing AI agent workflows.
+      Includes execution view for monitoring via WebSocket.
+    status: planned
+    path: ./visual-workflow-designer/feature.yaml
+  - id: workflow-runner
+    name: Workflow Runner
+    description: >-
+      Backend service that interprets workflow.yaml and orchestrates execution.
+      Manages state, executes steps, emits events.
+    status: planned
+    path: ./workflow-runner/feature.yaml
+  - id: provider-adapters
+    name: Provider Adapters
+    description: >-
+      Polymorphic adapters implementing ProviderInterface.
+      Supports Claude Code, OpenCode, and fallback mode.
+    status: planned
+    path: ./provider-adapters/feature.yaml
+  - id: workflow-store
+    name: Workflow Store
+    description: >-
+      File-based storage for workflow definitions and agent templates.
+      CRUD operations and reusable agent templates.
+    status: planned
+    path: ./workflow-store/feature.yaml

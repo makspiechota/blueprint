@@ -1,0 +1,29 @@
+type: feature
+id: new-1767353807974
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Autonomous Development
+status: planned
+user_stories:
+  - id: new-1767353902954
+    name: >-
+      As an operator I want the Factory's Agents to automatically pickup a
+      backlog's chunk of work once it is marked as ready
+    status: planned
+    path: ./new-1767353902954/user-story.yaml
+  - id: new-1767353836035
+    name: >-
+      As an operator I want the Factory's Agents to use best Engineering
+      Excellence practices when implementing a chunk of work
+    description: |-
+      - Pair Programming (with another Agent)
+      - Test Driven Development
+    status: planned
+    path: ./new-1767353836035/user-story.yaml
+  - id: new-1767353943832
+    name: >-
+      As an operator I want the Factory's Agent to commit their chunk of work
+      once it is done
+    status: planned
+    path: ./new-1767353943832/user-story.yaml

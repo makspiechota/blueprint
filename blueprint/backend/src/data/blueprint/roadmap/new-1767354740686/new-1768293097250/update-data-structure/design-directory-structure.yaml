@@ -1,0 +1,26 @@
+type: task
+id: design-directory-structure
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Design Multi-Course Directory Structure
+description: |
+  Define the new directory structure for multiple courses.
+
+  New structure:
+  tripwire/
+    courses/
+      software-factory-2027/
+        course.yaml
+        modules/
+          01-assessment-vision/
+          02-spec-driven-development/
+      another-course/
+        course.yaml
+        modules/
+
+  - Course ID = directory name (e.g., "software-factory-2027")
+  - Each course is self-contained
+  - Supports unlimited courses per product
+status: completed
+estimated_hours: 1

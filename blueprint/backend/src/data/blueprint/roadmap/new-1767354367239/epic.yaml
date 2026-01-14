@@ -1,0 +1,16 @@
+type: epic
+id: new-1767354367239
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create Prototype
+description: |-
+  Create a very early prototype to:
+  1. prove the value of such Context Management Tool
+  2. Share the product with Mentors
+status: in_progress
+features:
+  - id: new-1767354648588
+    name: Host the Prototype
+    status: planned
+    path: ./new-1767354648588/feature.yaml

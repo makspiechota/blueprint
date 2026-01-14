@@ -1,0 +1,171 @@
+type: feature
+id: new-1767354774861
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Tripwire Product
+description: >-
+  Course content authoring layer for Blueprint. Enables structured creation and
+  management of educational content (like "Software Factory 2027" tripwire
+  course) with hierarchical navigation: Course → Modules →
+  Lectures/Prompts/Templates.
+
+  The DSL uses YAML for metadata (course.yaml, module.yaml) and Markdown for
+  content. Visualization supports drill-down navigation with AI-assisted
+  editing.
+status: completed
+user_stories:
+  - id: define-course-dsl-schema
+    name: Define Course DSL Schema
+    description: >
+      As a product owner,
+
+      I want a well-defined YAML schema for course content,
+
+      So that course structure is consistent, validated, and AI-parseable.
+
+
+      Acceptance Criteria:
+
+      - course.yaml schema defines: title, version, price, target_audience,
+      description, modules list
+
+      - module.yaml schema defines: title, duration, purpose, deliverables,
+      lectures/prompts/templates lists
+
+      - JSON Schema files created for validation
+
+      - Schema supports hierarchical navigation (course → modules → content
+      items)
+    status: completed
+    story_points: 3
+    path: ./define-course-dsl-schema/user-story.yaml
+  - id: create-sample-course-data
+    name: Create Sample Course Data
+    description: >
+      As a content creator,
+
+      I want sample course data following the DSL schema,
+
+      So that I can understand the structure and start authoring my course.
+
+
+      Acceptance Criteria:
+
+      - Directory structure: tripwire/course.yaml + tripwire/modules/{01-xxx,
+      02-xxx, ...}
+
+      - Sample course.yaml with "Software Factory 2027" metadata
+
+      - At least 2 sample modules with module.yaml
+
+      - Sample lecture, prompt, and template .md files
+
+      - Content migrated from existing leaders-tripwire-product-idea.md
+    status: completed
+    story_points: 5
+    path: ./create-sample-course-data/user-story.yaml
+  - id: build-course-overview-page
+    name: Build Course Overview Page
+    description: |
+      As a content creator,
+      I want to see a course overview with module cards,
+      So that I can navigate the course structure at a glance.
+
+      Acceptance Criteria:
+      - Course header shows title, subtitle, price, duration
+      - Grid layout of module cards (similar to other layer visualizers)
+      - Each module card shows: name, duration, status indicator
+      - Clicking a module card navigates to module detail view
+      - Edit button to modify course.yaml metadata
+      - Chat button for AI assistance
+    status: completed
+    story_points: 5
+    path: ./build-course-overview-page/user-story.yaml
+  - id: build-module-detail-view
+    name: Build Module Detail View
+    description: >
+      As a content creator,
+
+      I want to drill into a module and see its lectures, prompts, and
+      templates,
+
+      So that I can navigate to specific content items for editing.
+
+
+      Acceptance Criteria:
+
+      - Module header with name, duration, purpose
+
+      - Three collapsible sections: Lectures, Prompts, Templates
+
+      - Each section lists content items with name and edit action
+
+      - Clicking an item opens the content editor
+
+      - Breadcrumb navigation back to course overview
+
+      - Edit module.yaml metadata capability
+    status: completed
+    story_points: 5
+    path: ./build-module-detail-view/user-story.yaml
+  - id: build-content-editor
+    name: Build Content Editor
+    description: |
+      As a content creator,
+      I want to edit markdown content for lectures, prompts, and templates,
+      So that I can author and refine course materials with AI assistance.
+
+      Acceptance Criteria:
+      - Full-screen markdown editor (similar to misc document editing)
+      - Live preview of rendered markdown
+      - Save changes to backend
+      - Chat button for AI assistance with content
+      - Breadcrumb navigation back to module
+      - Auto-save or explicit save button
+    status: completed
+    story_points: 5
+    path: ./build-content-editor/user-story.yaml
+  - id: create-backend-api-endpoints
+    name: Create Backend API Endpoints
+    description: >
+      As a developer,
+
+      I want API endpoints for reading and writing course data,
+
+      So that the frontend can manage course content with proper validation.
+
+
+      Acceptance Criteria:
+
+      - GET /api/tripwire/:productName/course - returns course.yaml data
+
+      - GET /api/tripwire/:productName/modules - returns all modules metadata
+
+      - GET /api/tripwire/:productName/modules/:moduleId - returns module detail
+
+      - GET /api/tripwire/:productName/modules/:moduleId/:type/:contentId -
+      returns content
+
+      - PUT endpoints for updating course, module, and content
+
+      - WebSocket broadcast on file changes
+    status: completed
+    story_points: 8
+    path: ./create-backend-api-endpoints/user-story.yaml
+  - id: integrate-with-data-context
+    name: Integrate with Data Context
+    description: |
+      As a developer,
+      I want tripwire integrated into BusinessDataContext,
+      So that it follows existing patterns and supports real-time updates.
+
+      Acceptance Criteria:
+      - Add tripwire to BusinessData interface
+      - Load tripwire data in loadData function
+      - Handle WebSocket updates for tripwire files
+      - Provide useTripwire() hook for components
+      - Support navigation state for current module/content
+    status: completed
+    story_points: 5
+    path: ./integrate-with-data-context/user-story.yaml

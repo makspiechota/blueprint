@@ -1,0 +1,16 @@
+type: task
+id: add-tripwire-loading
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Add Tripwire Data Loading
+description: |
+  Add tripwire data loading to BusinessDataContext.
+
+  In loadData function:
+  - Fetch /api/tripwire/:productName/course
+  - Fetch /api/tripwire/:productName/modules
+  - Store in context state
+  - Handle loading and error states
+status: completed
+estimated_hours: 2

@@ -1,0 +1,184 @@
+// Blueprint Platform - C4 Architecture Model
+// This is a LikeC4 DSL file describing the system architecture
+
+specification {
+  element actor {
+    style {
+      shape person
+      color amber
+    }
+  }
+  element system {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
+  element container {
+    style {
+      shape rectangle
+      color green
+    }
+  }
+  element component {
+    style {
+      shape rectangle
+      color slate
+    }
+  }
+  element external {
+    style {
+      shape rectangle
+      color gray
+    }
+  }
+}
+
+model {
+  // Actors
+  actor developer "Developer" {
+    description "Software engineer using Blueprint for AI-assisted development"
+  }
+
+  actor teamLead "Team Lead" {
+    description "Engineering manager overseeing blueprint configuration"
+  }
+
+  actor architect "Architect" {
+    description "Software architect designing system architecture"
+  }
+
+  actor businessAnalysts "Business Analysts" {
+    description "Business analysts defining requirements and processes"
+  }
+
+  // External Systems
+  external aiAgent "AI Agent" {
+    description "Claude Code or other AI development assistant"
+  }
+
+  external gitRepo "Git Repository" {
+    description "Version control for blueprint files"
+  }
+
+  // Main System
+  system blueprint "Blueprint Platform" {
+    description "Structured business knowledge management system for AI-agent workflows"
+
+    container frontend "Frontend App" {
+      description "React-based dashboard for blueprint visualization and editing"
+
+      component visualizers "Visualizers" {
+        description "ReactFlow-based components for each business layer"
+      }
+
+      component editor "YAML Editor" {
+        description "In-place editing of blueprint documents"
+      }
+
+      component chat "AI Chat" {
+        description "Context-aware chat interface for AI assistance"
+      }
+    }
+
+    container backend "Backend API" {
+      description "Express.js server for file operations and real-time updates"
+
+      component yamlApi "YAML API" {
+        description "REST endpoints for reading/writing blueprint files"
+      }
+
+      component websocket "WebSocket Server" {
+        description "Real-time file change notifications"
+      }
+
+      component fileWatcher "File Watcher" {
+        description "Monitors blueprint files for external changes"
+      }
+    }
+
+    container dataLayer "Data Layer" {
+      description "YAML-based blueprint documents"
+
+      component northStar "North Star" {
+        description "Vision and mission definition"
+      }
+
+      component archScope "Architectural Scope" {
+        description "What, Why, How, Who, When, Where"
+      }
+
+      component leanCanvas "Lean Canvas" {
+        description "Business model canvas"
+      }
+
+      component leanViability "Lean Viability" {
+        description "Financial projections and metrics"
+      }
+
+      component aaarrMetrics "AAARR Metrics" {
+        description "Customer factory funnel metrics"
+      }
+
+      component policyCharter "Policy Charter" {
+        description "Goals, tactics, policies, and risks"
+      }
+
+      component c4Model "C4 Model" {
+        description "Software architecture diagrams"
+      }
+    }
+  }
+
+  // Relationships
+  developer -> blueprint.frontend "Uses to view and edit blueprints"
+  teamLead -> blueprint.frontend "Configures business context"
+  architect -> blueprint.frontend "Designs and views system architecture"
+  businessAnalysts -> blueprint.frontend "Defines business requirements and models"
+
+  blueprint.frontend -> blueprint.backend "REST API calls"
+  blueprint.frontend -> blueprint.backend.websocket "Real-time updates"
+
+  blueprint.backend.yamlApi -> blueprint.dataLayer "Reads/writes"
+  blueprint.backend.fileWatcher -> blueprint.dataLayer "Monitors"
+  blueprint.backend.fileWatcher -> blueprint.backend.websocket "Triggers updates"
+
+  aiAgent -> blueprint.backend.yamlApi "Queries business context"
+  aiAgent -> gitRepo "Commits changes"
+  blueprint.dataLayer -> gitRepo "Version controlled"
+
+  // Internal relationships
+  blueprint.frontend.visualizers -> blueprint.frontend.editor "Inline editing"
+  blueprint.frontend.chat -> aiAgent "Sends context"
+}
+
+views {
+  view index of blueprint {
+    title "Blueprint Platform - System Context"
+    include *
+    include developer, teamLead, architect, businessAnalysts, aiAgent, gitRepo
+  }
+
+  view containers of blueprint {
+    title "Blueprint Platform - Containers"
+    include blueprint, blueprint.*
+    include developer, teamLead, architect, businessAnalysts, aiAgent
+  }
+
+  view frontendComponents of blueprint.frontend {
+    title "Frontend Components"
+    include blueprint.frontend, blueprint.frontend.*
+    include blueprint.backend
+  }
+
+  view backendComponents of blueprint.backend {
+    title "Backend Components"
+    include blueprint.backend, blueprint.backend.*
+    include blueprint.dataLayer
+  }
+
+  view dataComponents of blueprint.dataLayer {
+    title "Data Layer Components"
+    include blueprint.dataLayer, blueprint.dataLayer.*
+  }
+}

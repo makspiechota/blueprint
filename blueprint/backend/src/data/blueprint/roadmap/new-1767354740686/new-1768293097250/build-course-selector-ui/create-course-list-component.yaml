@@ -1,0 +1,17 @@
+type: task
+id: create-course-list-component
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Create CourseList Component
+description: |
+  Create CourseList component at src/components/CourseList.tsx
+
+  Features:
+  - Fetch courses from /api/tripwire/:productName/courses
+  - Display grid of CourseCard components
+  - Loading state while fetching
+  - Empty state with "Create your first course" prompt
+  - Header with "Your Courses" title and create button
+status: completed
+estimated_hours: 2

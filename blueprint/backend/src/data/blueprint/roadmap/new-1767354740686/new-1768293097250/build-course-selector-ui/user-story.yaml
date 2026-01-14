@@ -1,0 +1,32 @@
+type: user-story
+id: build-course-selector-ui
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Build Course Selector UI
+description: |
+  As a content creator,
+  I want to see a list of all my courses when entering Tripwire,
+  So that I can choose which course to work on.
+
+  Acceptance Criteria:
+  - Course list shown as entry point to Tripwire page
+  - Each course displays: title, subtitle, module count, price
+  - Click course card to enter course overview
+  - "Create New Course" button with modal/form
+  - Empty state when no courses exist
+status: completed
+story_points: 5
+tasks:
+  - id: create-course-list-component
+    name: Create CourseList Component
+    path: ./create-course-list-component.yaml
+  - id: create-course-card-component
+    name: Create CourseCard Component
+    path: ./create-course-card-component.yaml
+  - id: add-create-course-modal
+    name: Add Create Course Modal
+    path: ./add-create-course-modal.yaml
+  - id: update-tripwire-page
+    name: Update Tripwire Page Navigation
+    path: ./update-tripwire-page.yaml

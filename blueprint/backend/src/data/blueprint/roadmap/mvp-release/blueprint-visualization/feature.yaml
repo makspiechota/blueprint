@@ -1,0 +1,9 @@
+type: feature
+id: blueprint-visualization
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-31'
+name: Blueprint Visualization
+description: Interactive visualization of blueprint layers and relationships
+status: planned
+user_stories: []

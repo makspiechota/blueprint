@@ -1,0 +1,14 @@
+type: feature
+id: ai-provider-integration
+productName: test
+version: '1.0'
+last_updated: '2026-01-02'
+name: AI Provider Integration
+description: >
+  Enable integration with multiple AI providers (Claude, OpenAI, etc.)
+
+  through a provider-agnostic interface to ensure flexibility and avoid vendor
+  lock-in.
+status: in_progress
+priority: high
+user_stories: []

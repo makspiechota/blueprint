@@ -1,0 +1,63 @@
+type: lean-canvas
+productName: blueprint
+version: '1.0'
+last_updated: '2025-12-28'
+title: BLUEPRINT SaaS Business Model
+north_star_ref: north-star.yaml
+problem:
+  top_3_problems:
+    - >-
+      B2B SaaS companies struggle to provide consistent business context to AI
+      agents across different tools and workflows
+    - >-
+      Engineering teams waste time manually gathering and reformatting business
+      knowledge for each AI interaction
+    - >-
+      AI agents produce inconsistent outputs due to lack of structured,
+      machine-readable business context
+  existing_alternatives: >-
+    Generic documentation tools, unstructured wikis, manual context sharing,
+    ad-hoc AI prompting, Agent OS
+customer_segments:
+  target_customers: >-
+    B2B SaaS companies with engineering teams using AI tools for development
+    workflows
+  early_adopters: Post-PMF scaleups
+unique_value_proposition:
+  single_clear_message: Give your AI agents the business context they need to work effectively
+  high_level_concept: >-
+    Structured business knowledge management platform using DSL, optimized for
+    AI agent consumption and systematic workflows
+solution:
+  top_3_features:
+    - Hierarchical blueprint system (Business →DDD → Software Layers)
+    - >-
+      YAML-based DSL with validation and cross-references optimized for AI
+      parsing
+    - >-
+      Single source of truth providing consistent context across all AI-agent
+      interactions
+    - >-
+      Interactive blueprint visualization system facilitating efficient
+      human-agent communication and collaboration
+channels:
+  path_to_customers:
+    - Upsell for Software Factory product
+    - >-
+      Trainings and online courses about how engineering excellence enables
+      autonomous AI SDLC-workflows (during the course - minimal implementation
+      built, showing the potential)
+    - Conferences, podcasts, webinars
+    - Partnerships with AI providers and tech platforms
+revenue_streams:
+  revenue_model: SaaS subscription based on team size and blueprint complexity
+  lifetime_value: $36000 for mid-sized SaaS companies over 3-year adoption
+key_metrics:
+  annual_revenue_3_years_target:
+    amount: 1000000
+    currency: USD
+    timeframe: 3 years
+unfair_advantage:
+  cant_be_copied: >-
+    Decade of deep expertise in SDLC development, encompassing methodologies
+    from business strategy to design patterns

@@ -1,0 +1,38 @@
+type: epic
+id: new-1767352026882
+productName: test
+version: '1.0'
+last_updated: '2026-01-14'
+name: Build a working prototype of an autonomous SDLC pipeline
+description: >-
+  The very first step will be to showcase a prototype of such autonomous SDLC
+  workflow and prove the potential of it 
+status: planned
+features:
+  - id: new-1767352276208
+    name: Backlog
+    description: We need to give the operators a way to schedule work for the agents
+    status: planned
+    path: ./new-1767352276208/feature.yaml
+  - id: new-1767353807974
+    name: Autonomous Development
+    status: planned
+    path: ./new-1767353807974/feature.yaml
+  - id: new-1767353315151
+    name: 'Quality Gate: Review'
+    description: ''
+    status: planned
+    path: ./new-1767353315151/feature.yaml
+  - id: new-1767353409116
+    name: Deployment
+    status: planned
+    path: ./new-1767353409116/feature.yaml
+  - id: new-1767353266645
+    name: Feature Flags
+    status: planned
+    path: ./new-1767353266645/feature.yaml
+  - id: new-1767353432947
+    name: Monitoring
+    description: ''
+    status: planned
+    path: ./new-1767353432947/feature.yaml

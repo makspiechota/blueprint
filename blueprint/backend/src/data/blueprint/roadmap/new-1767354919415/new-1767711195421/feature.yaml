@@ -1,0 +1,12 @@
+type: feature
+id: new-1767711195421
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Jira Integration
+description: >-
+  We want Jira users to easily integrate with their Blueprint (so they can
+  easily synchronize their Jira tickets with the Blueprint Backlog and the other
+  way around)
+status: planned
+user_stories: []

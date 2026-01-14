@@ -1,0 +1,32 @@
+type: epic
+id: new-1767354740686
+productName: blueprint
+version: '1.0'
+last_updated: '2026-01-13'
+name: Educational Content Layer
+description: >-
+  Educational Content is very important in product acquisition funnel. We want
+  Blueprint to support its development supported by AI (just like we do
+  primarily for software development itself)
+status: planned
+features:
+  - id: new-1767354774861
+    name: Tripwire Product
+    description: >-
+      Course content authoring layer for Blueprint. Enables structured creation
+      and management of educational content (like "Software Factory 2027"
+      tripwire course) with hierarchical navigation: Course → Modules →
+      Lectures/Prompts/Templates.
+
+      The DSL uses YAML for metadata (course.yaml, module.yaml) and Markdown for
+      content. Visualization supports drill-down navigation with AI-assisted
+      editing.
+    status: completed
+    path: ./new-1767354774861/feature.yaml
+  - id: new-1768293097250
+    name: Multiple Tripwire Products
+    description: >-
+      I imagine I can have multiple tripwire products, but the current
+      implementation allows only for one
+    status: planned
+    path: ./new-1768293097250/feature.yaml
