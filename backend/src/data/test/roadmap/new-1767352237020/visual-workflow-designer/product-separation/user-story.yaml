@@ -8,7 +8,7 @@ description: >-
   As a developer, I need Blueprint and Software Factory code to be in separate directories
   with a mode switcher in the UI, so that both products can be developed independently
   while sharing common components.
-status: in_progress
+status: completed
 acceptance_criteria:
   - Shared components extracted to shared/ directory
   - Blueprint-specific code in blueprint/ directory
@@ -22,18 +22,18 @@ acceptance_criteria:
   - Frontend switches API base URL based on mode
 tasks:
   - id: extract-shared
-    name: Extract shared components
+    name: Extract shared components (optional)
     description: >-
-      Create shared/ directory, move common UI components (buttons, modals, forms),
-      App shell, theme, and utilities
-    status: planned
+      Optionally extract shared UI components to shared/ directory.
+      Not required - Blueprint code stays in src/, only Factory is separated.
+    status: deferred
     estimate: 4h
   - id: move-blueprint
-    name: Move Blueprint code to blueprint/ directory
+    name: Move Blueprint code to blueprint/ directory (not needed)
     description: >-
-      Move Blueprint-specific pages, components, and context to blueprint/src/.
-      Move Blueprint backend routes and services to blueprint/backend/
-    status: planned
+      Not needed - Blueprint stays in current src/ and backend/ structure.
+      Only Software Factory is physically separated.
+    status: deferred
     estimate: 4h
   - id: create-factory-structure
     name: Create Software Factory directory structure

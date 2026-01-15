@@ -18,7 +18,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:hub.docker.com)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebFetch(domain:opencode.ai)",
+      "Bash(git push:*)"
     ]
   }
 }

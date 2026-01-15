@@ -1,8 +1,0 @@
-type: policy-charter
-productName: string
-version: string
-last_updated: string
-title: string
-policies:
-  - title: string
-    description: string

@@ -1,9 +1,0 @@
-type: feature
-id: sso-integration
-productName: blueprint
-version: '1.0'
-last_updated: '2025-12-31'
-name: SSO Integration
-description: Single sign-on with enterprise identity providers
-status: planned
-user_stories: []
