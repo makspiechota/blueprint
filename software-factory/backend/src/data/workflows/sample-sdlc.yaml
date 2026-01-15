@@ -1,0 +1,76 @@
+id: sample-sdlc
+name: Sample SDLC Workflow
+description: A sample autonomous software development workflow with multiple AI agents
+version: '1.0'
+status: draft
+created_at: '2026-01-14T12:00:00.000Z'
+updated_at: '2026-01-14T12:00:00.000Z'
+nodes:
+  - id: start
+    type: start
+    label: Start
+    position:
+      x: 250
+      y: 0
+  - id: analyze
+    type: agent
+    label: Analyze Requirements
+    position:
+      x: 250
+      y: 100
+    provider: claudeCode
+    prompt: >-
+      Analyze the following user story and extract technical requirements,
+      acceptance criteria, and implementation notes.
+  - id: generate
+    type: agent
+    label: Generate Code
+    position:
+      x: 250
+      y: 200
+    provider: claudeCode
+    prompt: >-
+      Based on the requirements, generate implementation code following
+      best practices and the existing codebase patterns.
+  - id: test
+    type: agent
+    label: Write Tests
+    position:
+      x: 250
+      y: 300
+    provider: claudeCode
+    prompt: >-
+      Write comprehensive unit and integration tests for the generated code.
+      Follow BDD patterns where appropriate.
+  - id: review
+    type: agent
+    label: Code Review
+    position:
+      x: 250
+      y: 400
+    provider: claudeCodeWithFallback
+    prompt: >-
+      Review the code and tests for quality, security issues, and adherence
+      to best practices. Suggest improvements if needed.
+  - id: end
+    type: end
+    label: Complete
+    position:
+      x: 250
+      y: 500
+edges:
+  - id: e-start-analyze
+    source: start
+    target: analyze
+  - id: e-analyze-generate
+    source: analyze
+    target: generate
+  - id: e-generate-test
+    source: generate
+    target: test
+  - id: e-test-review
+    source: test
+    target: review
+  - id: e-review-end
+    source: review
+    target: end

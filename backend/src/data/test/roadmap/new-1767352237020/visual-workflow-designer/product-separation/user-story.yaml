@@ -40,7 +40,7 @@ tasks:
     description: >-
       Create software-factory/ directory with src/ and backend/ subdirectories.
       Set up initial routing and placeholder pages
-    status: in_progress
+    status: completed
     estimate: 2h
   - id: mode-switcher
     name: Implement mode switcher in header
@@ -55,7 +55,7 @@ tasks:
       Create separate Express server for Software Factory on port 3002.
       Set up basic structure with workflow API endpoints.
       Create WebSocket server on port 8081 for execution events
-    status: planned
+    status: completed
     estimate: 3h
   - id: frontend-api-switching
     name: Implement API base URL switching
