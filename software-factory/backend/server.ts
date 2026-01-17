@@ -6,8 +6,8 @@ import yaml from 'js-yaml';
 import { WebSocketServer, WebSocket } from 'ws';
 
 const app = express();
-const PORT = process.env.PORT || 3002;
-const WS_PORT = process.env.WS_PORT || 8081;
+const PORT = process.env.PORT || 3005;
+const WS_PORT = process.env.WS_PORT || 8085;
 
 // Middleware
 app.use(cors());

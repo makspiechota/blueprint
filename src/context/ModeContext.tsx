@@ -22,8 +22,8 @@ const MODE_CONFIG = {
     wsUrl: "ws://localhost:8080",
   },
   "software-factory": {
-    apiBaseUrl: "http://localhost:3002",
-    wsUrl: "ws://localhost:8081",
+    apiBaseUrl: "http://localhost:3005",
+    wsUrl: "ws://localhost:8085",
   },
 };
 

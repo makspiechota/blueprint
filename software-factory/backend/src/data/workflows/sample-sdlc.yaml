@@ -4,20 +4,20 @@ description: A sample autonomous software development workflow with multiple AI 
 version: '1.0'
 status: draft
 created_at: '2026-01-14T12:00:00.000Z'
-updated_at: '2026-01-14T12:00:00.000Z'
+updated_at: '2026-01-17T09:00:53.286Z'
 nodes:
   - id: start
     type: start
     label: Start
     position:
       x: 250
-      y: 0
+      'y': 0
   - id: analyze
     type: agent
     label: Analyze Requirements
     position:
       x: 250
-      y: 100
+      'y': 100
     provider: claudeCode
     prompt: >-
       Analyze the following user story and extract technical requirements,
@@ -26,18 +26,18 @@ nodes:
     type: agent
     label: Generate Code
     position:
-      x: 250
-      y: 200
+      x: 18.776595744680854
+      'y': 187.79255319148933
     provider: claudeCode
     prompt: >-
-      Based on the requirements, generate implementation code following
-      best practices and the existing codebase patterns.
+      Based on the requirements, generate implementation code following best
+      practices and the existing codebase patterns.
   - id: test
     type: agent
     label: Write Tests
     position:
       x: 250
-      y: 300
+      'y': 300
     provider: claudeCode
     prompt: >-
       Write comprehensive unit and integration tests for the generated code.
@@ -47,17 +47,17 @@ nodes:
     label: Code Review
     position:
       x: 250
-      y: 400
+      'y': 400
     provider: claudeCodeWithFallback
     prompt: >-
-      Review the code and tests for quality, security issues, and adherence
-      to best practices. Suggest improvements if needed.
+      Review the code and tests for quality, security issues, and adherence to
+      best practices. Suggest improvements if needed.
   - id: end
     type: end
     label: Complete
     position:
       x: 250
-      y: 500
+      'y': 500
 edges:
   - id: e-start-analyze
     source: start
