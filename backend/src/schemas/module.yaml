@@ -61,3 +61,25 @@ properties:
           type: string
         path:
           type: string
+  exercises:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+        duration:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced

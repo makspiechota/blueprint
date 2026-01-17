@@ -29,7 +29,7 @@ export default function Tripwire() {
   // Navigation state from URL params
   const courseId = searchParams.get('course');
   const moduleId = searchParams.get('module');
-  const contentType = searchParams.get('type') as 'lectures' | 'prompts' | 'templates' | null;
+  const contentType = searchParams.get('type') as 'lectures' | 'prompts' | 'templates' | 'exercises' | null;
   const contentId = searchParams.get('content');
 
   // Data state

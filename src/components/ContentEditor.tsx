@@ -7,7 +7,7 @@ import { useChat } from '../context/ChatContext';
 interface ContentEditorProps {
   content: string;
   contentId: string;
-  contentType: 'lectures' | 'prompts' | 'templates';
+  contentType: 'lectures' | 'prompts' | 'templates' | 'exercises';
   moduleName: string;
   onBack: () => void;
   onSave: (content: string) => Promise<boolean>;
@@ -92,6 +92,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
       case 'lectures': return 'Lecture';
       case 'prompts': return 'Prompt';
       case 'templates': return 'Template';
+      case 'exercises': return 'Exercise';
       default: return 'Content';
     }
   };
@@ -101,6 +102,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
       case 'lectures': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'prompts': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'templates': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'exercises': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };

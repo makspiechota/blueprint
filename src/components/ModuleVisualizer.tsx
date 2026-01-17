@@ -9,6 +9,11 @@ interface ContentItem {
   path?: string;
 }
 
+interface ExerciseItem extends ContentItem {
+  duration?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+}
+
 interface ModuleData {
   id: string;
   name: string;
@@ -18,6 +23,7 @@ interface ModuleData {
   lectures?: ContentItem[];
   prompts?: ContentItem[];
   templates?: ContentItem[];
+  exercises?: ExerciseItem[];
 }
 
 interface ModuleVisualizerProps {
@@ -35,7 +41,8 @@ const ModuleVisualizer: React.FC<ModuleVisualizerProps> = ({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     lectures: true,
     prompts: true,
-    templates: true
+    templates: true,
+    exercises: true
   });
 
   const handleChatClick = (resourceType: string, resourceData: any) => {
@@ -223,10 +230,22 @@ const ModuleVisualizer: React.FC<ModuleVisualizerProps> = ({
           'bg-green-100 dark:bg-green-900'
         )}
 
+        {renderContentList(
+          'Exercises',
+          data.exercises,
+          'exercises',
+          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>,
+          'bg-purple-100 dark:bg-purple-900'
+        )}
+
         {/* Empty state */}
         {(!data.lectures || data.lectures.length === 0) &&
          (!data.prompts || data.prompts.length === 0) &&
-         (!data.templates || data.templates.length === 0) && (
+         (!data.templates || data.templates.length === 0) &&
+         (!data.exercises || data.exercises.length === 0) && (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             No content items in this module yet.
           </div>

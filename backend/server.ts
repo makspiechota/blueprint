@@ -1212,7 +1212,7 @@ app.get('/api/tripwire/:productName/courses/:courseId/modules/:moduleId', (req, 
 
     // Load actual content file lists from filesystem
     const moduleDir = path.join(courseDir, 'modules', moduleId);
-    const contentTypes = ['lectures', 'prompts', 'templates'];
+    const contentTypes = ['lectures', 'prompts', 'templates', 'exercises'];
 
     contentTypes.forEach(type => {
       const typeDir = path.join(moduleDir, type);
